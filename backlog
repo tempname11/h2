@@ -1,0 +1,27 @@
+Mechanics:
+[x] Rewind
+[x] Range attacks
+[x] Spells
+[x] AI
+[x] Obstacles
+[x] Flying
+
+Technical:
+[x] Use latest stock SDL2{,_mixer}
+[x] Use monorepo
+[ ] Get Web up to speed
+[ ] Unify Web & Native
+[ ] Refactor the Battle monad
+[ ] Refactor the Animation subsystem
+[ ] Fix SpriteConverter crashes?
+[ ] Fix the cursor jump in Native?
+[ ] Migrate from Map to IntMap?
+[ ] Rewrite hhcli in Haskell?
+
+Publicity:
+[ ] Get a blog
+[ ] Post about GHCJS
+[ ] Post about AI/Search
+[ ] Post about Battle
+[ ] Post about Main
+[ ] Post about the data types

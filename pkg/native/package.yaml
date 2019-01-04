@@ -1,0 +1,63 @@
+name: heroes-native
+version: 0
+author: Vladimir Semyonov <tempname011@gmail.com>
+category: Game
+
+dependencies:
+  - base
+  - vector
+  - bytestring
+  - containers
+  - data-default-class
+  - mmorph # XXX
+  - split
+  - sdl2
+  - sdl2-mixer
+  - ekg
+  - ekg-json
+  - directory
+  - JuicyPixels
+  - gl
+  - heroes
+
+default-extensions:
+  - GADTs
+  - ScopedTypeVariables
+  - NoImplicitPrelude
+  - StandaloneDeriving
+  - DeriveFunctor
+  - LambdaCase
+  - TupleSections
+  - MultiWayIf
+  - TypeFamilies
+  - RecordWildCards
+  - NamedFieldPuns
+  - DuplicateRecordFields
+  - GeneralizedNewtypeDeriving
+  - MultiParamTypeClasses
+
+ghc-options:
+  - -Wall
+  - -Werror
+
+library:
+  source-dirs:
+    - src
+
+executables:
+  game:
+    source-dirs: misc
+    main: Main.hs
+    cpp-options: -DMAIN_MODULE=Native.Artifacts.Game
+    ghc-options:
+      - -threaded
+      - -with-rtsopts=-T # for EKG
+    dependencies:
+      - heroes-native
+
+  compile-essentials:
+    source-dirs: misc
+    main: Main.hs
+    cpp-options: -DMAIN_MODULE=Native.Artifacts.CompileEssentials
+    dependencies:
+      - heroes-native

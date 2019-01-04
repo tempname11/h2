@@ -1,0 +1,44 @@
+name: heroes-web
+version: 0
+author: Vladimir Semyonov <tempname011@gmail.com>
+category: Game
+
+dependencies:
+  - base
+  - ghcjs-base
+  - hashable
+  - vector
+  - heroes
+
+default-extensions:
+  - GADTs
+  - ScopedTypeVariables
+  - NoImplicitPrelude
+  - StandaloneDeriving
+  - DeriveFunctor
+  - LambdaCase
+  - TupleSections
+  - MultiWayIf
+  - TypeFamilies
+  - RecordWildCards
+  - NamedFieldPuns
+  - DuplicateRecordFields
+  - GeneralizedNewtypeDeriving
+  - MultiParamTypeClasses
+
+ghc-options:
+  - -Wall
+  - -Werror
+
+library:
+  source-dirs:
+    - src
+  js-sources: jsbits/*.js
+
+executables:
+  prototype1:
+    source-dirs: misc
+    main: Main.hs
+    cpp-options: -DMAIN_MODULE=Web.Artifacts.Prototype1
+    dependencies:
+      - heroes-web

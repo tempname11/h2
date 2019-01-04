@@ -1,0 +1,3 @@
+#! /bin/sh
+./scripts/stack-native build heroes-native:$1 &&
+./scripts/stack-native exec $1

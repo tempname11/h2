@@ -1,0 +1,18 @@
+[submodule "ghcjs-base"]
+	path = pkg/ghcjs-base
+	url = "git@github.com:tempname11/ghcjs-base.git"
+[submodule "haskell-heroes"]
+	path = pkg/heroes
+	url = "git@github.com:tempname11/haskell-heroes.git"
+[submodule "field-optics"]
+	path = pkg/field-optics
+	url = "git@github.com:tempname11/field-optics.git"
+[submodule "h3-assets"]
+	path = h3-assets
+	url = git@github.com:tempname11/h3-assets.git
+[submodule "pkg/field-optics"]
+	path = pkg/field-optics
+	url = git@github.com:tempname11/field-optics.git
+[submodule "pkg/ghcjs-base"]
+	path = pkg/ghcjs-base
+	url = git@github.com:tempname11/ghcjs-base.git

@@ -1,0 +1,2 @@
+#! /bin/sh
+stack --stack-yaml="stack-native.yaml" $@

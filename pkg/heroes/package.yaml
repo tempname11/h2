@@ -1,0 +1,59 @@
+name: heroes
+version: 0
+author: Vladimir Semyonov <tempname011@gmail.com>
+category: Game
+
+dependencies:
+  - QuickCheck
+  - base
+  - bimap
+  - binary
+  - bytestring
+  - containers
+  - data-fix
+  - data-default-class
+  - field-optics
+  - hashable
+  - hashtables
+  - lens
+  - linear
+  - mtl # XXX remove
+  - primitive
+  - safe
+  - split
+  - template-haskell
+  - transformers
+  - vector
+
+default-extensions:
+  - GADTs
+  - ScopedTypeVariables
+  - NoImplicitPrelude
+  - StandaloneDeriving
+  - DeriveFunctor
+  - LambdaCase
+  - TupleSections
+  - MultiWayIf
+  - TypeFamilies
+  - RecordWildCards
+  - NamedFieldPuns
+  - DuplicateRecordFields
+  - GeneralizedNewtypeDeriving
+  - MultiParamTypeClasses
+
+ghc-options:
+  - -Wall
+  - -Werror
+
+library:
+  source-dirs:
+    - src
+
+tests:
+  boxes:
+    main: Main.hs
+    dependencies:
+      - heroes
+      - QuickCheck
+      - test-framework
+      - test-framework-quickcheck2

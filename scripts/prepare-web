@@ -1,0 +1,5 @@
+#! /bin/sh
+mkdir -p .web-root &&
+ln -sf `./scripts/stack-web path --local-install-root`/bin/prototype1.jsexe/ .web-root/exe &&
+ln -sf `pwd`/.production-assets .web-root/ &&
+ln -sf `pwd`/pkg/web/glsl .web-root/
