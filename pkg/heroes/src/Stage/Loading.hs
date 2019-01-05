@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Native.Stage.Loading (
+module Stage.Loading (
   with,
   Loaded(..),
   Deps(..),
@@ -12,7 +12,7 @@ import Heroes
 import Heroes.CreatureResource                           (CreatureResource)
 import Heroes.SFXResource                                (SFXResource)
 import Utils.NBChan                                      (NBChan)
-import qualified Native.LoadingThread                      as LT
+import qualified Stage.LoadingThread                       as LT
 import qualified Stage.Links                               as L
 import qualified Utils.NBChan                              as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

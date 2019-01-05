@@ -1,4 +1,4 @@
-module Native.LoadingThread (
+module Stage.LoadingThread ( -- XXX rename
   with,
   Deps (..),
   Prov (..),
@@ -6,14 +6,15 @@ module Native.LoadingThread (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes
 import Heroes.CreatureResource                           (CreatureResource)
+import Heroes.Essentials                                 (Essentials)
+import Heroes.Platform                                   (Platform)
 import Heroes.Platform                                   (forkPreferred)
 import Heroes.SFXResource                                (SFXResource)
-import Native
-import Native.DynamicResourceIO                          (Deps (..))
-import Native.DynamicResourceIO                          (loadCreature)
-import Native.DynamicResourceIO                          (loadSFX)
 import Utils.NBChan                                      (NBChan)
+import qualified Heroes.CreatureResource                  as CreatureResource
+import qualified Heroes.SFXResource                       as SFXResource
 import qualified Utils.NBChan                             as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (threadDelay)
@@ -23,6 +24,10 @@ type LoadingChannels = (
     NBChan (Either SFX Creature),
     NBChan (Either (SFX, SFXResource) (Creature, CreatureResource))
   )
+
+data Deps = Deps {
+  essentials :: Essentials
+}
 
 data Prov = Prov {
   loadingChannels :: LoadingChannels
@@ -40,9 +45,9 @@ with deps next = do
   next (Prov {..})
 
 loadingThread :: Platform => Deps -> LoadingChannels -> IO ()
-loadingThread deps (wishChan, loadedChan) = do
-  let load (Left s) = Left . (s,) <$> loadSFX deps s
-      load (Right c) = Right . (c,) <$> loadCreature deps c
+loadingThread (Deps {..}) (wishChan, loadedChan) = do
+  let load (Left s) = Left . (s,) <$> SFXResource.load essentials s
+      load (Right c) = Right . (c,) <$> CreatureResource.load essentials c
   fix $ \again -> do
     threadDelay _THREAD_DELAY_
     ws <- NBChan.drain wishChan

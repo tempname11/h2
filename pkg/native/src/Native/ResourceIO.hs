@@ -7,9 +7,9 @@ import Heroes.Platform
 import Heroes.StaticResources                            (StaticResources(..))
 import Native 
 import Native.Platform
+import Native.Utils                                      (createPalettedSurface)
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.UI.Cursor                          as Cursor
-import qualified Native.ComplexSprite                      as ComplexSprite
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.List.Split (splitPlaces)
 import SDL                                               (($=))
@@ -82,36 +82,6 @@ fini static = do
   destroyStatic (static ^. cellShaded_)
   destroyStatic (static ^. cellOutline_)
 
---------------------------------------------------------------------------------
-
--- Leftover bits for handling animated sprites, i.e. spells.
--- XXX remove?
-{-
-data AnimatedSprite = AnimatedSprite {
-  as'texture :: SDL.Texture,
-  as'groups  :: V.Vector Atlas.Group
-}
-
-loadAnimated :: SDL.Renderer -> String -> IO AnimatedSprite
-loadAnimated renderer path = do
-  c <- loadComplex path
-  let surface = c ^. surface_
-      groups  = c ^. groups_
-  texture <- SDL.createTextureFromSurface renderer surface
-  destroyComplex c
-  return $ AnimatedSprite {
-    as'texture = texture,
-    as'groups  = groups
-  }
-
-destroyAnimated :: AnimatedSprite -> IO ()
-destroyAnimated s = SDL.destroyTexture (s ^. texture_)
-
-makeShorthands ''AnimatedSprite
--}
-
---------------------------------------------------------------------------------
-
 loadCursor :: [[Point V2 CInt]]
            -> String
            -> IO (V.Vector (V.Vector SDL.Cursor))
@@ -148,7 +118,7 @@ loadCursor infos path = do
 
   -- allocations and infos should have equal length here
   let make mpixels info = do
-        (surface, _) <- ComplexSprite.createPalettedSurface mpixels colors (V2 w h)
+        (surface, _) <- createPalettedSurface mpixels colors (V2 w h)
         cursor11 <- SDL.createColorCursor surface info
         SDL.freeSurface surface -- not sure if we can free the surface.
                                 -- seems to work.

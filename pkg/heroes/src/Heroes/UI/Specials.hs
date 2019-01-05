@@ -4,13 +4,13 @@ module Heroes.UI.Specials (
   fromOutlineColor
 ) where
 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
 import Heroes.UI
---------------------------------------- ++++++++++++++++++++ -------------------
-import qualified Data.Vector.Storable                        as SV
-import qualified Data.Vector.Storable.Mutable                as MSV
-
---------------------------------------------------------------------------------
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Vector.Storable                      as SV
+import qualified Data.Vector.Storable.Mutable              as MSV
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Specials = SV.Vector Color
 

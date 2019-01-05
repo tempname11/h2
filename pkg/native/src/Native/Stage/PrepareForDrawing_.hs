@@ -19,7 +19,7 @@ import Heroes.UI
 import Heroes.UI.Specials                                (Specials)
 import Native
 import Native.Platform
-import Native.Stage.Loading                              (Loaded)
+import Stage.Loading                                     (Loaded)
 import qualified Heroes.UI.Specials                        as Specials
 import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
