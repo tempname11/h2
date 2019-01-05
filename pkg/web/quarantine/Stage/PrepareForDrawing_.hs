@@ -32,7 +32,7 @@ data Deps = Deps {
 
 data In = In {
   loaded :: Loaded,
-  scene :: L.Scene,
+  scene :: Scene,
   lightHexes :: L.LightHexes,
   darkHexes :: L.DarkHexes
 }

@@ -6,4 +6,4 @@ import Stage.ChangeCursor
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 instance ChangeCursor where
-  with _ next = next $ const $ return ()
+  with _ next = next $ const $ return () -- XXX shim

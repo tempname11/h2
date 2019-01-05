@@ -24,7 +24,7 @@ data Deps = Deps {
 }
 
 data Prov = Prov {
-  essentials :: L.Essentials,
+  essentials :: Essentials.Essentials,
   background :: L.Background,
   cellShaded  :: L.CellShaded,
   cellOutline :: L.CellOutline

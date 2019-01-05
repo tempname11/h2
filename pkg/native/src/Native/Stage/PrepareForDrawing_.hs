@@ -10,6 +10,7 @@ module Native.Stage.PrepareForDrawing_ (
 import Animation.Scene                                   (Actor)
 import Animation.Scene                                   (Handle(..))
 import Animation.Scene                                   (Prop(..))
+import Animation.Scene                                   (Scene)
 import Battle                                            (FighterId)
 import Heroes.Atlas                                      (Frame)
 import Heroes.Platform
@@ -37,7 +38,7 @@ data Deps = Deps { noDeps :: () }
 data In = In {
   loaded :: Loaded,
   staticResources :: StaticResources,
-  scene :: L.Scene,
+  scene :: Scene,
   renderer :: SDL.Renderer,
   extraColor :: L.ExtraColor,
   lightHexes :: L.LightHexes,

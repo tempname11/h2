@@ -9,7 +9,7 @@ import Heroes.Essentials                                 (Essentials(..))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  essentials :: L.Essentials,
+  essentials :: Essentials,
   theContext :: L.TheContext
 }
 --------------------------------------------------------------------------------

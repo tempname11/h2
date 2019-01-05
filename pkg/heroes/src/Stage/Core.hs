@@ -29,8 +29,8 @@ import Safe                                              (atMay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  setup :: L.Setup,
-  initialBattle :: L.InitialBattle
+  setup :: Setup,
+  initialBattle :: Battle
 }
 
 data In = In {

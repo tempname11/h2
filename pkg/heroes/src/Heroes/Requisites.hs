@@ -7,23 +7,25 @@ module Heroes.Requisites (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation
 import Animation.Scene                                   (Handle(..))
+import Battle                                            (Battle)
 import Battle.Random                                     (spawn)
+import Battle.Setup                                      (Setup)
 import Heroes
 import Heroes.Essentials                                 (Essentials(..))
 import qualified Battle.Example                            as Example
 import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.Vector                               as V
 import Test.QuickCheck                                   (generate)
+import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  essentials :: L.Essentials
+  essentials :: Essentials
 }
 
 data Prov = Prov {
-  initialBattle :: L.InitialBattle,
-  setup         :: L.Setup,
+  initialBattle :: Battle,
+  setup         :: Setup,
   groupSizeOf   :: L.GroupSizeOf
 }
 

@@ -2,19 +2,20 @@
 module Native.Artifacts.Game where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Native
+import Heroes
 import Native.Platform ()
 import Native.Stage.ChangeCursor ()
+import Native.Stage.ControlSound ()
 import Native.Stage.DetermineInput ()
 import Native.Stage.Prerequisites ()
 import Native.Stage.SystemLibraries ()
 import qualified Heroes.Requisites                         as RQ
 import qualified Native.Stage.DrawEverything_              as D
-import qualified Native.Stage.IssueSoundCommands_          as S
 import qualified Native.Stage.PrepareForDrawing_           as X
 import qualified Stage.Animation                           as A
 import qualified Stage.Blackbox                            as B
 import qualified Stage.ChangeCursor                        as C
+import qualified Stage.ControlSound                        as S
 import qualified Stage.DetermineInput                      as I
 import qualified Stage.Loading                             as L
 import qualified Stage.LoadingThread                       as LT

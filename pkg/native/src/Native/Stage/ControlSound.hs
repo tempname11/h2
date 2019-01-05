@@ -1,38 +1,24 @@
-{-# LANGUAGE Rank2Types #-}
-module Native.Stage.IssueSoundCommands_ (
-  with,
-  Deps (..),
-  In (..),
-) where
+{-# OPTIONS_GHC -Wno-orphans #-}
+module Native.Stage.ControlSound () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.UI.Sound                                   (Sound(..))
 import Native
 import Native.Platform ()
-import Stage.Loading                                     (Loaded)
+import Stage.ControlSound
 import qualified Heroes.UI.Sound                           as Sound
-import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 import qualified SDL.Mixer                                 as Mix
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps { noDeps :: () }
-
-data In = In {
-  loaded :: Loaded,
-  soundCommands :: L.SoundCommands
-}
-
---------------------------------------------------------------------------------
-
-with :: Deps -> ((In -> IO ()) -> IO a) -> IO a
-with _ next = do
-  ref <- newIORef empty
-  next $ \in_ -> do
-    d0 <- readIORef ref
-    d1 <- sound in_ d0
-    writeIORef ref d1
+instance ControlSound where
+  with _ next = do
+    ref <- newIORef empty
+    next $ \in_ -> do
+      d0 <- readIORef ref
+      d1 <- sound in_ d0
+      writeIORef ref d1
 
 --------------------------------------------------------------------------------
 

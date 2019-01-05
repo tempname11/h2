@@ -1,6 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 module Stage.Blackbox (
   with,
+  SoundCommands,
   Deps (..),
   In (..),
   Out(..),
@@ -8,11 +9,14 @@ module Stage.Blackbox (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation.Scene                                   (Handle(..))
+import Battle                                            (Battle)
+import Battle.Setup                                      (Setup)
 import Heroes
 import Heroes.Plan                                       (Plan)
 import qualified Animation.Command                         as Animation
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Plan                               as Plan
+import qualified Heroes.UI.Sound                           as Sound
 import qualified Stage.Core                                as C
 import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -20,8 +24,8 @@ import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  setup         :: L.Setup,
-  initialBattle :: L.InitialBattle,
+  setup         :: Setup,
+  initialBattle :: Battle,
   groupSizeOf   :: L.GroupSizeOf
 }
 
@@ -32,9 +36,11 @@ data In = In {
   fullInput :: Input.Full
 }
 
+type SoundCommands = Maybe [Sound.Command]
+
 data Out = Out {
   animationCommands :: L.AnimationCommands,
-  soundCommands     :: L.SoundCommands,
+  soundCommands     :: SoundCommands,
   ghostPlacing      :: L.GhostPlacing,
   extraColor        :: L.ExtraColor,
   lightHexes        :: L.LightHexes,
