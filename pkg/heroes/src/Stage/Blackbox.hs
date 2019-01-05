@@ -7,13 +7,13 @@ module Stage.Blackbox (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Animation.Scene                                   (Handle(..))
 import Heroes
+import Heroes.Plan                                       (Plan)
 import qualified Animation.Command                         as Animation
 import qualified Heroes.Plan                               as Plan
 import qualified Stage.Core                                as C
 import qualified Stage.Links                               as L
-import Animation.Scene                                   (Handle(..))
-import Heroes.Plan                                       (Plan)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -24,8 +24,10 @@ data Deps = Deps {
   groupSizeOf   :: L.GroupSizeOf
 }
 
+type IsLoaded = Either SFX Creature -> Bool -- XXX copy-paste
+
 data In = In {
-  isLoaded :: L.IsLoaded,
+  isLoaded :: IsLoaded,
   fullInput :: L.FullInput
 }
 
@@ -66,7 +68,7 @@ data Data = Data {
 slowdown :: Int
 slowdown = 1
 
-canExecute :: L.IsLoaded -> [Animation.Command] -> Bool
+canExecute :: IsLoaded -> [Animation.Command] -> Bool
 canExecute isLoaded = all good
   where
   good c = case c of

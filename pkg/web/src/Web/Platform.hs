@@ -8,6 +8,8 @@ import Heroes.Platform
 import Heroes.SpriteMeta                                 (Meta)
 import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Concurrent                                (forkIO)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 instance Platform where
   productionPrefix = "../.production-assets/"
@@ -15,6 +17,7 @@ instance Platform where
   type StaticSprite = WebStaticSprite
   type ComplexSprite = WebComplexSprite
   type Chunk = Audio
+  forkPreferred = forkIO
 
 data WebStaticSprite = WebStaticSprite {
   texture    :: GL.Texture,

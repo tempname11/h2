@@ -12,7 +12,6 @@ import qualified Heroes.Cell                               as Cell
 import qualified Stage.Links                               as L
 import qualified Web.Drawing.Paletted                      as Paletted
 import qualified Web.Drawing.Regular                       as Regular
-import qualified Web.Stage.Links                           as L
 import Battle                                            (FighterId)
 import Animation.Scene                                   (Actor(..))
 import Animation.Scene                                   (Handle(..))
@@ -26,21 +25,21 @@ import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  background  :: L.Background,
-  cellShaded  :: L.CellShaded,
+  background :: L.Background,
+  cellShaded :: L.CellShaded,
   cellOutline :: L.CellOutline
 }
 
 data In = In {
-  loaded     :: L.Loaded,
-  scene      :: L.Scene,
+  loaded :: Loaded,
+  scene :: L.Scene,
   lightHexes :: L.LightHexes,
-  darkHexes  :: L.DarkHexes
+  darkHexes :: L.DarkHexes
 }
 
 data Out = Out {
-  wishes     :: L.Wishes,
-  drawingAct :: L.DrawingAct
+  wishes :: L.Wishes,
+  drawingAct :: DrawingAct
 }
 
 --------------------------------------------------------------------------------

@@ -1,8 +1,9 @@
 module Native.DynamicResourceIO where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.CreatureResource                           (CreatureResource(..))
+import Heroes.SFXResource                                (SFXResource(..))
 import Native
-import Native.Resource
 import qualified Stage.Links                               as L
 import qualified Heroes.H3                                 as H3
 import qualified Heroes.UI.Sound                           as Sound

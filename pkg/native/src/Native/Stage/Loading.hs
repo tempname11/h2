@@ -1,5 +1,7 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Native.Stage.Loading (
   with,
+  Loaded(..),
   Deps(..),
   WishIn(..),
   QueryOut(..),
@@ -7,10 +9,10 @@ module Native.Stage.Loading (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import Native.Resource
+import Heroes.CreatureResource                           (CreatureResource)
+import Heroes.SFXResource                                (SFXResource)
 import Utils.NBChan                                      (NBChan)
 import qualified Native.LoadingThread                      as LT
-import qualified Native.Stage.Links                        as L
 import qualified Stage.Links                               as L
 import qualified Utils.NBChan                              as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -29,9 +31,18 @@ data WishIn = WishIn {
 }
 
 data QueryOut = QueryOut {
-  loaded :: L.Loaded,
-  isLoaded :: L.IsLoaded
+  loaded :: Loaded,
+  isLoaded :: IsLoaded
 }
+
+data Loaded = Loaded {
+  creatures :: Creature -> Maybe CreatureResource,
+  sfxes :: SFX -> Maybe SFXResource
+}
+
+type IsLoaded = Either SFX Creature -> Bool
+
+makeShorthands ''Loaded
 
 --------------------------------------------------------------------------------
 

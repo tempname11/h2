@@ -7,23 +7,23 @@ module Native.Stage.DrawEverything_ (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.Platform
 import Heroes.Scaling
+import Heroes.StaticResources                            (StaticResources)
 import Heroes.UI
 import Native
 import Native.Platform ()
 import qualified Heroes.Cell                               as Cell
-import qualified Native.Stage.Links                        as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import SDL                                               (($=))
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  renderer    :: L.Renderer,
-  staticResources :: L.StaticResources
+  renderer :: SDL.Renderer,
+  staticResources :: StaticResources
 }
 
 data In = In {
-  drawingAct  :: L.DrawingAct
+  drawingAct :: DrawingAct
 }
 
 --------------------------------------------------------------------------------

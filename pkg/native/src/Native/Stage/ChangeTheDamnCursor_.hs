@@ -7,9 +7,9 @@ module Native.Stage.ChangeTheDamnCursor_ (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.Aux
 import Native
+import Native.Prerequisites                              (Cursors)
 import qualified Heroes.Bearing                            as Bearing
 import qualified Heroes.UI.Cursor                          as Cursor
-import qualified Native.Stage.Links                        as L
 import qualified Native.UI.Cursor                          as Cursor
 import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -20,8 +20,8 @@ import qualified SDL
 data Deps = Deps { noDeps :: () }
 
 data In = In {
-  intent  :: L.Intent,
-  cursors :: L.Cursors
+  intent :: L.Intent,
+  cursors :: Cursors
 }
 
 --------------------------------------------------------------------------------

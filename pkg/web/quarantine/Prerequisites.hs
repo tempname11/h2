@@ -15,7 +15,6 @@ import qualified Native.FilePath                           as FilePath
 import qualified Stage.Links                               as L
 import qualified Web.GLES                                  as GL
 import qualified Web.Image                                 as Image
-import qualified Web.Stage.Links                           as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified JavaScript.Web.XMLHttpRequest             as XHR
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

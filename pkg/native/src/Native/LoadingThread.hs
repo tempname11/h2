@@ -6,12 +6,13 @@ module Native.LoadingThread (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.CreatureResource                           (CreatureResource)
+import Heroes.Platform                                   (forkPreferred)
+import Heroes.SFXResource                                (SFXResource)
 import Native
-import Native.API                                        (forkPreferred)
 import Native.DynamicResourceIO                          (Deps (..))
 import Native.DynamicResourceIO                          (loadCreature)
 import Native.DynamicResourceIO                          (loadSFX)
-import Native.Resource
 import Utils.NBChan                                      (NBChan)
 import qualified Utils.NBChan                             as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

@@ -27,7 +27,6 @@ type GroupSizeOf = Animation.GroupSizeOf
 type InitialBattle = Battle
 type Intent = Maybe Annotation
 type IsActive = Bool
-type IsLoaded = Either SFX Creature -> Bool
 type LightHexes = [Hex]
 type Scene = Animation.Scene.Scene
 type Setup = Battle.Setup.Setup

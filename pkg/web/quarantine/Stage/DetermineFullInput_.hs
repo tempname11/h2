@@ -6,14 +6,11 @@ module Web.Stage.DetermineFullInput_ (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Web
-import qualified Heroes.Input                              as Input
 import qualified Heroes.ControlMap                         as ControlMap
-
+import qualified Heroes.Input                              as Input
 import qualified Stage.Links                               as L
-import qualified Web.Stage.Links                           as L
-
-import qualified Web.MouseTrack                            as MouseTrack
 import qualified Web.KeyboardTrack                         as KeyboardTrack
+import qualified Web.MouseTrack                            as MouseTrack
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {

@@ -12,18 +12,17 @@ import qualified Web.Drawing.OneColor                      as OneColor
 import qualified Web.Drawing.Paletted                      as Paletted
 import qualified Web.Drawing.Regular                       as Regular
 import qualified Web.GLES                                  as GL
-import qualified Web.Stage.Links                           as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified JavaScript.Web.AnimationFrame             as AF
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
   theContext :: L.TheContext,
-  qBuffer    :: L.QBuffer
+  qBuffer :: L.QBuffer
 }
 
 data In = In {
-  drawingAct :: L.DrawingAct
+  drawingAct :: DrawingAct
 }
 
 --------------------------------------------------------------------------------

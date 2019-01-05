@@ -4,9 +4,9 @@ module Native.ResourceIO where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.H3.Misc 
 import Heroes.Platform
+import Heroes.StaticResources                            (StaticResources(..))
 import Native 
 import Native.Platform
-import Native.Resource
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.UI.Cursor                          as Cursor
 import qualified Native.ComplexSprite                      as ComplexSprite

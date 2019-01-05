@@ -14,12 +14,13 @@ import Battle                                            (FighterId)
 import Heroes.Atlas                                      (Frame)
 import Heroes.Platform
 import Heroes.Scaling
+import Heroes.StaticResources                            (StaticResources)
 import Heroes.UI
 import Heroes.UI.Specials                                (Specials)
 import Native
 import Native.Platform
+import Native.Stage.Loading                              (Loaded)
 import qualified Heroes.UI.Specials                        as Specials
-import qualified Native.Stage.Links                        as L
 import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Monad.Morph                               (generalize)
@@ -34,18 +35,18 @@ import qualified SDL
 data Deps = Deps { noDeps :: () }
 
 data In = In {
-  loaded          :: L.Loaded,
-  staticResources :: L.StaticResources,
-  scene           :: L.Scene,
-  renderer        :: L.Renderer,
-  extraColor      :: L.ExtraColor,
-  lightHexes      :: L.LightHexes,
-  darkHexes       :: L.DarkHexes
+  loaded :: Loaded,
+  staticResources :: StaticResources,
+  scene :: L.Scene,
+  renderer :: SDL.Renderer,
+  extraColor :: L.ExtraColor,
+  lightHexes :: L.LightHexes,
+  darkHexes :: L.DarkHexes
 }
 
 data Out = Out {
-  wishes     :: L.Wishes,
-  drawingAct :: L.DrawingAct
+  wishes :: L.Wishes,
+  drawingAct :: DrawingAct
 }
 
 --------------------------------------------------------------------------------

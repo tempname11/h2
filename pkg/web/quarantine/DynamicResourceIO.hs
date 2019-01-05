@@ -3,7 +3,6 @@ module Web.DynamicResourceIO where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Web
 import qualified Stage.Links                               as L
-import qualified Web.Stage.Links                           as L
 import qualified Web.ComplexSprite                         as ComplexSprite
 import Web.CreatureResource                              (CreatureResource(..))
 import Heroes.Essentials                                 (Essentials(..))

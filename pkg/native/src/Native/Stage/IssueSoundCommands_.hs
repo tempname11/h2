@@ -6,12 +6,12 @@ module Native.Stage.IssueSoundCommands_ (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.UI.Sound                                   (Sound(..))
 import Native
 import Native.Platform ()
-import qualified Stage.Links                               as L
-import qualified Native.Stage.Links                        as L
+import Native.Stage.Loading                              (Loaded)
 import qualified Heroes.UI.Sound                           as Sound
-import Heroes.UI.Sound                                   (Sound(..))
+import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 import qualified SDL.Mixer                                 as Mix
@@ -20,7 +20,7 @@ import qualified SDL.Mixer                                 as Mix
 data Deps = Deps { noDeps :: () }
 
 data In = In {
-  loaded        :: L.Loaded,
+  loaded :: Loaded,
   soundCommands :: L.SoundCommands
 }
 

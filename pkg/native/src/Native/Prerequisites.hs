@@ -1,17 +1,18 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Native.Prerequisites (
   with,
+  Cursors,
   Prov (..),
   Deps (..),
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.StaticResources                            (StaticResources)
 import Native
 import qualified Heroes.Essentials                         as Essentials
 import qualified Heroes.FilePath                           as FilePath
 import qualified Native.Config                             as Config
 import qualified Native.ResourceIO                         as Resource
-import qualified Native.Stage.Links                        as L
 import qualified Native.UI.Cursor                          as Cursor
 import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -23,11 +24,13 @@ import Data.String                                       (fromString)
 
 data Deps = Deps { noDeps :: () }
 
+type Cursors = V.Vector (V.Vector SDL.Cursor)
+
 data Prov = Prov {
-  renderer        :: L.Renderer,
-  cursors         :: L.Cursors,
-  essentials      :: L.Essentials,
-  staticResources :: L.StaticResources
+  renderer :: SDL.Renderer,
+  cursors :: Cursors,
+  essentials :: L.Essentials,
+  staticResources :: StaticResources
 }
 
 with :: Platform => Deps -> (Prov -> IO a) -> IO a
