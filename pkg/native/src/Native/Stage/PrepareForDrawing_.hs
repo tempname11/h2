@@ -6,30 +6,29 @@ module Native.Stage.PrepareForDrawing_ (
   Out (..),
 ) where
 
--- This module's code is rated as BAD --
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Animation.Scene                                   (Actor)
+import Animation.Scene                                   (Handle(..))
+import Animation.Scene                                   (Prop(..))
+import Battle                                            (FighterId)
+import Heroes.Atlas                                      (Frame)
+import Heroes.Platform
 import Heroes.Scaling
 import Heroes.UI
+import Heroes.UI.Specials                                (Specials)
 import Native
+import Native.Platform
 import qualified Heroes.UI.Specials                        as Specials
 import qualified Native.Stage.Links                        as L
 import qualified Stage.Links                               as L
-import Battle                                            (FighterId)
-import Animation.Scene                                   (Actor)
-import Animation.Scene                                   (Prop(..))
-import Animation.Scene                                   (Handle(..))
-import Heroes.Atlas                                      (Frame)
-import Heroes.UI.Specials                                (Specials)
-import Native.ComplexSprite                              (ComplexSprite)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified SDL
-import qualified Data.Map.Strict                           as M
-import Control.Monad.Morph                               (hoist)
 import Control.Monad.Morph                               (generalize)
-import Prelude                                           (truncate)
+import Control.Monad.Morph                               (hoist)
 import Data.Either                                       (partitionEithers)
+import Prelude                                           (truncate)
 import SDL                                               (($=))
+import qualified Data.Map.Strict                           as M
+import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps { noDeps :: () }
@@ -236,7 +235,7 @@ copySurfaceToTexture s t len = do
   SDL.unlockSurface s
 
 toPropCopy :: (StaticSprite, Prop) -> CopyCommand
-toPropCopy (StaticSprite {..}, Prop {..}) = CopyCommand {
+toPropCopy (NativeStaticSprite {..}, Prop {..}) = CopyCommand {
     texture,
     src = Just $ SDL.Rectangle 0 dimensions,
     dst = Just $ SDL.Rectangle (rescaled position) (rescaled dimensions),

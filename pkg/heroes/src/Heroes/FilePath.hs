@@ -2,8 +2,8 @@ module Heroes.FilePath where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import qualified Platform.Config                           as Config
-import Platform.Config                                   (Config)
+import qualified Heroes.Platform                           as Platform
+import Heroes.Platform                                   (Platform)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Path = String
@@ -11,27 +11,27 @@ type Path = String
 h3 :: String
 h3 = "h3-assets/"
 
-prod :: Config => String
-prod = Config.productionPrefix
+prod :: Platform => String
+prod = Platform.productionPrefix
 
-essentialsBin1 :: Config => Path
+essentialsBin1 :: Platform => Path
 essentialsBin1 = prod <> "essentials.bin1"
 
-music :: Config => Path
+music :: Platform => Path
 music = prod <> "silent.wav"
 
-background :: Config => Path
-background = prod <> "bg" <> Config.staticSpriteExtension
+background :: Platform => Path
+background = prod <> "bg" <> Platform.staticSpriteExtension
 
-cellShaded :: Config => Path
-cellShaded = prod <> "cell-shaded" <> Config.staticSpriteExtension
+cellShaded :: Platform => Path
+cellShaded = prod <> "cell-shaded" <> Platform.staticSpriteExtension
 
-cellOutline :: Config => Path
-cellOutline = prod <> "cell-outline" <> Config.staticSpriteExtension
+cellOutline :: Platform => Path
+cellOutline = prod <> "cell-outline" <> Platform.staticSpriteExtension
 
 -- XXX "stringly-typed"
-pngPathOf :: Config => String -> String
+pngPathOf :: Platform => String -> String
 pngPathOf defName = prod <> defName <> ".png"
 
-staticPathOf :: Config => String -> String
-staticPathOf defName = prod <> defName <> Config.staticSpriteExtension
+staticPathOf :: Platform => String -> String
+staticPathOf defName = prod <> defName <> Platform.staticSpriteExtension

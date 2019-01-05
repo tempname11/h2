@@ -1,7 +1,7 @@
 module Common (
   module Common.FFree,
   module Common.Misc,
-  module Common.NBChan,
+  module Common.With,
   module Control.Applicative,
   module Control.Arrow,
   module Control.Lens,
@@ -16,6 +16,7 @@ module Common (
   module Data.Either,
   module Data.Foldable,
   module Data.Function,
+  module Data.IORef,
   module Data.Int,
   module Data.IntMap.Strict,
   module Data.IntSet,
@@ -29,12 +30,17 @@ module Common (
   module Data.Word,
   module Debug.Trace,
   module Foreign.C.Types,
+  module Foreign.Ptr,
   module GHC.Exts,
   module Linear,
   module Linear.Affine,
   module Prelude,
   module Safe,
 ) where
+
+import Common.FFree
+import Common.Misc
+import Common.With
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Prelude                                           ((.))
@@ -219,45 +225,6 @@ import Debug.Trace                                       (trace)
 import Debug.Trace                                       (traceM)
 import Debug.Trace                                       (traceShow)
 import Debug.Trace                                       (traceShowM)
---                                                       --
-import Common.Misc                                       (Stream(Cons))
-import Common.Misc                                       (nextS)
-import Common.Misc                                       (currentS)
-import Common.Misc                                       (rightIsJust)
-import Common.Misc                                       (justIsTrue)
-import Common.Misc                                       (collectJustsM)
-import Common.Misc                                       (generateM_)
-import Common.Misc                                       (presumeJust)
-import Common.Misc                                       (parseWith)
-import Common.Misc                                       (serializeWith)
-import Common.Misc                                       (warn)
-import Common.Misc                                       (warnC)
-import Common.Misc                                       (asStateT)
-import Common.Misc                                       (asState)
-import Common.Misc                                       ((!))
-import Common.Misc                                       (elem)
-import Common.Misc                                       (notElem)
-import Common.Misc                                       (empty)
-import Common.Misc                                       (filter)
-import Common.Misc                                       (dot)
-import Common.Misc                                       (dot2)
-import Common.Misc                                       (fmap2)
-import Common.Misc                                       (fmap3)
-import Common.Misc                                       ((<<$>>))
-import Common.Misc                                       ((<<<$>>>))
-import Common.Misc                                       ((<&>))
-import Common.Misc                                       ((<<&>>))
-import Common.Misc                                       ((<<<&>>>))
-import Common.Misc                                       ((§))
-import Common.Misc                                       ((<§>))
-import Common.Misc                                       (justLeft)
-import Common.Misc                                       (justRight)
-
-import Common.FFree                                      (FFree)
-import Common.FFree                                      (liftF)
-import Common.FFree                                      (runNat)
-
-import Common.NBChan                                     (NBChan)
 
 import Data.Word                                         (Word8)
 import Data.Word                                         (Word16)
@@ -284,3 +251,12 @@ import GHC.Exts                                          (Double)
 import Data.Default.Class                                (Default)
 import Data.Default.Class                                (def)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+--
+import Prelude                                           (IO)
+import Prelude                                           (print)
+import Prelude                                           (putStrLn)
+import Data.IORef                                        (IORef)
+import Data.IORef                                        (newIORef)
+import Data.IORef                                        (readIORef)
+import Data.IORef                                        (writeIORef)
+import Foreign.Ptr                                       (Ptr)

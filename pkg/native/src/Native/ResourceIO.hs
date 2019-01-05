@@ -3,23 +3,24 @@ module Native.ResourceIO where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.H3.Misc 
+import Heroes.Platform
 import Native 
+import Native.Platform
 import Native.Resource
-import qualified Native.ComplexSprite                      as ComplexSprite
-import qualified Heroes.UI.Cursor                          as Cursor
 import qualified Heroes.FilePath                           as FilePath
-import Platform.Config                                   (Config)
+import qualified Heroes.UI.Cursor                          as Cursor
+import qualified Native.ComplexSprite                      as ComplexSprite
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified SDL
-import qualified Data.Map.Strict                           as M
-import qualified Data.ByteString                           as B
-import qualified Data.Vector                               as V
-import qualified Data.Vector.Storable.Mutable              as MSV
 import Data.List.Split (splitPlaces)
 import SDL                                               (($=))
+import qualified Data.ByteString                           as B
+import qualified Data.Map.Strict                           as M
+import qualified Data.Vector                               as V
+import qualified Data.Vector.Storable.Mutable              as MSV
+import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-init :: Config => SDL.Renderer -> IO StaticResources
+init :: Platform => SDL.Renderer -> IO StaticResources
 init renderer = do
   let loadSX = loadStatic renderer
       loadS = loadSX noOp noOp
@@ -65,7 +66,7 @@ loadStatic renderer surfaceIO textureIO path = do
   texture <- SDL.createTextureFromSurface renderer surface
   void $ textureIO texture
   SDL.freeSurface surface
-  return $ StaticSprite {
+  return $ NativeStaticSprite {
     texture = texture,
     dimensions = dimensions
   }

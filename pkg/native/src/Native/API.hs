@@ -3,7 +3,7 @@ module Native.API (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common.IO
+import Common
 import Control.Concurrent                                (forkOS)
 import Control.Concurrent                                (ThreadId)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

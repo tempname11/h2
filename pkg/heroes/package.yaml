@@ -12,7 +12,6 @@ dependencies:
   - containers
   - data-fix
   - data-default-class
-  - field-optics
   - hashable
   - hashtables
   - lens
@@ -24,6 +23,7 @@ dependencies:
   - template-haskell
   - transformers
   - vector
+  - field-optics
 
 default-extensions:
   - GADTs

@@ -4,18 +4,17 @@ module Native.UI.Cursor (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Native
 import qualified Heroes.FilePath                           as FilePath
-import Platform.Config                                   (Config)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-lengths :: Config => V.Vector Int
+lengths :: Platform => V.Vector Int
 lengths = V.fromList . map length . concat . map fst $ stuff
 
 -- XXX rename, restructure
-stuff :: Config => [([[Point V2 CInt]], String)]
+stuff :: Platform => [([[Point V2 CInt]], String)]
 stuff = map (\(s, i) -> ((map . map) P i, s))
   [ (FilePath.h3 <> "Defs/CRCOMBAT.def",
      [ [V2  0  0]

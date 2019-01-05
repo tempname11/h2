@@ -8,7 +8,6 @@ import qualified Heroes.H3                                 as H3
 import qualified Heroes.UI.Sound                           as Sound
 import qualified Heroes.FilePath                           as FilePath
 import qualified Native.ComplexSprite                      as ComplexSprite
-import Platform.Config                                   (Config)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified SDL.Mixer                                 as Mix
 import qualified Data.Map.Strict                           as M
@@ -18,7 +17,7 @@ data Deps = Deps {
   essentials :: L.Essentials
 }
 
-loadCreature :: Config => Deps -> Creature -> IO CreatureResource
+loadCreature :: Platform => Deps -> Creature -> IO CreatureResource
 loadCreature (Deps {..}) c = do
   sprite <- ComplexSprite.loadCreature essentials c
   --
@@ -40,7 +39,7 @@ destroyCreature c = do
   ComplexSprite.destroy (c ^. sprite_)
   mapM_ Mix.free (c ^. sounds_)
 
-loadSFX :: Config => Deps -> SFX -> IO SFXResource
+loadSFX :: Platform => Deps -> SFX -> IO SFXResource
 loadSFX (Deps {..}) s = do
   sprite <- ComplexSprite.loadSFX essentials s
   sound <- do

@@ -10,8 +10,6 @@ import Heroes
 import Animation
 import Animation.Command
 import Animation.Scene
-import Common.IO
-
 import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M

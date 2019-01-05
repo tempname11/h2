@@ -1,4 +1,4 @@
-module Common.NBChan (
+module Utils.NBChan (
   NBChan,
   new,
   drain,

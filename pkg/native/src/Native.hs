@@ -1,26 +1,18 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Native (
-  module Heroes,
-  module Common.IO,
-  module Common.LowLevel,
-  StaticSprite(..),
-  Stamp(..),
   CopyCommand(..),
   DrawingAct(..),
+  Platform,
+  Stamp(..),
+  module Heroes,
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import Common.IO
-import Common.LowLevel
+import Heroes.Platform                                   (Platform)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-data StaticSprite = StaticSprite {
-  texture    :: SDL.Texture,
-  dimensions :: V2 CInt
-}
 
 data Stamp = Stamp {
   surface :: SDL.Surface, -- XXX suspicious: might only need 1 of these ever
@@ -44,6 +36,5 @@ data DrawingAct = DrawingAct {
 --------------------------------------------------------------------------------
 
 makeShorthands ''Stamp
-makeShorthands ''StaticSprite
 makeShorthands ''CopyCommand
 makeShorthands ''DrawingAct

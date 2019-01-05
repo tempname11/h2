@@ -7,6 +7,7 @@ module Native.Stage.IssueSoundCommands_ (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Native
+import Native.Platform ()
 import qualified Stage.Links                               as L
 import qualified Native.Stage.Links                        as L
 import qualified Heroes.UI.Sound                           as Sound

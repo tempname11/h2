@@ -27,6 +27,10 @@ import Debug.Trace                                       (traceShow)
 import Data.ByteString                                   (ByteString)
 import Data.ByteString.Lazy                              (toStrict)
 import Data.Monoid                                       ((<>))
+
+import Control.Exception.Base                            (throwIO)
+import Control.Exception.Base                            (ErrorCall(ErrorCall))
+
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 -- XXX use a library definition?
@@ -208,3 +212,5 @@ justRight = \case
   Left _ -> Nothing
   Right x -> Just x
 
+raise :: String -> IO a
+raise = throwIO . ErrorCall

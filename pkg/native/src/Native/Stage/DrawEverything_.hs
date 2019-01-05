@@ -5,14 +5,16 @@ module Native.Stage.DrawEverything_ (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Native
-import Heroes.UI
+import Heroes.Platform
 import Heroes.Scaling
-import qualified Native.Stage.Links                        as L
+import Heroes.UI
+import Native
+import Native.Platform ()
 import qualified Heroes.Cell                               as Cell
+import qualified Native.Stage.Links                        as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified SDL
 import SDL                                               (($=))
+import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {

@@ -1,9 +1,8 @@
--- XXX marked for deletion in favor of Heroes/Game.hs
-module Native.Artifacts.Game where
+module Heroes.Game where
 
+{- WIP
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Native
-import Native.Platform ()
+import Heroes
 import qualified Heroes.Requisites                         as RQ
 import qualified Native.LoadingThread                      as LT
 import qualified Native.Prerequisites                      as PR
@@ -62,3 +61,4 @@ main' = do
     putStrLn "----------------"
     putStrLn "-- exiting... --"
     putStrLn "----------------"
+WIP -}

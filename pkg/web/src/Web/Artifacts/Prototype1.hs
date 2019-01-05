@@ -5,11 +5,11 @@ module Web.Artifacts.Prototype1 where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.UI                                         (viewportSize)
 import Web
-import Web.Config ()
+import Web.Platform                                      (Audio)
 import qualified Heroes.Essentials                         as Essentials
 import qualified Heroes.Input                              as Input
 import qualified Heroes.FilePath                           as FilePath
-import qualified Platform.Config                           as Config
+import qualified Heroes.Platform                           as Platform
 import qualified Web.Artifacts.Prototype1.Drawing          as Drawing
 import qualified Web.KeyboardTrack                         as KeyboardTrack
 import qualified Web.MouseTrack                            as MouseTrack
@@ -24,16 +24,13 @@ backDots :: String
 backDots = "../"
 
 bgPath :: String
-bgPath = backDots <> Config.productionPrefix <> "bg.png"
+bgPath = backDots <> Platform.productionPrefix <> "bg.png"
 
 fortuneSoundPath :: String
-fortuneSoundPath = backDots <> Config.productionPrefix <> "Sounds/FORTUNE.wav"
+fortuneSoundPath = backDots <> Platform.productionPrefix <> "Sounds/FORTUNE.wav"
 
 pngPath :: String
-pngPath = backDots <> Config.productionPrefix <> "CELF.png"
-
-newtype Audio = Audio JSVal
-instance IsJSVal Audio
+pngPath = backDots <> Platform.productionPrefix <> "CELF.png"
 
 -------------
 -- Classes --

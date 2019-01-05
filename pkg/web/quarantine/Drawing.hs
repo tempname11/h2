@@ -6,11 +6,6 @@ import Web
 import qualified Web.GLES                                  as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data StaticSprite = StaticSprite {
-  texture    :: GL.Texture,
-  dimensions :: V2 Float
-}
-
 data CopySpec = CopySpec {
   box         :: V2 Float,
   screenBox   :: V2 Float,
@@ -27,5 +22,4 @@ clear ctx = do
 
 --------------------------------------------------------------------------------
 
-makeShorthands ''StaticSprite
 makeShorthands ''CopySpec

@@ -4,10 +4,10 @@ module Native.Resource where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
 import Heroes.H3.Misc                                    (ObstacleType)
+import Heroes.Platform                                   (Chunk)
+import Heroes.Platform                                   (ComplexSprite)
+import Heroes.Platform                                   (StaticSprite)
 import qualified Heroes.UI.Sound                           as Sound
-import Native.Types                                      (ComplexSprite)
-import Native.Types                                      (StaticSprite)
-import Native.Types                                      (Chunk)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Loaded = Loaded {

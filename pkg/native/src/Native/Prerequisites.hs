@@ -14,7 +14,6 @@ import qualified Native.ResourceIO                         as Resource
 import qualified Native.Stage.Links                        as L
 import qualified Native.UI.Cursor                          as Cursor
 import qualified Stage.Links                               as L
-import Platform.Config                                   (Config)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.ByteString                           as B
 import qualified Data.Vector                               as V
@@ -31,7 +30,7 @@ data Prov = Prov {
   staticResources :: L.StaticResources
 }
 
-with :: Config => Deps -> (Prov -> IO a) -> IO a
+with :: Platform => Deps -> (Prov -> IO a) -> IO a
 with _ next = do
   putStrLn $ "Loading essentials..."
   buf <- B.readFile FilePath.essentialsBin1

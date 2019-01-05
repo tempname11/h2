@@ -6,15 +6,14 @@ module Native.LoadingThread (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common.IO
-import Heroes
-import Native.Resource
-import qualified Common.NBChan                             as NBChan
+import Native
 import Native.API                                        (forkPreferred)
+import Native.DynamicResourceIO                          (Deps (..))
 import Native.DynamicResourceIO                          (loadCreature)
 import Native.DynamicResourceIO                          (loadSFX)
-import Native.DynamicResourceIO                          (Deps (..))
-import Platform.Config                                   (Config)
+import Native.Resource
+import Utils.NBChan                                      (NBChan)
+import qualified Utils.NBChan                             as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (threadDelay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -31,7 +30,7 @@ data Prov = Prov {
 _THREAD_DELAY_ :: Int
 _THREAD_DELAY_ = 5000 -- microseconds!
 
-with :: Config => Deps -> (Prov -> IO a) -> IO a
+with :: Platform => Deps -> (Prov -> IO a) -> IO a
 with deps next = do
   wishChan <- NBChan.new
   loadedChan <- NBChan.new
@@ -39,7 +38,7 @@ with deps next = do
   void $ forkPreferred (loadingThread deps loadingChannels)
   next (Prov {..})
 
-loadingThread :: Config => Deps -> LoadingChannels -> IO ()
+loadingThread :: Platform => Deps -> LoadingChannels -> IO ()
 loadingThread deps (wishChan, loadedChan) = do
   let load (Left s) = Left . (s,) <$> loadSFX deps s
       load (Right c) = Right . (c,) <$> loadCreature deps c

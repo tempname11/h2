@@ -1,14 +1,14 @@
 module Native.Artifacts.CompileEssentials where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Native
 import Heroes.Essentials
 import Heroes.UI
-import qualified Heroes.H3                                 as H3
-import qualified Heroes.SpriteMeta                         as Meta
+import Native
+import Native.Platform ()
 import qualified Heroes.Atlas                              as Atlas
 import qualified Heroes.FilePath                           as FilePath
-import Native.Config ()
+import qualified Heroes.H3                                 as H3
+import qualified Heroes.SpriteMeta                         as Meta
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Codec.Picture                             as Juicy
 import qualified Data.ByteString                           as B

@@ -6,13 +6,12 @@ module Heroes.Requisites (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation
-import Common.IO                                         (IO)
-import Heroes
-import qualified Battle.Example                            as Example
-import qualified Stage.Links                               as L
 import Animation.Scene                                   (Handle(..))
 import Battle.Random                                     (spawn)
+import Heroes
 import Heroes.Essentials                                 (Essentials(..))
+import qualified Battle.Example                            as Example
+import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V
 import Test.QuickCheck                                   (generate)

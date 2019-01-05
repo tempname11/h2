@@ -39,9 +39,9 @@ with (Deps {..}) next = do
 --------------------------------------------------------------------------------
 
 run ::
-  With3 Regular.Cmd ->
-  With3 Paletted.Cmd ->
-  With3 OneColor.Cmd ->
+  With (Handler Regular.Cmd) ->
+  With (Handler Paletted.Cmd) ->
+  With (Handler OneColor.Cmd) ->
   GL.Context ->
   In ->
   IO ()
@@ -63,4 +63,4 @@ run regular paletted oneColor ctx (In {..}) = do
     let color = V4 0 0 0 curtain
     draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
 
-  void $ AF.waitForAnimationFrame
+  void $ AF.waitForAnimationFrame -- XXX does not belong here

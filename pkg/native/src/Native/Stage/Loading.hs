@@ -6,18 +6,18 @@ module Native.Stage.Loading (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common.IO
 import Heroes
 import Native.Resource
+import Utils.NBChan                                      (NBChan)
 import qualified Native.LoadingThread                      as LT
-import qualified Common.NBChan                             as NBChan
 import qualified Native.Stage.Links                        as L
 import qualified Stage.Links                               as L
+import qualified Utils.NBChan                              as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.Map.Strict                           as M
-import qualified Data.Set                                  as S
 import Data.Either                                       (lefts)
 import Data.Either                                       (rights)
+import qualified Data.Map.Strict                           as M
+import qualified Data.Set                                  as S
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {

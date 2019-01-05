@@ -7,7 +7,6 @@ module Stage.Blackbox (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common.IO
 import Heroes
 import qualified Animation.Command                         as Animation
 import qualified Heroes.Plan                               as Plan

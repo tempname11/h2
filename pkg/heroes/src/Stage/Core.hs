@@ -14,7 +14,6 @@ import Battle.Rules
 import Battle.Setup
 import Battle.Movement
 import Common.Hot
-import Common.IO
 import Heroes
 import Heroes.Aux
 import Heroes.UI

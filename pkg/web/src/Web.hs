@@ -1,33 +1,20 @@
 module Web (
-  Image,
   Canvas,
+  Image,
+  IsJSVal,
   JSString,
   JSVal,
-  IsJSVal,
+  Platform,
   fromJSVal,
-  {-
-  Callback,
-  asyncCallback,
-  releaseCallback,
-  -}
-  simpleXHR,
-  loadString,
   inspect,
-  module Common.IO,
+  loadString,
   module Heroes,
+  simpleXHR,
 ) where
-
-{-
-import GHCJS.Foreign.Callback (Callback)
-import GHCJS.Foreign.Callback (asyncCallback)
-import GHCJS.Foreign.Callback (releaseCallback)
--}
--- use "foreign import javascript interruptible" instead
-
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import Common.IO
+import Heroes.Platform                                   (Platform)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified JavaScript.Web.XMLHttpRequest             as XHR
 import qualified Data.JSString                             as JSString

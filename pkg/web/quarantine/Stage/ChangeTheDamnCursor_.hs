@@ -7,7 +7,6 @@ module Web.Stage.ChangeTheDamnCursor_ (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Web
 import qualified Stage.Links                               as L
-import Platform.Config                                   (Config)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps { noDeps :: () }
@@ -17,5 +16,5 @@ data In = In {
 
 --------------------------------------------------------------------------------
 
-with :: Config => Deps -> ((In -> IO ()) -> IO a) -> IO a
+with :: Platform => Deps -> ((In -> IO ()) -> IO a) -> IO a
 with _ next = next $ const $ return ()

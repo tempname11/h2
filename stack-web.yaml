@@ -1,10 +1,10 @@
 packages:
 - location: 'pkg/heroes'
 - location: 'pkg/web'
-- location: 'pkg/field-optics'
-- location: 'pkg/ghcjs-base'
 
-# extra-deps:
+extra-deps:
+- pkg/ghcjs-base
+- pkg/field-optics
 # - fused-effects-0.1.2.1@sha256:b330218ec799e1258132abdd7de0b95ef2bfc5635f4c58b27ea51a3a38aca37d
 # - deepseq-1.4.4.0@sha256:a05b9b84271a9826258a2d3d2948f010cd1d920aa5b5168278d1064a5932524e
 

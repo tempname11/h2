@@ -37,9 +37,9 @@ with ctx qBuffer next0 = do
 --------------------------------------------------------------------------------
 
 data Prog = Prog {
-  program        :: GL.Program,
-  loc_texAtlas   :: GL.UniformLocation,
-  loc_texPalette :: GL.UniformLocation,
+  program           :: GL.Program,
+  loc_texAtlas      :: GL.UniformLocation,
+  loc_texPalette    :: GL.UniformLocation,
   loc_texDimensions :: GL.UniformLocation,
   loc_scrDimensions :: GL.UniformLocation,
   loc_texPlace      :: GL.UniformLocation,

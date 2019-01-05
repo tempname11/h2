@@ -7,7 +7,6 @@ module Native.Stage.ChangeTheDamnCursor_ (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.Aux
 import Native
-import Platform.Config                                   (Config)
 import qualified Heroes.Bearing                            as Bearing
 import qualified Heroes.UI.Cursor                          as Cursor
 import qualified Native.Stage.Links                        as L
@@ -27,7 +26,7 @@ data In = In {
 
 --------------------------------------------------------------------------------
 
-with :: Config => Deps -> ((In -> IO ()) -> IO a) -> IO a
+with :: Platform => Deps -> ((In -> IO ()) -> IO a) -> IO a
 with _ next = do
   ref <- newIORef Nothing
   next $ \in_ -> do
@@ -47,7 +46,7 @@ data IData = IData {
 
 --------------------------------------------------------------------------------
 
-cursor :: Config => In -> Data -> IO Data
+cursor :: Platform => In -> Data -> IO Data
 cursor (In {..}) d = do
   SDL.activeCursor $= cursors ! g' ! f'
   return d'
