@@ -1,14 +1,10 @@
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
-
+module Web.GLES (getWebGLContext) where
 -- WARNING: plagiarized from:
 -- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
 -- kudos to ziocroc
-
-module Web.GLES (getWebGLContext) where
 
 import Data.Hashable
 import Data.IORef

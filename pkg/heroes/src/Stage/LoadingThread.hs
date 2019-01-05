@@ -53,7 +53,7 @@ loadingThread (Deps {..}) (wishChan, loadedChan) = do
     ws <- NBChan.drain wishChan
     for_ ws $ \w -> do
       print (w, "is wished to be loaded. So be it!" :: String)
-      threadDelay 1000000
-      r <- load w
-      NBChan.trickle loadedChan r
+      when (w & \case { Left _ -> False; Right _ -> True }) $ do -- XXX
+        r <- load w
+        NBChan.trickle loadedChan r
     again

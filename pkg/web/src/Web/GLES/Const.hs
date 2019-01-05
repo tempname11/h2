@@ -1,10 +1,9 @@
 module Web.GLES.Const where
-
-import Prelude
-
 -- WARNING: plagiarized from:
 -- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
 -- kudos to ziocroc
+
+import Prelude
 
 gl_DEPTH_BUFFER_BIT :: Num a => a
 gl_DEPTH_BUFFER_BIT = 0x00000100

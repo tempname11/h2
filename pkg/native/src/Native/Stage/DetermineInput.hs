@@ -1,35 +1,22 @@
-module Native.Stage.DetermineFullInput_ (
-  with,
-  Deps (..),
-  Out(..),
-) where
+{-# OPTIONS_GHC -Wno-orphans #-}
+module Native.Stage.DetermineInput () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Native
-
-import qualified Stage.Links                               as L
-
+import Stage.DetermineInput
 import qualified Heroes.Input                              as Input
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps { noDeps :: () }
-
-data Out = Out {
-  fullInput :: L.FullInput
-}
-
---------------------------------------------------------------------------------
-
-with :: Deps -> ((IO Out) -> IO a) -> IO a
-with _ next = do
-  ref <- newIORef initially
-  next $ do
-    d0 <- readIORef ref
-    (out, d1) <- external d0
-    writeIORef ref d1
-    return out
+instance DetermineInput where
+  with _ next = do
+    ref <- newIORef initially
+    next $ do
+      d0 <- readIORef ref
+      (out, d1) <- external d0
+      writeIORef ref d1
+      return out
 
 --------------------------------------------------------------------------------
 

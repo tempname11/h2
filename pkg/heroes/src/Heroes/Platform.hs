@@ -8,8 +8,12 @@ import Control.Concurrent                                (ThreadId)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 class Platform where
+  --
   productionPrefix :: String
   staticSpriteExtension :: String
+  --
+  type Renderer
+  type CursorResources
   type StaticSprite
   --
   type ComplexSprite

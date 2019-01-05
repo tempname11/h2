@@ -11,6 +11,7 @@ import Animation.Scene                                   (Handle(..))
 import Heroes
 import Heroes.Plan                                       (Plan)
 import qualified Animation.Command                         as Animation
+import qualified Heroes.Input                              as Input
 import qualified Heroes.Plan                               as Plan
 import qualified Stage.Core                                as C
 import qualified Stage.Links                               as L
@@ -28,7 +29,7 @@ type IsLoaded = Either SFX Creature -> Bool -- XXX copy-paste
 
 data In = In {
   isLoaded :: IsLoaded,
-  fullInput :: L.FullInput
+  fullInput :: Input.Full
 }
 
 data Out = Out {

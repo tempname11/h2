@@ -1,13 +1,9 @@
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
-
+module Native.GLES (makeContext) where
 -- WARNING: plagiarized from:
 -- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
 -- kudos to ziocroc
-
-module Native.GLES (makeContext) where
         
 import Prelude
 import Foreign

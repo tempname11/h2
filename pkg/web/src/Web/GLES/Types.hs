@@ -1,11 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-
--- WARNING: plagiarized from:
--- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
--- kudos to ziocroc
-
 module Web.GLES.Types (
   Ctx,
   Program,
@@ -23,6 +17,9 @@ module Web.GLES.Types (
   noTexture,
   noVAO,
 ) where
+-- WARNING: plagiarized from:
+-- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
+-- kudos to ziocroc
 
 import GHCJS.Foreign
 import GHCJS.Types

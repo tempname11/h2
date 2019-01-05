@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Stage.Core (
   with,
   Deps (..),
@@ -36,7 +35,7 @@ data Deps = Deps {
 
 data In = In {
   isActive0   :: L.IsActive,
-  fullInput   :: L.FullInput
+  fullInput   :: Input.Full
 }
 
 data Out = Out {

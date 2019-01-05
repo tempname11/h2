@@ -1,5 +1,4 @@
 {-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 module Battle.Monad.Utils where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

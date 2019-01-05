@@ -1,4 +1,3 @@
-{-# LANGUAGE RankNTypes #-}
 module Stage.Links where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -12,7 +11,6 @@ import qualified Animation.Scene
 import qualified Battle.AM
 import qualified Battle.Setup
 import qualified Heroes.Essentials
-import qualified Heroes.Input
 import qualified Heroes.UI.Sound
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -21,7 +19,6 @@ type DarkHexes = [Hex]
 type Essentials = Heroes.Essentials.Essentials
 type Exit = Bool
 type ExtraColor = FighterId -> Maybe Color
-type FullInput = Heroes.Input.Full
 type GhostPlacing = Maybe Placing
 type GroupSizeOf = Animation.GroupSizeOf
 type InitialBattle = Battle

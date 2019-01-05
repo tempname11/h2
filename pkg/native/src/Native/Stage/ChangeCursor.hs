@@ -1,38 +1,26 @@
-module Native.Stage.ChangeTheDamnCursor_ (
-  with,
-  Deps (..),
-  In (..),
-) where
+{-# OPTIONS_GHC -Wno-orphans #-}
+module Native.Stage.ChangeCursor () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.Aux
 import Native
-import Native.Prerequisites                              (Cursors)
+import Native.Platform ()
+import Stage.ChangeCursor
 import qualified Heroes.Bearing                            as Bearing
 import qualified Heroes.UI.Cursor                          as Cursor
 import qualified Native.UI.Cursor                          as Cursor
-import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import SDL                                               (($=))
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps { noDeps :: () }
-
-data In = In {
-  intent :: L.Intent,
-  cursors :: Cursors
-}
-
---------------------------------------------------------------------------------
-
-with :: Platform => Deps -> ((In -> IO ()) -> IO a) -> IO a
-with _ next = do
-  ref <- newIORef Nothing
-  next $ \in_ -> do
-    d0 <- readIORef ref
-    d1 <- cursor in_ d0
-    writeIORef ref d1
+instance ChangeCursor where
+  with _ next = do
+    ref <- newIORef Nothing
+    next $ \in_ -> do
+      d0 <- readIORef ref
+      d1 <- cursor in_ d0
+      writeIORef ref d1
 
 --------------------------------------------------------------------------------
 
@@ -48,7 +36,7 @@ data IData = IData {
 
 cursor :: Platform => In -> Data -> IO Data
 cursor (In {..}) d = do
-  SDL.activeCursor $= cursors ! g' ! f'
+  SDL.activeCursor $= cursorResources ! g' ! f'
   return d'
   where
   --

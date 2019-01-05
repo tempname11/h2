@@ -17,9 +17,13 @@ import qualified SDL.Mixer                                 as Mix
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 instance Platform where
+  --
   productionPrefix = ".production-assets/"
   staticSpriteExtension = ".bmp"
+  --
   type StaticSprite = NativeStaticSprite
+  type CursorResources = V.Vector (V.Vector SDL.Cursor)
+  type Renderer = SDL.Renderer
   --
   type ComplexSprite = NativeComplexSprite
   loadComplexSprite meta pngPath = do

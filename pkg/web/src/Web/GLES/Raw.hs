@@ -1,5 +1,4 @@
 module Web.GLES.Raw where
-
 -- WARNING: plagiarized from:
 -- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
 -- kudos to ziocroc
