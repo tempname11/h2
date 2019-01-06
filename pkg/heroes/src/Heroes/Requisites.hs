@@ -13,7 +13,6 @@ import Battle.Setup                                      (Setup)
 import Heroes
 import Heroes.Essentials                                 (Essentials(..))
 import qualified Battle.Example                            as Example
-import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Test.QuickCheck                                   (generate)
 import qualified Data.Vector                               as V
@@ -24,9 +23,9 @@ data Deps = Deps {
 }
 
 data Prov = Prov {
+  groupSizeOf :: GroupSizeOf,
   initialBattle :: Battle,
-  setup         :: Setup,
-  groupSizeOf   :: L.GroupSizeOf
+  setup :: Setup
 }
 
 --------------------------------------------------------------------------------

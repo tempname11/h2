@@ -7,17 +7,14 @@ import qualified Heroes.UI.Sound                           as Sound
 import Heroes.UI.Sound                                   (Sound)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-playOnce :: Sound -> Offset -> S0
-playOnce w o = append (Sound.PlayOnce w) o
+playOnce :: Sound -> Offset -> M0
+playOnce w = append (Sound.PlayOnce w)
 
-start :: Sound-> Offset -> S0
-start w o = append (Sound.Start w) o
+start :: Sound -> Offset -> M0
+start w = append (Sound.Start w)
 
-stop :: Sound-> Offset -> S0
-stop w o = append (Sound.Stop w) o
+stop :: Sound -> Offset -> M0
+stop w = append (Sound.Stop w)
 
-append :: Sound.Command -> Offset -> S0
-append sc (Offset i) = at i %= f
-  where
-  f Nothing = Just ([], [])
-  f (Just (acs, scs)) = Just (acs, sc : scs)
+append :: Sound.Command -> Offset -> M0
+append c o = tell [(o, Right c)]

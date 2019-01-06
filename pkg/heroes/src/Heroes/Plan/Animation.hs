@@ -8,29 +8,26 @@ import Animation.Scene
 import Animation.Command
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-setGroupNumber :: Handle -> GroupNumber -> Offset -> S0
-setGroupNumber h g = append $ HC h $ SetGroupNumber g
+setGroupNumber :: Handle -> GroupNumber -> Offset -> M0
+setGroupNumber h g = append (HC h $ SetGroupNumber g)
 
-setFacing :: Handle -> Facing -> Offset -> S0
-setFacing h f = append $ HC h $ SetFacing f
+setFacing :: Handle -> Facing -> Offset -> M0
+setFacing h f = append (HC h $ SetFacing f)
 
-setPosition :: Handle -> Position -> Offset -> S0
-setPosition h p = append $ HC h $ SetPosition p
+setPosition :: Handle -> Position -> Offset -> M0
+setPosition h p = append (HC h $ SetPosition p)
 
-setHeight :: Handle -> CInt -> Offset -> S0
-setHeight h p = append $ HC h $ SetHeight p
+setHeight :: Handle -> CInt -> Offset -> M0
+setHeight h p = append (HC h $ SetHeight p)
 
-setAnimated :: Handle -> Bool -> Offset -> S0
-setAnimated h b = append $ HC h $ SetAnimated b
+setAnimated :: Handle -> Bool -> Offset -> M0
+setAnimated h b = append (HC h $ SetAnimated b)
 
-add :: Handle -> Actor -> Offset -> S0
-add h a = append $ HC h $ Add a
+add :: Handle -> Actor -> Offset -> M0
+add h a = append (HC h $ Add a)
 
-remove :: Handle -> Offset -> S0
-remove h = append $ HC h $ Remove
+remove :: Handle -> Offset -> M0
+remove h = append (HC h $ Remove)
 
-append :: Command -> Offset -> S0
-append ac (Offset i) = at i %= f
-  where
-  f Nothing = Just ([ac], [])
-  f (Just (acs, scs)) = Just (ac : acs, scs)
+append :: Command -> Offset -> M0
+append c o = tell [(o, Left c)]

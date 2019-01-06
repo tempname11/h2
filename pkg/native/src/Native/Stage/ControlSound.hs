@@ -28,13 +28,8 @@ type Data = Map Sound Mix.Channel
 
 sound :: In -> Data -> IO Data
 sound (In {..}) =
-  case soundCommands of
-    Just commands -> execute commands
-    Nothing -> stopAll
-  where
-  stopAll sound0 = mapM_ stop (M.elems sound0) >> return empty
-  execute commands = execStateT $
-    for_ commands $ \case
+  execStateT $
+    for_ soundCommands $ \case
       Sound.PlayOnce s -> once s
       Sound.Start s -> do
         ch <- start s
@@ -48,6 +43,7 @@ sound (In {..}) =
           Just channel -> do
             lift $ stop channel
             at s .= Nothing
+  where
   start = play Mix.Forever
   once = void . play Mix.Once
   stop = Mix.halt
@@ -56,6 +52,7 @@ sound (In {..}) =
     Mix.Times ->
     Sound ->
     StateT Data IO (Maybe Mix.Channel)
+  --
   play times s =
     case s of
       Sound'Creature c t -> case (loaded ^. creatures_) c of

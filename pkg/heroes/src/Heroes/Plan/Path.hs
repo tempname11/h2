@@ -13,31 +13,32 @@ import Battle                                            (FighterId)
 import Heroes.UI.Sound                                   (Sound(..))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-path :: FighterId -> [AM.PathMarker] -> Sh
-path fyr ps gso o = do
-  let h = Handle'Fighter fyr
-  o' <- path' False fyr ps gso o
+path :: FighterId -> [AM.PathMarker] -> M0
+path fyr ps = do
+  o <- get
+  path' False fyr ps
+  o' <- get
   Sound.start (Sound'Creature (fyr ^. creature_) Sound.Move) o
   Sound.stop  (Sound'Creature (fyr ^. creature_) Sound.Move) o'
+  let h = Handle'Fighter fyr
   Animation.setGroupNumber h (is Idling) o'
-  return o'
 
-path' :: Bool -> FighterId -> [AM.PathMarker] -> Sh
-path' prevMove fyr ps gso o =
+path' :: Bool -> FighterId -> [AM.PathMarker] -> M0
+path' prevMove fyr ps = do
   case ps of
-    [] -> return o
+    [] -> return ()
     AM.Move x : ps' -> do
-      o' <- handleMove prevMove fyr x gso o
-      path' True fyr ps' gso o'
+      handleMove prevMove fyr x
+      path' True fyr ps'
     AM.Turn (_, p, f) : ps' -> do
-      o' <- handleTurn fyr (f, p) gso o
-      path' False fyr ps' gso o'
+      handleTurn fyr (f, p)
+      path' False fyr ps'
     AM.Takeoff : ps' -> do
-      o' <- handleFlight prevMove 0 flightHeight fyr gso o
-      path' True fyr ps' gso o'
+      handleFlight prevMove 0 flightHeight fyr
+      path' True fyr ps'
     AM.Landing : ps' -> do
-      o' <- handleFlight prevMove flightHeight 0 fyr gso o
-      path' False fyr ps' gso o'
+      handleFlight prevMove flightHeight 0 fyr
+      path' False fyr ps'
 
 lerp' :: Float -> Position -> Position -> Position
 lerp' w b a = round <$> lerp w ((<§>) b) ((<§>) a)
@@ -48,8 +49,9 @@ framesPerMove = 60
 flightHeight :: CInt
 flightHeight = 50 -- eyeballed
 
-handleFlight :: Bool -> CInt -> CInt -> FighterId -> Sh
-handleFlight prevMove a b fyr _ o = do
+handleFlight :: Bool -> CInt -> CInt -> FighterId -> M0
+handleFlight prevMove a b fyr = do
+  o <- get
   let h = Handle'Fighter fyr
       g = is Moving
       m = framesPerMove
@@ -62,10 +64,11 @@ handleFlight prevMove a b fyr _ o = do
         z :: CInt
         z = round . (\(V1 x) -> x) $ lerp w (V1 $ (§) b) (V1 $ (§) a)
     Animation.setHeight h z o'
-  return (o +!. m)
+  put (o +!. m)
 
-handleMove :: Bool -> FighterId -> (Placing, Facing, Placing) -> Sh
-handleMove prevMove fyr (p0, f, p1) _ o = do
+handleMove :: Bool -> FighterId -> (Placing, Facing, Placing) -> M0
+handleMove prevMove fyr (p0, f, p1) = do
+  o <- get
   let h = Handle'Fighter fyr
       g = is Moving
       m = framesPerMove
@@ -78,10 +81,12 @@ handleMove prevMove fyr (p0, f, p1) _ o = do
         w = (§) i / (§) m
         z = lerp' w b a
     Animation.setPosition h z o'
-  return (o +!. m)
+  put (o +!. m)
 
-handleTurn :: FighterId -> (Facing, Placing) -> Sh
-handleTurn fyr (f, p) gso o = do
+handleTurn :: FighterId -> (Facing, Placing) -> M0
+handleTurn fyr (f, p) = do
+  o <- get
+  (gso, _) <- ask
   let h = Handle'Fighter fyr
       g = is Turning
       o' = o +! gso h g
@@ -89,4 +94,4 @@ handleTurn fyr (f, p) gso o = do
   Animation.setGroupNumber h g o
   Animation.setFacing h f o'
   Animation.setPosition h z o'
-  return o'
+  put o'

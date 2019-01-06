@@ -7,19 +7,18 @@ module Web.Stage.PrepareForDrawing_ (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Web
-import qualified Heroes.Cell                               as Cell
-import qualified Stage.Links                               as L
-import qualified Web.Drawing.Paletted                      as Paletted
-import qualified Web.Drawing.Regular                       as Regular
-import Battle                                            (FighterId)
 import Animation.Scene                                   (Actor(..))
 import Animation.Scene                                   (Handle(..))
+import Battle                                            (FighterId)
 import Heroes.UI                                         (fieldCenter)
+import Web
 import Web.ComplexSprite                                 (ComplexSprite(..))
 import Web.Drawing                                       (CopySpec(..))
 import Web.Drawing                                       (StaticSprite(..))
 import Web.DrawingAct                                    (DrawingAct(..))
+import qualified Heroes.Cell                               as Cell
+import qualified Web.Drawing.Paletted                      as Paletted
+import qualified Web.Drawing.Regular                       as Regular
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Heroes.Platform where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -7,7 +8,7 @@ import Heroes.SpriteMeta                                 (Meta)
 import Control.Concurrent                                (ThreadId)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-class Platform where
+class Show ComplexSprite => Platform where
   --
   productionPrefix :: String
   staticSpriteExtension :: String

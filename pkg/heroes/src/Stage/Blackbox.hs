@@ -1,52 +1,58 @@
 {-# LANGUAGE RankNTypes #-}
 module Stage.Blackbox (
   with,
-  SoundCommands,
   Deps (..),
   In (..),
   Out(..),
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation.Scene                                   (Handle(..))
+import Animation                                         (GroupSizeOf)
 import Battle                                            (Battle)
+import Battle                                            (FighterId)
 import Battle.Setup                                      (Setup)
 import Heroes
+import Heroes.Aux                                        (Annotation)
 import Heroes.Plan                                       (Plan)
+import Heroes.UI                                         (Color)
+import Stage.Loading                                     (Loaded)
+import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Animation.Command                         as Animation
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Plan                               as Plan
 import qualified Heroes.UI.Sound                           as Sound
 import qualified Stage.Core                                as C
-import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  setup         :: Setup,
+  groupSizeOf :: GroupSizeOf,
   initialBattle :: Battle,
-  groupSizeOf   :: L.GroupSizeOf
+  setup :: Setup
 }
-
-type IsLoaded = Either SFX Creature -> Bool -- XXX copy-paste
 
 data In = In {
-  isLoaded :: IsLoaded,
-  fullInput :: Input.Full
+  fullInput :: Input.Full,
+  loaded :: Loaded
 }
 
-type SoundCommands = Maybe [Sound.Command]
-
 data Out = Out {
-  animationCommands :: L.AnimationCommands,
-  soundCommands     :: SoundCommands,
-  ghostPlacing      :: L.GhostPlacing,
-  extraColor        :: L.ExtraColor,
-  lightHexes        :: L.LightHexes,
-  darkHexes         :: L.DarkHexes,
-  intent            :: L.Intent,
-  exit              :: L.Exit
+  animationCommands :: V.Vector Animation.Command,
+  darkHexes :: [Hex],
+  exit :: Bool,
+  extraColor :: FighterId -> Maybe Color,
+  ghostPlacing :: Maybe Placing,
+  intent :: Maybe Annotation,
+  lightHexes :: [Hex],
+  loadRequests :: Set LoadRequest,
+  soundCommands :: V.Vector Sound.Command
+}
+
+data Data = Data {
+  plan :: Maybe Plan,
+  frameNumber :: Int,
+  subframeNumber :: Int
 }
 
 --------------------------------------------------------------------------------
@@ -54,7 +60,12 @@ data Out = Out {
 with :: Deps -> ((In -> IO Out) -> IO a) -> IO a
 with deps@(Deps {..}) next =
   C.with (C.Deps {..}) $ \core -> do
-    let data_ = Data (Plan.fromBattle initialBattle) 0 0
+    let
+      data_ = Data {
+        plan = Nothing,
+        frameNumber = 0,
+        subframeNumber = 0
+      }
     ref <- newIORef data_
     next $ \in_ -> do
       d0 <- readIORef ref
@@ -64,54 +75,45 @@ with deps@(Deps {..}) next =
 
 --------------------------------------------------------------------------------
 
-data Data = Data {
-  plan           :: Plan,
-  frameNumber    :: Int,
-  subframeNumber :: Int
-}
-
---------------------------------------------------------------------------------
-
-slowdown :: Int
+slowdown :: Int -- XXX move to Config
 slowdown = 1
 
-canExecute :: IsLoaded -> [Animation.Command] -> Bool
-canExecute isLoaded = all good
-  where
-  good c = case c of
-    Animation.HC (Handle'Fighter f) (Animation.Add _) -> isLoaded (Right (f ^. creature_))
-    Animation.HC (Handle'SFX sfx) (Animation.Add _) -> isLoaded (Left sfx)
-    _ -> True
-
 run :: (C.In -> IO C.Out) -> Data -> Deps -> In -> IO (Data, Out)
-run core d (Deps {..}) (In {..}) = do
-  let Data {plan, frameNumber, subframeNumber} = d
-      cmds = plan V.!? frameNumber
-      isActive0 = case cmds of
-        Just _ -> False
-        _ -> True
-      subframeNumber' = (subframeNumber + 1) `mod` slowdown
-      shouldIncrease = subframeNumber' == 0
-  --
+run core (Data {..}) (Deps {..}) (In {..}) = do
+  let
+    cmds = do
+      p <- plan
+      p V.!? frameNumber
+    --
+    isActive0 = case cmds of
+      Just _ -> False
+      _ -> True
+    --
+    subframeNumber' = (subframeNumber + 1) `mod` slowdown
+    frameNumber' =
+      case cmds of
+        Just _ ->
+          if subframeNumber' == 0
+          then frameNumber + 1
+          else frameNumber
+        Nothing -> 0
+    --
+    (animationCommands, soundCommands) =
+      maybe (V.empty, V.empty) id $ do
+        guard (subframeNumber == 0)
+        cmds
+  -- XXX should not call Core when animating!
   C.Out {..} <- core (C.In {..})
   --
-  -- XXX Kostyli ;)
-  let plan' = case cmds of
-                Just _  -> plan
-                Nothing -> Plan.make groupSizeOf update
-      --
-      frameNumber' = case cmds of
-                       Just (cs, _) ->
-                         if shouldIncrease && canExecute isLoaded cs -- XXX a bit wrong
-                         then frameNumber + 1
-                         else frameNumber
-                       Nothing -> 0
-      --
-      animationCommands = do
-        f <- fmap fst cmds <|> return []
-        guard shouldIncrease
-        return f
-      --
-      soundCommands = fmap snd cmds
+  let
+    (plan', loadRequests) =
+      case cmds of
+        Just _ -> (plan, empty)
+        Nothing ->
+          -- XXX will try to recompute plan each frame until resources are loaded
+          case Plan.make loaded groupSizeOf update of
+            Left l -> (Nothing, l)
+            Right p -> (Just p, empty)
+    --
   --
   return ((Data plan' frameNumber' subframeNumber'), (Out {..}))

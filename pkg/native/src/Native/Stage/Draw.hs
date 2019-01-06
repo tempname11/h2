@@ -1,35 +1,27 @@
-module Native.Stage.DrawEverything_ (
-  with,
-  Deps (..),
-  In (..),
-) where
+{-# OPTIONS_GHC -Wno-orphans #-}
+module Native.Stage.Draw () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.Platform
 import Heroes.Scaling
-import Heroes.StaticResources                            (StaticResources)
 import Heroes.UI
 import Native
 import Native.Platform ()
+import Stage.Draw
 import qualified Heroes.Cell                               as Cell
+import qualified Native.Stage.PrepareForDrawing_           as P
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import SDL                                               (($=))
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps {
-  renderer :: SDL.Renderer,
-  staticResources :: StaticResources
-}
-
-data In = In {
-  drawingAct :: DrawingAct
-}
-
---------------------------------------------------------------------------------
-
-with :: Deps -> ((In -> IO ()) -> IO a) -> IO a
-with deps next = next $ run deps
+instance Draw where
+  with (deps@Deps {..}) next =
+    P.with (P.Deps {..}) $
+      \pRun -> next $
+        \(in_@In {..}) -> do
+          P.Out {..} <- pRun (P.In {..})
+          run deps in_ drawingAct
 
 --------------------------------------------------------------------------------
 
@@ -39,8 +31,8 @@ data Style
 
 --------------------------------------------------------------------------------
 
-run :: Deps -> In -> IO ()
-run (Deps {..}) (In {..}) = do
+run :: Deps -> In -> DrawingAct -> IO ()
+run (Deps {..}) (In {..}) (DrawingAct {..}) = do
   SDL.rendererDrawColor renderer $= black
   SDL.clear renderer
   drawStatic 0 (staticResources ^. background_)
@@ -52,11 +44,7 @@ run (Deps {..}) (In {..}) = do
   SDL.fillRect renderer Nothing
   SDL.present renderer
   where
-  outline = drawingAct ^. outline_
-  shaded  = drawingAct ^. shaded_
-  copies  = drawingAct ^. copies_
-  curtain = drawingAct ^. curtain_
-
+  --
   drawStatic :: Point V2 CInt -> StaticSprite -> IO ()
   drawStatic p sprite = SDL.copy renderer texture rect0 rect1
     where

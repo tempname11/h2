@@ -8,9 +8,10 @@ module Animation.Scene (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
 import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
+import Heroes
+import qualified Heroes.Platform                           as Platform
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Position = Point V2 CInt
@@ -21,14 +22,17 @@ data Handle
   deriving (Eq, Ord, Show)
 
 data Actor = Actor {
-  position  :: Position,
-  height    :: CInt,
-  facing    :: Facing,
-  groupN    :: Int, -- XXX GroupNumber
-  frameN    :: Int,
+  sprite :: Platform.ComplexSprite,
+  position :: Position,
+  height :: CInt,
+  facing :: Facing,
+  groupN :: Int, -- XXX GroupNumber
+  frameN :: Int,
   subframeN :: Int,
-  animated  :: Bool
-} deriving (Show)
+  animated :: Bool
+}
+
+deriving instance Platform.Platform => Show Actor
 
 data Prop = Prop {
   position :: Position,

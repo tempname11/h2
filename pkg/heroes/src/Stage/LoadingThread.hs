@@ -1,8 +1,10 @@
-module Stage.LoadingThread ( -- XXX rename
+module Stage.LoadingThread (
   with,
   Deps (..),
   Prov (..),
-  LoadingChannels
+  LoadingChannels,
+  LoadRequest (..),
+  LoadResult (..)
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -20,9 +22,18 @@ import qualified Utils.NBChan                             as NBChan
 import Control.Concurrent                                (threadDelay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
+data LoadResult
+  = LoadResult'Creature Creature CreatureResource
+  | LoadResult'SFX SFX SFXResource
+
+data LoadRequest
+  = LoadRequest'Creature Creature
+  | LoadRequest'SFX SFX
+  deriving (Eq, Ord, Show)
+
 type LoadingChannels = (
-    NBChan (Either SFX Creature),
-    NBChan (Either (SFX, SFXResource) (Creature, CreatureResource))
+    NBChan LoadRequest,
+    NBChan LoadResult
   )
 
 data Deps = Deps {
@@ -46,14 +57,18 @@ with deps next = do
 
 loadingThread :: Platform => Deps -> LoadingChannels -> IO ()
 loadingThread (Deps {..}) (wishChan, loadedChan) = do
-  let load (Left s) = Left . (s,) <$> SFXResource.load essentials s
-      load (Right c) = Right . (c,) <$> CreatureResource.load essentials c
+  let
+    load = \case
+      LoadRequest'SFX s ->
+        LoadResult'SFX s <$> SFXResource.load essentials s
+      LoadRequest'Creature c ->
+        LoadResult'Creature c <$> CreatureResource.load essentials c
+  --
   fix $ \again -> do
     threadDelay _THREAD_DELAY_
     ws <- NBChan.drain wishChan
     for_ ws $ \w -> do
       print (w, "is wished to be loaded. So be it!" :: String)
-      when (w & \case { Left _ -> False; Right _ -> True }) $ do -- XXX
-        r <- load w
-        NBChan.trickle loadedChan r
+      r <- load w
+      NBChan.trickle loadedChan r
     again

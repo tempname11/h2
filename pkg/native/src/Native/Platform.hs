@@ -64,5 +64,8 @@ data NativeComplexSprite = NativeComplexSprite {
   groups  :: V.Vector Atlas.Group
 }
 
+instance Show NativeComplexSprite where
+  show _ = "NativeComplexSprite" -- XXX
+
 makeShorthands ''NativeStaticSprite
 makeShorthands ''NativeComplexSprite

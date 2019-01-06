@@ -6,21 +6,21 @@ module Stage.Animation (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
 import Animation
 import Animation.Command
 import Animation.Scene
-import qualified Stage.Links                               as L
+import Heroes
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
+import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  groupSizeOf :: L.GroupSizeOf
+  groupSizeOf :: GroupSizeOf
 }
 
 data In = In {
-  animationCommands :: L.AnimationCommands
+  animationCommands :: V.Vector Command
 }
 
 data Out = Out {
@@ -46,18 +46,9 @@ with (Deps {..}) next = do
 --------------------------------------------------------------------------------
 
 run :: GroupSizeOf -> Scene -> In -> (Scene, Out)
-run gso scene (In {..}) = (scene', out)
+run gso scene (In {..}) = (scene', Out {scene = scene'})
   where
-  scene' = t scene
-  out = Out {scene = scene'}
-  --
-  t :: Scene -> Scene
-  t = case animationCommands of
-    Just cs -> t' cs
-    Nothing -> id
-  --
-  t' :: [Command] -> Scene -> Scene
-  t' cs = increment gso >>> applyAll cs
+  scene' = increment gso >>> applyAll animationCommands $ scene
 
 increment :: GroupSizeOf -> Scene -> Scene
 increment groupSizeOf = over actors_ $ M.mapWithKey $ \h -> execState $ do
@@ -69,7 +60,7 @@ increment groupSizeOf = over actors_ $ M.mapWithKey $ \h -> execState $ do
     when (s == 0) $
       frameN_ %= ((+1) >>> (`mod` n))
 
-applyAll :: [Command] -> Scene -> Scene
+applyAll :: V.Vector Command -> Scene -> Scene
 applyAll cs s = foldr' apply s cs
 
 apply :: Command -> Scene -> Scene

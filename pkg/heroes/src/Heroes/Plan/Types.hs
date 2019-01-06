@@ -1,21 +1,29 @@
 module Heroes.Plan.Types where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
 import Animation
+import Heroes
+import Stage.Loading                                     (Loaded)
+import Stage.LoadingThread                               (LoadRequest)
 import qualified Animation.Command                         as Animation
 import qualified Heroes.UI.Sound                           as Sound
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Set                                  as S
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 newtype Offset = Offset Int
+type M0 = M ()
+type Plan = V.Vector (V.Vector Animation.Command, V.Vector Sound.Command)
 
-type Cmds = ([Animation.Command], [Sound.Command])
-type S a = State (IntMap Cmds) a
-type S0 = S ()
+type M =
+  ReaderT (GroupSizeOf, Loaded) (
+    StateT Offset (
+      WriterT [(Offset, Either Animation.Command Sound.Command)] (
+        Either (Set LoadRequest)
+      )
+    )
+  )
 
--- XXX very dubious naming and idea (custom monad instead?)
-type Sh = GroupSizeOf -> Offset -> S Offset -- SHortcut
-
-type Plan = V.Vector Cmds
+loadRequest :: LoadRequest -> M a
+loadRequest r = lift . lift . lift $ Left (S.singleton r)

@@ -6,7 +6,9 @@ import Animation.Scene
 import Heroes
 import Heroes.H3.Misc
 import Heroes.Plan.Types
+import Heroes.SFXResource                                (SFXResource(..))
 import Heroes.UI
+import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Heroes.Plan.Animation                     as Animation
 import qualified Heroes.Plan.Sound                         as Sound
 import qualified Heroes.UI.Sound                           as Sound
@@ -26,9 +28,11 @@ import Heroes.UI.Sound                                   (Sound(..))
 (><) :: Offset -> Offset -> Offset
 (Offset a) >< (Offset b) = Offset (max a b)
 
--- XXX share with as meleeAttackSh?
-rangeAttackSh :: (FighterId, FighterId) -> Sh
-rangeAttackSh (a, d) gso o = do
+-- XXX share with as meleeAttack?
+rangeAttack :: (FighterId, FighterId) -> M0
+rangeAttack (a, d) = do
+  o <- get
+  (gso, _) <- ask
   let ha = Handle'Fighter a
       hd = Handle'Fighter d
   let oa = o +! gso ha ga
@@ -42,10 +46,12 @@ rangeAttackSh (a, d) gso o = do
   Animation.setGroupNumber hd gi od
   Sound.playOnce (Sound'Creature (a ^. creature_) Sound.Attack) o
   Sound.playOnce (Sound'Creature (d ^. creature_) Sound.Defence) o
-  return $ oa >< od
+  put $ oa >< od
 
-meleeAttackSh :: (FighterId, FighterId, Bearing) -> Sh
-meleeAttackSh (a, d, _bear) gso o = do
+meleeAttack :: (FighterId, FighterId, Bearing) -> M0
+meleeAttack (a, d, _bear) = do
+  o <- get
+  (gso, _) <- ask
   let ha = Handle'Fighter a
       hd = Handle'Fighter d
   let oa = o +! gso ha ga
@@ -59,17 +65,23 @@ meleeAttackSh (a, d, _bear) gso o = do
   Animation.setGroupNumber hd gi od
   Sound.playOnce (Sound'Creature (a ^. creature_) Sound.Attack) o
   Sound.playOnce (Sound'Creature (d ^. creature_) Sound.Defence) o
-  return $ oa >< od
+  put $ oa >< od
 
-specialEffect :: (SFX, Facing, Placing) -> Sh
-specialEffect (sfx, f, p) gso o = do
+specialEffect :: (SFX, Facing, Placing) -> M0
+specialEffect (sfx, f, p) = do
+  o <- get
+  (gso, loaded) <- ask
+  sprite <- case (loaded ^. sfxes_) sfx of
+    Just (SFXResource { sprite }) -> return sprite
+    Nothing -> loadRequest (LoadRequest'SFX sfx)
   let
     h = Handle'SFX sfx
     actor = Actor {
+      sprite,
       position = actorPositionAt f p,
       height = 0,
       facing = f,
-      groupN = (\(GroupNumber g) -> g) sfxGroupNumber, -- XXX ugly
+      groupN = (\(GroupNumber g) -> g) sfxGroupNumber,
       frameN = 0,
       subframeN = 0,
       animated = True
@@ -78,17 +90,19 @@ specialEffect (sfx, f, p) gso o = do
   Animation.add h actor o
   Animation.remove h o'
   Sound.playOnce (Sound'SFX sfx) o
-  return o'
+  put o'
 
-death :: FighterId -> Sh
-death fyr gso o = do
+death :: FighterId -> M0
+death fyr = do
+  o <- get
+  (gso, _) <- ask
   let h = Handle'Fighter fyr
       g = is Dying
       o' = o +! gso h g
   Animation.setGroupNumber h g o
   Animation.setAnimated h False (o' +!. (-1))
   Sound.playOnce (Sound'Creature (fyr ^. creature_) Sound.Death) o
-  return o'
+  put o'
 
 obstaclePositionAt :: ObstacleType -> Facing -> Multiplacing -> Position
 obstaclePositionAt o _ (Multiplacing hex _) = 

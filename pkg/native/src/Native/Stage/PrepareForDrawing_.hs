@@ -22,7 +22,6 @@ import Native
 import Native.Platform
 import Stage.Loading                                     (Loaded)
 import qualified Heroes.UI.Specials                        as Specials
-import qualified Stage.Links                               as L
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Monad.Morph                               (generalize)
 import Control.Monad.Morph                               (hoist)
@@ -33,20 +32,20 @@ import qualified Data.Map.Strict                           as M
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps { noDeps :: () }
+data Deps = Deps {
+  renderer :: SDL.Renderer,
+  staticResources :: StaticResources
+}
 
 data In = In {
+  darkHexes :: [Hex],
+  extraColor :: FighterId -> Maybe Color,
+  lightHexes :: [Hex],
   loaded :: Loaded,
-  staticResources :: StaticResources,
-  scene :: Scene,
-  renderer :: SDL.Renderer,
-  extraColor :: L.ExtraColor,
-  lightHexes :: L.LightHexes,
-  darkHexes :: L.DarkHexes
+  scene :: Scene
 }
 
 data Out = Out {
-  wishes :: L.Wishes,
   drawingAct :: DrawingAct
 }
 
@@ -114,7 +113,7 @@ run' (Deps {..}) (In {..}) = do
       spriteOf (Handle'SFX s) =
         (loaded ^. sfxes_) s <&> view sprite_
       allActors = M.toList (scene ^. actors_)
-      (wishes, hfas) = partitionEithers
+      (_, hfas) = partitionEithers
         (onlyLoadedWith spriteOf <$> allActors)
   --
   palettesToUpdate <- morf $ zoom finalCache_ $

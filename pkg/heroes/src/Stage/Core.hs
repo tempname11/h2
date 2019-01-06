@@ -16,7 +16,6 @@ import Common.Hot
 import Heroes
 import Heroes.Aux
 import Heroes.UI
-import qualified Stage.Links                               as L
 import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Placing                            as Placing
 import qualified Heroes.ControlMap                         as ControlMap
@@ -29,23 +28,23 @@ import Safe                                              (atMay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  setup :: Setup,
-  initialBattle :: Battle
+  initialBattle :: Battle,
+  setup :: Setup
 }
 
 data In = In {
-  isActive0   :: L.IsActive,
-  fullInput   :: Input.Full
+  isActive0 :: Bool,
+  fullInput :: Input.Full
 }
 
 data Out = Out {
-  update       :: L.Update,
-  intent       :: L.Intent,
-  ghostPlacing :: L.GhostPlacing,
-  extraColor   :: L.ExtraColor,
-  lightHexes   :: L.LightHexes,
-  darkHexes    :: L.DarkHexes,
-  exit         :: L.Exit
+  darkHexes :: [Hex],
+  exit :: Bool,
+  extraColor :: FighterId -> Maybe Color,
+  ghostPlacing :: Maybe Placing,
+  intent :: Maybe Annotation,
+  lightHexes :: [Hex],
+  update :: AM.Update
 }
 
 --------------------------------------------------------------------------------

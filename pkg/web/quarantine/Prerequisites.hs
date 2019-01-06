@@ -12,7 +12,6 @@ import Web.Drawing
 import Web.Drawing.Utilities                             (makeTexture)
 import qualified Heroes.Essentials                         as Essentials
 import qualified Native.FilePath                           as FilePath
-import qualified Stage.Links                               as L
 import qualified Web.GLES                                  as GL
 import qualified Web.Image                                 as Image
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

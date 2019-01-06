@@ -6,62 +6,76 @@ module Heroes.Plan (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
-import Battle
-import Heroes.Plan.Types
-import Heroes.Plan.Other
-import Heroes.Plan.Path
 import Animation
 import Animation.Scene
-
+import Battle
+import Heroes
+import Heroes.CreatureResource                           (CreatureResource(..))
+import Heroes.Plan.Other
+import Heroes.Plan.Path
+import Heroes.Plan.Types
+import Stage.Loading                                     (Loaded)
+import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Animation.Command                         as Animation
 import qualified Battle.AM                                 as AM
+import qualified Heroes.UI.Sound                           as Sound
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Map.Strict                           as M
+import qualified Data.Set                                  as S
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Mutable                       as MV
-import qualified Data.IntMap.Strict                        as IM
-import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-{-
-data S a where
-  Append :: (Handle, Command) -> S ()
-  GetGroupSizeOf :: Handle -> GroupNumber -> S GroupSize
-  Sequentially :: [S a] ->
--}
 
 none :: Plan
 none = V.empty
 
-make :: GroupSizeOf -> AM.Update -> Plan
-make gso = \case
-  AM.JumpTo b -> fromBattle b
-  AM.Normal ms -> fromMarkers ms gso
+make :: Loaded -> GroupSizeOf -> AM.Update -> Either (Set LoadRequest) Plan
+make loaded gso = \case
+  AM.JumpTo b -> fromBattle b loaded
+  AM.Normal ms -> fromMarkers ms gso loaded
 
-fromBattle :: Battle -> Plan
-fromBattle b = fromIntMap im
+fromBattle ::
+  Battle ->
+  Loaded ->
+  Either (Set LoadRequest) Plan
+fromBattle b loaded =
+  addActors' <&>
+    \addActors ->
+      fromList (Offset 10, reset <> fade <> addObstacles <> addActors)
   where
-  im :: IntMap Cmds
-  im = IM.fromList [
-      (0, (
-        os <>
-        cs <>
-        [Animation.RemoveAll, Animation.SetCurtainOpacity 1.0], []
-      )),
-      (1, ([Animation.SetCurtainOpacity 0.9], [])),
-      (2, ([Animation.SetCurtainOpacity 0.8], [])),
-      (3, ([Animation.SetCurtainOpacity 0.7], [])),
-      (4, ([Animation.SetCurtainOpacity 0.6], [])),
-      (5, ([Animation.SetCurtainOpacity 0.5], [])),
-      (6, ([Animation.SetCurtainOpacity 0.4], [])),
-      (7, ([Animation.SetCurtainOpacity 0.3], [])),
-      (8, ([Animation.SetCurtainOpacity 0.2], [])),
-      (9, ([Animation.SetCurtainOpacity 0.1], [])),
-      (10,([Animation.SetCurtainOpacity 0.0], []))
+  reset = [(Offset 0, Left Animation.RemoveAll)]
+  --
+  fade =
+    [
+      (Offset 0, Left (Animation.SetCurtainOpacity 1.0)),
+      (Offset 1, Left (Animation.SetCurtainOpacity 0.9)),
+      (Offset 2, Left (Animation.SetCurtainOpacity 0.8)),
+      (Offset 3, Left (Animation.SetCurtainOpacity 0.7)),
+      (Offset 4, Left (Animation.SetCurtainOpacity 0.6)),
+      (Offset 5, Left (Animation.SetCurtainOpacity 0.5)),
+      (Offset 6, Left (Animation.SetCurtainOpacity 0.4)),
+      (Offset 7, Left (Animation.SetCurtainOpacity 0.3)),
+      (Offset 8, Left (Animation.SetCurtainOpacity 0.2)),
+      (Offset 9, Left (Animation.SetCurtainOpacity 0.1)),
+      (Offset 10, Left (Animation.SetCurtainOpacity 0.0))
     ]
   --
-  os :: [Animation.Command]
-  os = map convertO . M.toList $ b ^. obstacles_
+  addObstacles = fmap (atFrame0 . convertO) . M.toList $ b ^. obstacles_
+  addActors' = fmap2 atFrame0 . pipe . fmap convertF . M.toList $ b ^. fighters_
+  atFrame0 x = (Offset 0, Left x)
+  --
+  pipe :: -- XXX better naming?
+    [Either LoadRequest Animation.Command] ->
+    Either (Set LoadRequest) [Animation.Command]
+  pipe [] = Right []
+  pipe (Left r : xs) =
+    case pipe xs of
+      Left rs -> Left (S.insert r rs)
+      Right _ -> Left (S.singleton r)
+  pipe (Right c : xs) =
+    case pipe xs of
+      Left rs -> Left rs
+      Right cs -> Right (c : cs)
   --
   convertO :: (ObstacleId, ObstacleAttr) -> Animation.Command
   convertO (ob, attr) = Animation.PC ob (Animation.PAdd prop)
@@ -71,59 +85,68 @@ fromBattle b = fromIntMap im
       facing = East
     }
   --
-  cs :: [Animation.Command]
-  cs = map convertF . M.toList $ b ^. fighters_
-  --
-  convertF :: (FighterId, FighterAttr) -> Animation.Command
-  convertF (fyr, attr) = Animation.HC (Handle'Fighter fyr) (Animation.Add actor)
+  convertF :: (FighterId, FighterAttr) -> Either LoadRequest Animation.Command
+  convertF (fyr, attr) =
+    actor' <&>
+      \actor ->
+        Animation.HC (Handle'Fighter fyr) (Animation.Add actor)
     where
-      actor = Actor {
-        position = actorPositionAt (attr ^. facing_) (attr ^. placing_),
-        height = 0,
-        facing = attr ^. facing_,
-        groupN = g,
-        frameN = 0,
-        subframeN = 0,
-        animated = True
-      }
       GroupNumber g = is Idling
+      c = fyr ^. creature_
+      actor' = case (loaded ^. creatures_) c of
+        Just (CreatureResource { sprite }) ->
+          Right $ Actor {
+            sprite,
+            position = actorPositionAt (attr ^. facing_) (attr ^. placing_),
+            height = 0,
+            facing = attr ^. facing_,
+            groupN = g,
+            frameN = 0,
+            subframeN = 0,
+            animated = True
+          }
+        Nothing -> Left (LoadRequest'Creature c)
 
-fromMarkers :: [AM.Marker] -> GroupSizeOf -> Plan
-fromMarkers ms gso =
-  fromIntMap $
-    flip execState empty $
-      fromMarkers' ms gso (Offset 0)
+fromMarkers ::
+  [AM.Marker] ->
+  GroupSizeOf ->
+  Loaded ->
+  Either (Set LoadRequest) Plan
+fromMarkers ms gso loaded =
+  fmap fromList $
+    runWriterT $
+      flip execStateT (Offset 0) $
+        flip runReaderT (gso, loaded) $
+          fromMarkers' ms
 
-fromIntMap :: IntMap Cmds -> Plan
-fromIntMap im = V.create $ do
-  let n = if IM.null im
-          then 0
-          -- XXX why is the "1 +" below?
-          else 1 + fst (IM.findMax im) -- findMax is partial :(
-  mv <- MV.replicate n ([], [])
-  for_ (IM.toList im) $ \(k, m) ->
-    MV.write mv k m
+fromList :: (Offset, [(Offset, Either Animation.Command Sound.Command)]) -> Plan
+fromList (Offset n, cs) = V.create $ do
+  mv <- MV.replicate (n + 1) (V.empty, V.empty) -- XXX get rid of "+ 1"
+  for_ cs $ \(Offset i, c) ->
+    case c of
+      Left a -> MV.modify mv (over _1 (V.cons a)) i
+      Right s -> MV.modify mv (over _2 (V.cons s)) i
   return mv
 
-fromMarkers' :: [AM.Marker] -> GroupSizeOf -> Offset -> S0
-fromMarkers' [] _ _ = return ()
-fromMarkers' (m : ms) gso o = case m of
+fromMarkers' :: [AM.Marker] -> M0
+fromMarkers' [] = return ()
+fromMarkers' (m : ms) = case m of
   AM.MeleeAttack x -> do
-    o' <- meleeAttackSh x gso o
-    fromMarkers' ms gso o'
+    meleeAttack x
+    fromMarkers' ms
   AM.RangeAttack x -> do
-    o' <- rangeAttackSh x gso o
-    fromMarkers' ms gso o'
+    rangeAttack x
+    fromMarkers' ms
   AM.Death x -> do
-    o' <- death x gso o
-    fromMarkers' ms gso o'
+    death x
+    fromMarkers' ms
   AM.SpecialEffect x -> do
-    o' <- specialEffect x gso o
-    fromMarkers' ms gso o'
+    specialEffect x
+    fromMarkers' ms
   AM.Path uc p -> do
     let (ps, ms') = consecutivePath uc ms
-    o' <- path uc (p:ps) gso o
-    fromMarkers' ms' gso o'
+    path uc (p : ps)
+    fromMarkers' ms'
 
 consecutivePath :: FighterId -> [AM.Marker] -> ([AM.PathMarker], [AM.Marker])
 consecutivePath uc ms =
