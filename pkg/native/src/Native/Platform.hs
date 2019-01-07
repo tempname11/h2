@@ -20,10 +20,12 @@ instance Platform where
   --
   productionPrefix = ".production-assets/"
   staticSpriteExtension = ".bmp"
+  forkPreferred = forkOS
   --
   type StaticSprite = NativeStaticSprite
   type CursorResources = V.Vector (V.Vector SDL.Cursor)
   type Renderer = SDL.Renderer
+  type InputProvider = ()
   --
   type ComplexSprite = NativeComplexSprite
   loadComplexSprite meta pngPath = do
@@ -50,8 +52,6 @@ instance Platform where
   type Chunk = Mix.Chunk
   loadChunk = Mix.load
   freeChunk = Mix.free
-  --
-  forkPreferred = forkOS
 
 data NativeStaticSprite = NativeStaticSprite {
   texture    :: SDL.Texture,

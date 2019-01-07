@@ -24,4 +24,4 @@ data In = In {
 }
 
 class Draw where
-  with :: Deps -> ((In -> IO ()) -> IO a) -> IO a
+  with :: Deps -> ((In -> IO ()) -> IO ()) -> IO ()

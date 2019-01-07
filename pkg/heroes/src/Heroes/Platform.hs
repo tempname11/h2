@@ -12,7 +12,9 @@ class Show ComplexSprite => Platform where
   --
   productionPrefix :: String
   staticSpriteExtension :: String
+  forkPreferred :: IO () -> IO ThreadId
   --
+  type InputProvider
   type Renderer
   type CursorResources
   type StaticSprite
@@ -24,5 +26,3 @@ class Show ComplexSprite => Platform where
   type Chunk
   loadChunk :: String -> IO Chunk
   freeChunk :: Chunk -> IO ()
-  --
-  forkPreferred :: IO () -> IO ThreadId

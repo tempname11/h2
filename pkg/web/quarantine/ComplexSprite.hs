@@ -14,7 +14,7 @@ import qualified Web.Image                                 as Image
 import qualified JavaScript.TypedArray                     as TypedArray
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-load :: GL.Context -> Creature -> Meta -> IO ComplexSprite
+load :: GL.Ctx -> Creature -> Meta -> IO ComplexSprite
 load ctx c meta = do
   image <- Image.load (pngPathOf c)
   atlasTexture <- makeTexture ctx image

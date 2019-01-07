@@ -31,6 +31,8 @@ instance Prerequisites where
     cursorResources <-
       V.concat <$> for Cursor.stuff (uncurry Resource.loadCursor)
     --
+    let inputProvider = ()
+    --
     result <- next $ Prov {..}
     --
     (mapM_ . mapM_) SDL.freeCursor cursorResources

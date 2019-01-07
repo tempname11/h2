@@ -4,8 +4,10 @@ module Web.Drawing.Quad (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import GLES                                              (GLES)
 import Web
-import qualified Web.GLES                                  as GL
+import Web.GLES ()
+import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import JavaScript.TypedArray.ArrayBuffer (ArrayBuffer)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -18,12 +20,11 @@ foreign import javascript unsafe
   "$r = new Float32Array([1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1])"
   createQuadArray :: IO ArrayBuffer
 
-createBuffer :: GL.Context -> IO QBuffer
+createBuffer :: GLES => GL.Ctx -> IO QBuffer
 createBuffer ctx = do
   array <- createQuadArray
-  GLX.runGL ctx $ do
-    buffer <- GLX.createBuffer
-    GLX.bindBuffer GL.gl_ARRAY_BUFFER buffer
-    GLX.bufferData GL.gl_ARRAY_BUFFER array GL.gl_STATIC_DRAW
-    GLX.bindBuffer_null GL.gl_ARRAY_BUFFER
-    return $ QBuffer buffer
+  buffer <- GL.glCreateBuffer ctx
+  GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER buffer
+  GL.glBufferData ctx GL.gl_ARRAY_BUFFER array GL.gl_STATIC_DRAW
+  GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER GL.noBuffer
+  return $ QBuffer buffer

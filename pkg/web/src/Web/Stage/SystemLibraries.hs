@@ -1,10 +1,12 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
-module Web.Stage.ChangeCursor () where
+module Web.Stage.SystemLibraries (
+  with,
+) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Web
-import Stage.ChangeCursor
+import Stage.SystemLibraries
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-instance ChangeCursor where
-  with _ next = next $ const $ return () -- XXX shim
+instance SystemLibraries where
+  with next = next $ Prov { noProv = () }

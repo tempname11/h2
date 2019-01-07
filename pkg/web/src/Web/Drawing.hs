@@ -2,8 +2,9 @@
 module Web.Drawing where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import GLES                                              (GLES)
 import Web
-import qualified Web.GLES                                  as GL
+import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data CopySpec = CopySpec {
@@ -13,13 +14,11 @@ data CopySpec = CopySpec {
   screenPlace :: Point V2 Float
 }
 
---------------------------------------------------------------------------------
-
-clear :: GL.Context -> IO ()
-clear ctx = do
-  GL.clearColor ctx 0 0 0 1
-  GL.clear ctx GL.gl_COLOR_BUFFER_BIT
-
---------------------------------------------------------------------------------
-
 makeShorthands ''CopySpec
+
+--------------------------------------------------------------------------------
+
+clear :: GLES => GL.Ctx -> IO ()
+clear ctx = do
+  GL.glClearColor ctx 0 0 0 1
+  GL.glClear ctx GL.gl_COLOR_BUFFER_BIT
