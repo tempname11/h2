@@ -18,6 +18,7 @@ import Heroes.UI                                         (Color)
 import Stage.Loading                                     (Loaded)
 import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Animation.Command                         as Animation
+import qualified Battle.AM                                 as AM
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Plan                               as Plan
 import qualified Heroes.UI.Sound                           as Sound
@@ -50,7 +51,7 @@ data Out = Out {
 }
 
 data Data = Data {
-  plan :: Maybe Plan,
+  updateOrPlan :: Either AM.Update Plan,
   frameNumber :: Int,
   subframeNumber :: Int
 }
@@ -62,7 +63,7 @@ with deps@(Deps {..}) next =
   C.with (C.Deps {..}) $ \core -> do
     let
       data_ = Data {
-        plan = Nothing,
+        updateOrPlan = Left (AM.JumpTo initialBattle),
         frameNumber = 0,
         subframeNumber = 0
       }
@@ -82,7 +83,10 @@ run :: (C.In -> IO C.Out) -> Data -> Deps -> In -> IO (Data, Out)
 run core (Data {..}) (Deps {..}) (In {..}) = do
   let
     cmds = do
-      p <- plan
+      p <-
+        case updateOrPlan of
+          Left _ -> Nothing
+          Right p -> Just p
       p V.!? frameNumber
     --
     isActive0 = case cmds of
@@ -106,14 +110,28 @@ run core (Data {..}) (Deps {..}) (In {..}) = do
   C.Out {..} <- core (C.In {..})
   --
   let
-    (plan', loadRequests) =
+    (updateOrPlan', loadRequests) =
       case cmds of
-        Just _ -> (plan, empty)
+        Just _ -> (updateOrPlan, empty)
         Nothing ->
-          -- XXX will try to recompute plan each frame until resources are loaded
-          case Plan.make loaded groupSizeOf update of
-            Left l -> (Nothing, l)
-            Right p -> (Just p, empty)
-    --
+          let
+            realUpdate =
+              case updateOrPlan of
+                Left u -> u
+                Right _ -> update -- XXX hacky as hell
+          in
+            -- XXX will try to recompute plan each frame,
+            -- until resources are loaded
+            case Plan.make loaded groupSizeOf realUpdate of
+              Left l -> (Left realUpdate, l)
+              Right p -> (Right p, empty)
   --
-  return ((Data plan' frameNumber' subframeNumber'), (Out {..}))
+  return 
+    (
+      Data {
+        updateOrPlan = updateOrPlan',
+        frameNumber = frameNumber',
+        subframeNumber = subframeNumber'
+      },
+      Out {..}
+    )

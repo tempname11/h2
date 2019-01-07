@@ -41,7 +41,7 @@ fromBattle ::
 fromBattle b loaded =
   addActors' <&>
     \addActors ->
-      fromList (Offset 10, reset <> fade <> addObstacles <> addActors)
+      fromList (Offset 11, reset <> fade <> addObstacles <> addActors)
   where
   reset = [(Offset 0, Left Animation.RemoveAll)]
   --
@@ -121,7 +121,7 @@ fromMarkers ms gso loaded =
 
 fromList :: (Offset, [(Offset, Either Animation.Command Sound.Command)]) -> Plan
 fromList (Offset n, cs) = V.create $ do
-  mv <- MV.replicate (n + 1) (V.empty, V.empty) -- XXX get rid of "+ 1"
+  mv <- MV.replicate n (V.empty, V.empty)
   for_ cs $ \(Offset i, c) ->
     case c of
       Left a -> MV.modify mv (over _1 (V.cons a)) i

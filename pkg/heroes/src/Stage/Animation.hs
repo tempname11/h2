@@ -46,7 +46,7 @@ with (Deps {..}) next = do
 --------------------------------------------------------------------------------
 
 run :: GroupSizeOf -> Scene -> In -> (Scene, Out)
-run gso scene (In {..}) = (scene', Out {scene = scene'})
+run gso scene (In {..}) = (scene', Out { scene = scene' })
   where
   scene' = increment gso >>> applyAll animationCommands $ scene
 

@@ -19,7 +19,7 @@ path fyr ps = do
   path' False fyr ps
   o' <- get
   Sound.start (Sound'Creature (fyr ^. creature_) Sound.Move) o
-  Sound.stop  (Sound'Creature (fyr ^. creature_) Sound.Move) o'
+  Sound.stop  (Sound'Creature (fyr ^. creature_) Sound.Move) (o' +!. (-1))
   let h = Handle'Fighter fyr
   Animation.setGroupNumber h (is Idling) o'
 
@@ -57,7 +57,7 @@ handleFlight prevMove a b fyr = do
       m = framesPerMove
   when (not prevMove) $
     Animation.setGroupNumber h g o
-  for_ [1..m] $ \i -> do
+  for_ [0 .. m - 1] $ \i -> do
     let o' = o +!. i
         w :: Double
         w = (§) i / (§) m
@@ -76,7 +76,7 @@ handleMove prevMove fyr (p0, f, p1) = do
     Animation.setGroupNumber h g o
   let a = actorPositionAt f p0
       b = actorPositionAt f p1
-  for_ [1..m] $ \i -> do
+  for_ [0 .. m - 1] $ \i -> do
     let o' = o +!. i
         w = (§) i / (§) m
         z = lerp' w b a
@@ -94,4 +94,4 @@ handleTurn fyr (f, p) = do
   Animation.setGroupNumber h g o
   Animation.setFacing h f o'
   Animation.setPosition h z o'
-  put o'
+  put (o' +!. 1)

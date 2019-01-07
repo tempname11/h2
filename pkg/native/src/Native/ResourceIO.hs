@@ -59,7 +59,6 @@ loadStatic :: SDL.Renderer ->
           (SDL.Texture -> IO ()) ->
           String -> IO StaticSprite
 loadStatic renderer surfaceIO textureIO path = do
-  traceShowM path
   surface <- SDL.loadBMP path
   void $ surfaceIO surface
   dimensions <- SDL.surfaceDimensions surface

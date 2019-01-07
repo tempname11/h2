@@ -46,7 +46,7 @@ rangeAttack (a, d) = do
   Animation.setGroupNumber hd gi od
   Sound.playOnce (Sound'Creature (a ^. creature_) Sound.Attack) o
   Sound.playOnce (Sound'Creature (d ^. creature_) Sound.Defence) o
-  put $ oa >< od
+  put $ (oa >< od) +!. 1
 
 meleeAttack :: (FighterId, FighterId, Bearing) -> M0
 meleeAttack (a, d, _bear) = do
@@ -65,7 +65,7 @@ meleeAttack (a, d, _bear) = do
   Animation.setGroupNumber hd gi od
   Sound.playOnce (Sound'Creature (a ^. creature_) Sound.Attack) o
   Sound.playOnce (Sound'Creature (d ^. creature_) Sound.Defence) o
-  put $ oa >< od
+  put $ (oa >< od) +!. 1
 
 specialEffect :: (SFX, Facing, Placing) -> M0
 specialEffect (sfx, f, p) = do
@@ -90,7 +90,7 @@ specialEffect (sfx, f, p) = do
   Animation.add h actor o
   Animation.remove h o'
   Sound.playOnce (Sound'SFX sfx) o
-  put o'
+  put $ o' +!. 1
 
 death :: FighterId -> M0
 death fyr = do
