@@ -36,7 +36,7 @@ deriving instance Platform.Platform => Show Actor
 
 data Prop = Prop {
   position :: Position,
-  facing   :: Facing
+  facing :: Facing
 } deriving (Show)
 
 data Scene = Scene {
@@ -45,7 +45,6 @@ data Scene = Scene {
   curtain :: Float
 } deriving (Show)
 
---------------------------------------------------------------------------------
-
 makeShorthands ''Actor
+makeShorthands ''Prop
 makeShorthands ''Scene

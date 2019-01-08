@@ -22,20 +22,20 @@ makeShorthands ''CreatureResource
 
 --------------------------------------------------------------------------------
 
-load :: Platform => Essentials -> Creature -> IO CreatureResource
-load (Essentials {..}) c = do
+load :: Platform => Platform.Renderer -> Essentials -> Creature -> IO CreatureResource
+load r (Essentials {..}) c = do
   let
     pngPath = FilePath.pngPathOf (H3.cDefName c)
     meta = creatureMeta c
   --
-  sprite <- Platform.loadComplexSprite meta pngPath
+  sprite <- Platform.loadComplexSprite r meta pngPath
   --
   let soundTypes = Sound.allTypes & if H3.shoots c
                                     then id
                                     else filter (/= Sound.Shot)
   --
   sounds <- fmap M.fromList $ for soundTypes $ \t -> do
-    let path = FilePath.h3 <> "Sounds/" <> prefix <> suffix <> ".wav"
+    let path = FilePath.prod <> "Sounds/" <> prefix <> suffix <> ".wav"
         prefix = H3.cSndName c
         suffix = Sound.suffix t
     putStrLn $ "Loading sound... " <> path

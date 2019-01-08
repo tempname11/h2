@@ -43,3 +43,10 @@ executables:
     cpp-options: -DMAIN_MODULE=Web.Artifacts.Prototype1
     dependencies:
       - heroes-web
+
+  game:
+    source-dirs: misc
+    main: Main.hs
+    cpp-options: -DMAIN_MODULE=Web.Artifacts.Game
+    dependencies:
+      - heroes-web

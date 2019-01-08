@@ -19,14 +19,14 @@ makeShorthands ''SFXResource
 
 --------------------------------------------------------------------------------
 
-load :: Platform => Essentials -> SFX -> IO SFXResource
-load (Essentials {..}) s = do
+load :: Platform => Platform.Renderer -> Essentials -> SFX -> IO SFXResource
+load r (Essentials {..}) s = do
   let
     pngPath = FilePath.pngPathOf (H3.sDefName s)
     meta = sfxMeta s
-  sprite <- Platform.loadComplexSprite meta pngPath
+  sprite <- Platform.loadComplexSprite r meta pngPath
   sound <- do
-    let path = FilePath.h3 <> "Sounds/" <> H3.sSndName s <> ".wav"
+    let path = FilePath.prod <> "Sounds/" <> H3.sSndName s <> ".wav"
     putStrLn $ "Loading sound... " <> path
     Platform.loadChunk path
   --

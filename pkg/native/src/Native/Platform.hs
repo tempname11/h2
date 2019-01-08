@@ -28,7 +28,7 @@ instance Platform where
   type InputProvider = ()
   --
   type ComplexSprite = NativeComplexSprite
-  loadComplexSprite meta pngPath = do
+  loadComplexSprite _ meta pngPath = do
     putStrLn $ "Loading... " <> pngPath
     result <- Juicy.readPng pngPath
     --

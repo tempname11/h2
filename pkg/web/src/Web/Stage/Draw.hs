@@ -2,6 +2,9 @@
 module Web.Stage.Draw () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Animation.Scene                                   (Actor)
+import Animation.Scene                                   (Prop)
+import Battle                                            (ObstacleId)
 import Heroes.StaticResources                            (StaticResources(..))
 import Heroes.UI                                         (fieldCenter)
 import Stage.Draw
@@ -15,6 +18,7 @@ import qualified Web.Drawing.OneColor                      as OneColor
 import qualified Web.Drawing.Paletted                      as Paletted
 import qualified Web.Drawing.Regular                       as Regular
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Map.Strict                           as M
 import qualified JavaScript.Web.AnimationFrame             as AF
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -29,13 +33,28 @@ instance Draw where
 
 --------------------------------------------------------------------------------
 
-{-
-  darkHexes :: [Hex],
-  extraColor :: FighterId -> Maybe Color,
-  lightHexes :: [Hex],
-  loaded :: Loaded,
-  scene :: Scene
--}
+fromActor ::
+  Actor ->
+  Paletted.Cmd
+fromActor actor = Paletted.Cmd sprite spec
+  where
+  sprite = actor ^. sprite_
+  frame = (sprite ^. meta_ . groups_) & (! g) & (! f) -- XXX partial...
+  f = actor ^. frameN_
+  g = actor ^. groupN_
+  -- @copypaste from Native.Stage.PrepareForDrawing_.toCopy
+  facing = actor ^. facing_
+  screenPlace = (<§>) ((actor ^. position_) .+^ offset)
+  offset = (frame ^. offset_) * sign
+  sign = case facing of
+    West -> V2 (-1) 1
+    East -> 1
+  spec = CopySpec {
+    box = (<§>) (frame ^. box_),
+    place = (<§>) (frame ^. place_),
+    screenPlace,
+    screenBox = (<§>) ((frame ^. box_) * sign)
+  }
 
 run ::
   With (Handler Regular.Cmd) ->
@@ -47,18 +66,36 @@ run ::
   IO ()
 run regular paletted oneColor ctx (Deps {..}) (In {..}) = do
   let
-    curtain = scene ^. curtain_
+    curtain = 255 * scene ^. curtain_
+    comparingY = (comparing . view) (position_ . _y)
+    actors = sortBy comparingY $ M.elems $ scene ^. actors_
+    props = M.assocs $ scene ^. props_
     StaticResources {..} = staticResources
     --
     bgCmd = fullCopy background 0
     outline = toRegularCmd cellOutline <$> darkHexes
     shaded = toRegularCmd cellShaded <$> lightHexes
-    regularCmds = [bgCmd] <> shaded <> outline
+    regularCmds = [bgCmd] <> (fromProp <$> props) <> shaded <> outline
     toRegularCmd sprite hex =
       fullCopy sprite $
         (<§>) (fieldCenter .+^ Cell.fromHex hex)
     --
-    palettedCmds = []
+    fromProp :: (ObstacleId, Prop) -> Regular.Cmd
+    fromProp (o, prop) = Regular.Cmd sprite spec
+      where
+      sprite = obstacles (o ^. otype_)
+      sign = case prop ^. facing_ of
+        West -> V2 (-1) 1
+        East -> 1
+      screenPlace = (<§>) (prop ^. position_)
+      spec = CopySpec {
+        box = sprite ^. dimensions_,
+        place = 0,
+        screenPlace,
+        screenBox = (sprite ^. dimensions_) * sign
+      }
+    --
+    palettedCmds = fromActor <$> actors
   --
   GL.glEnable ctx GL.gl_BLEND
   GL.glBlendFunc ctx GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA

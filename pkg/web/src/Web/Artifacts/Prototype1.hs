@@ -5,7 +5,8 @@ module Web.Artifacts.Prototype1 where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.UI                                         (viewportSize)
 import Web
-import Web.Platform                                      (Audio)
+import Web.Platform ()
+import Web.Audio                                         (Audio)
 import qualified Heroes.Essentials                         as Essentials
 import qualified Heroes.Input                              as Input
 import qualified Heroes.FilePath                           as FilePath

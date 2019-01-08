@@ -15,9 +15,10 @@ import Heroes.Platform                                   (Platform)
 import Heroes.Platform                                   (forkPreferred)
 import Heroes.SFXResource                                (SFXResource)
 import Utils.NBChan                                      (NBChan)
-import qualified Heroes.CreatureResource                  as CreatureResource
-import qualified Heroes.SFXResource                       as SFXResource
-import qualified Utils.NBChan                             as NBChan
+import qualified Heroes.CreatureResource                   as CreatureResource
+import qualified Heroes.Platform                           as Platform
+import qualified Heroes.SFXResource                        as SFXResource
+import qualified Utils.NBChan                              as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (threadDelay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -37,6 +38,7 @@ type LoadingChannels = (
   )
 
 data Deps = Deps {
+  renderer :: Platform.Renderer,
   essentials :: Essentials
 }
 
@@ -60,9 +62,9 @@ loadingThread (Deps {..}) (wishChan, loadedChan) = do
   let
     load = \case
       LoadRequest'SFX s ->
-        LoadResult'SFX s <$> SFXResource.load essentials s
+        LoadResult'SFX s <$> SFXResource.load renderer essentials s
       LoadRequest'Creature c ->
-        LoadResult'Creature c <$> CreatureResource.load essentials c
+        LoadResult'Creature c <$> CreatureResource.load renderer essentials c
   --
   fix $ \again -> do
     threadDelay _THREAD_DELAY_

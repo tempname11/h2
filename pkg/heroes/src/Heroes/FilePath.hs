@@ -8,6 +8,7 @@ import Heroes.Platform                                   (Platform)
 
 type Path = String
 
+-- XXX rename, remove?
 h3 :: String
 h3 = "h3-assets/"
 

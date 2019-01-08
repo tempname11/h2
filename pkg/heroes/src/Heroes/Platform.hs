@@ -20,7 +20,7 @@ class Show ComplexSprite => Platform where
   type StaticSprite
   --
   type ComplexSprite
-  loadComplexSprite :: Meta -> String -> IO ComplexSprite
+  loadComplexSprite :: Renderer -> Meta -> String -> IO ComplexSprite
   destroyComplexSprite :: ComplexSprite -> IO ()
   --
   type Chunk
