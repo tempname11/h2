@@ -36,12 +36,18 @@ You will need [SDL2](https://www.libsdl.org/), [SDL_mixer 2.0](https://www.libsd
 Here's what you'll hopefully see:
 ![screenshot](https://i.imgur.com/JNxfE5Z.jpg)
 
-#### Bonus: web build
+#### Bonus: web stuff
 ```sh
-./hhcli stack-web build
+./hhcli build-web
+```
+This will currently produce a broken build, because of a GHCJS bug. If you're feeling brave, see [this](https://github.com/ziocroc/Ombra/blob/master/ghcjs-rts-bug.patch) and [this](https://github.com/ziocroc/Ombra/wiki/Installation) for a description of an identical problem and a hacky solution.
+
+```sh
+./hhcli prepare-web
+./hhcli run-web
 ```
 
-This will currently produce a broken build, because of a GHCJS bug. If you're feeling brave, see [this](https://github.com/ziocroc/Ombra/blob/master/ghcjs-rts-bug.patch) and [this](https://github.com/ziocroc/Ombra/wiki/Installation) for a description of an identical problem and a hacky solution.
+Finally, visit localhost:8000.
 
 ## Platform remarks
 The instructions have been written and tested on Mac OS, but should hopefully be somewhat reproducible on Windows and Linux. All of the dependencies are cross-platform.
