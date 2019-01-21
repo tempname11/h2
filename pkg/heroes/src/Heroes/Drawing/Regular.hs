@@ -1,37 +1,31 @@
-module Web.Drawing.Paletted (
+module Heroes.Drawing.Regular (
   with,
   Cmd (..),
 ) where
 
--- XXX: this file is very similar to Regular.hs
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common.With
 import GLES                                              (GLES)
+import Heroes
+import Heroes.Drawing
+import Heroes.Drawing.Utilities
+import Heroes.Platform                                   (Platform)
 import Heroes.UI (viewportSize)
-import Web
-import Web.Drawing
-import Web.Drawing.Utilities
-import Web.GLES ()
-import Web.Platform
 import qualified GLES                                      as GL
-import qualified Heroes.Platform                           as Platform
-import qualified Web.Drawing.Quad                          as Quad
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.JSString                             as JSString
+import qualified Heroes.Drawing.Quad                       as Quad
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Cmd = Cmd {
-  sprite   :: Platform.ComplexSprite,
+  sprite :: StaticSprite,
   copySpec :: CopySpec
 }
 
 --------------------------------------------------------------------------------
 
-with :: GLES => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
-with ctx qBuffer next0 = do
+with :: (Platform, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
+with ctx qBuffer = \next2 -> do
   prog <- init ctx
-  next0 $ \next1 -> do
+  next2 $ \next1 -> do
     ready qBuffer ctx prog
     next1 $ \cmd -> do
       draw ctx prog cmd
@@ -40,9 +34,8 @@ with ctx qBuffer next0 = do
 --------------------------------------------------------------------------------
 
 data Prog = Prog {
-  program           :: GL.Program,
-  loc_texAtlas      :: GL.UniformLocation,
-  loc_texPalette    :: GL.UniformLocation,
+  program      :: GL.Program,
+  loc_texImage :: GL.UniformLocation,
   loc_texDimensions :: GL.UniformLocation,
   loc_scrDimensions :: GL.UniformLocation,
   loc_texPlace      :: GL.UniformLocation,
@@ -54,16 +47,16 @@ data Prog = Prog {
 
 --------------------------------------------------------------------------------
 
-init :: GLES => GL.Ctx -> IO Prog
+init :: (Platform, GLES) => GL.Ctx -> IO Prog
 init ctx = do
   program <- makeProgram ctx
-    "../glsl/paletted.fragment.glsl"
-    "../glsl/paletted.vertex.glsl"
+    "../glsl/regular.fragment.glsl"
+    "../glsl/regular.vertex.glsl"
   --
   attr_interp <- (§) <$> -- Int32 vs Word32 for some reason
-    GL.glGetAttribLocation ctx program (JSString.pack "interp")
+    GL.glGetAttribLocation ctx program (GL.toGLString "interp")
   --
-  let locate name = GL.glGetUniformLocation ctx program (JSString.pack name)
+  let locate name = GL.glGetUniformLocation ctx program (GL.toGLString name)
   --
   loc_texDimensions <- locate "texDimensions"
   loc_scrDimensions <- locate "scrDimensions"
@@ -71,8 +64,7 @@ init ctx = do
   loc_scrPlace      <- locate "scrPlace"
   loc_texBox        <- locate "texBox"
   loc_scrBox        <- locate "scrBox"
-  loc_texAtlas      <- locate "texAtlas"
-  loc_texPalette    <- locate "texPalette"
+  loc_texImage      <- locate "texImage"
   --
   return $ Prog { .. }
 
@@ -88,24 +80,18 @@ ready qBuffer ctx prog = do
   GL.glUseProgram ctx program
   GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER buffer
   GL.glEnableVertexAttribArray ctx attr_interp
-  GL.glVertexAttribPointer ctx attr_interp 2 GL.gl_FLOAT False 0 0
+  GL.glVertexAttribPointer ctx attr_interp 2 GL.gl_FLOAT GL.false 0 GL.nullGLPtr
 
 draw :: GLES => GL.Ctx -> Prog -> Cmd -> IO ()
 draw ctx prog cmd = do
   let Prog { .. } = prog
       Cmd {
-        sprite = WebComplexSprite {
-          atlasTexture = atlas,
-          paletteTexture = palette,
-          meta
-        },
+        sprite = StaticSprite { texture, dimensions },
         copySpec = CopySpec { place, screenPlace, box, screenBox }
       } = cmd
       vsize = viewportSize <&> (§)
   --
-  let dimensions = (<§>) (meta ^. dimensions_)
-  GL.glUniform1i ctx loc_texAtlas 0
-  GL.glUniform1i ctx loc_texPalette 1
+  GL.glUniform1i ctx loc_texImage 0
   GL.glUniform2f ctx loc_texDimensions (dimensions ^. _x) (dimensions ^. _y)
   GL.glUniform2f ctx loc_scrDimensions (vsize ^. _x) (vsize ^. _y)
   GL.glUniform2f ctx loc_texPlace (place ^. _x) (place ^. _y)
@@ -113,7 +99,6 @@ draw ctx prog cmd = do
   GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
   GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
   -- bind textures
-  bindTextureTo ctx GL.gl_TEXTURE0 atlas
-  bindTextureTo ctx GL.gl_TEXTURE1 palette
+  bindTextureTo ctx GL.gl_TEXTURE0 texture
   -- draw call!
   GL.glDrawArrays ctx GL.gl_TRIANGLES 0 6

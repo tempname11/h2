@@ -1,12 +1,11 @@
-module Web.Drawing.Utilities where
+module Heroes.Drawing.Utilities where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Web
-import Web.GLES ()
+import Heroes.Platform                                   (Platform)
+import Heroes
 import qualified GLES                                      as GL
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.JSString                             as JSString
+import qualified Heroes.Platform                           as Platform
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 bindTextureTo :: GLES => GL.Ctx -> GL.GLEnum -> GL.Texture -> IO ()
@@ -14,10 +13,10 @@ bindTextureTo ctx slot texture = do
   GL.glActiveTexture ctx slot
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
 
-makeProgram :: GLES => GL.Ctx -> String -> String -> IO GL.Program
+makeProgram :: (Platform, GLES) => GL.Ctx -> String -> String -> IO GL.Program
 makeProgram ctx fragmentFilename vertexFilename = do
-  fragmentSource <- loadString fragmentFilename
-  vertexSource   <- loadString vertexFilename
+  fragmentSource <- Platform.loadGLString fragmentFilename
+  vertexSource <- Platform.loadGLString vertexFilename
   --
   fs <- makeShader ctx GL.gl_FRAGMENT_SHADER fragmentSource
   vs <- makeShader ctx GL.gl_VERTEX_SHADER vertexSource
@@ -32,21 +31,21 @@ makeProgram ctx fragmentFilename vertexFilename = do
   GL.glDeleteShader ctx vs
   --
   status <- GL.glGetProgramParameterBool ctx program GL.gl_LINK_STATUS
-  when (not status) $
+  when (not (GL.isTrue status)) $
     raise "bad program link status"
   --
   return program
 
-makeShader :: GLES => GL.Ctx -> GL.GLEnum -> String -> IO GL.Shader
+makeShader :: GLES => GL.Ctx -> GL.GLEnum -> GL.GLString -> IO GL.Shader
 makeShader ctx type_ source = do
   shader <- GL.glCreateShader ctx type_
-  GL.glShaderSource ctx shader (JSString.pack source)
+  GL.glShaderSource ctx shader source
   GL.glCompileShader ctx shader
   --
   status <- GL.glGetShaderParameterBool ctx shader GL.gl_COMPILE_STATUS
-  when (not status) $ do
-    info <- JSString.unpack <$> GL.glGetShaderInfoLog ctx shader
-    raise ("bad shader compile status: " <> info)
+  when (not (GL.isTrue status)) $ do
+    info <- GL.glGetShaderInfoLog ctx shader
+    raise ("bad shader compile status: " <> GL.fromGLString info)
   --
   return shader
 
@@ -63,7 +62,7 @@ makePaletteTexture ctx array = do
   -- XXX GL.unbindTexture?
   return texture
 
-makeTexture :: GLES => GL.Ctx -> Image -> IO GL.Texture
+makeTexture :: GLES => GL.Ctx -> GL.Image -> IO GL.Texture
 makeTexture ctx image = do
   texture <- GL.glCreateTexture ctx
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture

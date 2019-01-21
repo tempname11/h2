@@ -1,4 +1,4 @@
-module Web.Drawing.OneColor (
+module Heroes.Drawing.OneColor (
   with,
   Cmd (..),
 ) where
@@ -6,13 +6,12 @@ module Web.Drawing.OneColor (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common.With
 import GLES                                              (GLES)
+import Heroes
+import Heroes.Drawing.Utilities
+import Heroes.Platform                                   (Platform)
 import Heroes.UI (viewportSize)
-import Web
-import Web.Drawing.Utilities
 import qualified GLES                                      as GL
-import qualified Web.Drawing.Quad                          as Quad
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.JSString                             as JSString
+import qualified Heroes.Drawing.Quad                       as Quad
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Cmd = Cmd {
@@ -23,7 +22,7 @@ data Cmd = Cmd {
 
 --------------------------------------------------------------------------------
 
-with :: GLES => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
+with :: (Platform, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
 with ctx qBuffer = \next2 -> do
   prog <- init ctx
   next2 $ \next1 -> do
@@ -45,16 +44,16 @@ data Prog = Prog {
 
 --------------------------------------------------------------------------------
 
-init :: GLES => GL.Ctx -> IO Prog
+init :: (Platform, GLES) => GL.Ctx -> IO Prog
 init ctx = do
   program <- makeProgram ctx
     "../glsl/one-color.fragment.glsl"
     "../glsl/one-color.vertex.glsl"
   --
   attr_interp <- (§) <$> -- Int32 vs Word32 for some reason
-    GL.glGetAttribLocation ctx program (JSString.pack "interp")
+    GL.glGetAttribLocation ctx program (GL.toGLString "interp")
   --
-  let locate name = GL.glGetUniformLocation ctx program (JSString.pack name)
+  let locate name = GL.glGetUniformLocation ctx program (GL.toGLString name)
   --
   loc_scrDimensions <- locate "scrDimensions"
   loc_scrPlace      <- locate "scrPlace"
@@ -76,7 +75,7 @@ ready qBuffer ctx prog = do
   GL.glUseProgram ctx program
   GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER buffer
   GL.glEnableVertexAttribArray ctx attr_interp
-  GL.glVertexAttribPointer ctx attr_interp 2 GL.gl_FLOAT False 0 0
+  GL.glVertexAttribPointer ctx attr_interp 2 GL.gl_FLOAT GL.false 0 GL.nullGLPtr
 
 draw :: GLES => GL.Ctx -> Prog -> Cmd -> IO ()
 draw ctx prog cmd = do

@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Web.Platform where
 
@@ -9,16 +8,21 @@ import Web.Drawing.Quad                                  (QBuffer)
 import Web.Drawing.Utilities                             (makeTexture)
 import Web.Drawing.Utilities                             (makePaletteTexture)
 import Heroes.Platform
-import Heroes.SpriteMeta                                 (Meta)
 import qualified GLES                                      as GL
 import qualified Web.Audio                                 as Audio
 import qualified Web.Image                                 as Image
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (forkIO)
+import JavaScript.TypedArray.ArrayBuffer                 (ArrayBuffer)
 import JavaScript.Web.Canvas                             (Canvas)
 import qualified JavaScript.TypedArray                     as TypedArray
 import qualified JavaScript.TypedArray.Internal.Types      as TypedArray
+import qualified JavaScript.Web.XMLHttpRequest             as XHR
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+
+foreign import javascript unsafe
+  "$r = new Float32Array([1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1])"
+  createQuadArray' :: IO ArrayBuffer
 
 foreign import javascript unsafe "$r = new Uint8Array($1);"
   freezeUint8Array :: TypedArray.IOUint8Array -> IO TypedArray.Uint8Array
@@ -34,7 +38,6 @@ instance Platform where
   type Renderer = WebRenderer
   type InputProvider = Canvas
   --
-  type ComplexSprite = WebComplexSprite
   loadComplexSprite (WebRenderer ctx _) meta path = do
     image <- Image.load path
     atlasTexture <- makeTexture ctx image
@@ -51,28 +54,19 @@ instance Platform where
     --
     paletteArray <- freezeUint8Array paletteArray'
     paletteTexture <- makePaletteTexture ctx paletteArray
-    return $ WebComplexSprite { .. }
+    return $ ComplexSprite { .. }
   destroyComplexSprite _ = return () -- XXX
   --
   type Chunk = Audio.Audio
   loadChunk = Audio.load
   freeChunk _ = return () -- XXX
-
-data WebStaticSprite = WebStaticSprite {
-  texture    :: GL.Texture,
-  dimensions :: V2 Float
-}
-
-data WebComplexSprite = WebComplexSprite {
-  atlasTexture :: GL.Texture,
-  paletteTexture :: GL.Texture,
-  meta :: Meta
-}
+  --
+  createQuadArray = createQuadArray'
+  loadGLString path = do
+    let request = simpleXHR path
+    result <- XHR.contents <$> XHR.xhrString request
+    case result of
+      Nothing -> raise "result is Nothing"
+      Just str -> return str
 
 data WebRenderer = WebRenderer GL.Ctx QBuffer
-
-instance Show WebComplexSprite where
-  show _ = "WebComplexSprite" -- XXX
-
-makeShorthands ''WebStaticSprite
-makeShorthands ''WebComplexSprite

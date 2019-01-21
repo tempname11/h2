@@ -4,11 +4,18 @@ module Native.Platform where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Native
+import Native.GLES ()
 import Native.Utils                                      (createPalettedSurface)
 import Heroes.Platform
 import qualified Heroes.Atlas                              as Atlas
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (forkOS)
+import Foreign.ForeignPtr                                (newForeignPtr_)
+import Foreign.Marshal.Alloc                             (mallocBytes)
+import Foreign.Ptr                                       (castPtr)
+import Foreign.Ptr                                       (plusPtr)
+import Foreign.Storable                                  (poke)
+import System.IO                                         (readFile)
 import qualified Codec.Picture                             as Juicy
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Storable                      as SV
@@ -52,6 +59,25 @@ instance Platform where
   type Chunk = Mix.Chunk
   loadChunk = Mix.load
   freeChunk = Mix.free
+  --
+  createQuadArray = do
+    let size = 12 * (4 {- float32 -})
+    ptr <- mallocBytes size
+    poke (castPtr $ plusPtr ptr 0) (1 :: Float)
+    poke (castPtr $ plusPtr ptr 4) (1 :: Float)
+    poke (castPtr $ plusPtr ptr 8) (0 :: Float)
+    poke (castPtr $ plusPtr ptr 12) (1 :: Float)
+    poke (castPtr $ plusPtr ptr 16) (0 :: Float)
+    poke (castPtr $ plusPtr ptr 20) (0 :: Float)
+    poke (castPtr $ plusPtr ptr 24) (0 :: Float)
+    poke (castPtr $ plusPtr ptr 28) (0 :: Float)
+    poke (castPtr $ plusPtr ptr 32) (1 :: Float)
+    poke (castPtr $ plusPtr ptr 36) (0 :: Float)
+    poke (castPtr $ plusPtr ptr 40) (1 :: Float)
+    poke (castPtr $ plusPtr ptr 44) (1 :: Float)
+    fPtr <- newForeignPtr_ $ castPtr ptr
+    return ((§) size, fPtr)
+  loadGLString = readFile
 
 data NativeStaticSprite = NativeStaticSprite {
   texture    :: SDL.Texture,

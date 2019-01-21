@@ -39,15 +39,5 @@ simpleXHR uri = XHR.Request {
     XHR.reqData = XHR.NoData
   }
 
-loadString :: String -> IO String
-loadString uri = do
-  let request = simpleXHR uri
-
-  result <- XHR.contents <$> XHR.xhrString request
-  case result of
-    Nothing  -> raise "result is Nothing"
-    Just str -> return str
-
 inspect :: a -> IO ()
 inspect = consoleLog . unsafeCoerce
-

@@ -1,9 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Web.Drawing where
+module Heroes.Drawing where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Web
+import Heroes
+import Heroes.SpriteMeta                                 (Meta)
 import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -22,3 +23,17 @@ clear :: GLES => GL.Ctx -> IO ()
 clear ctx = do
   GL.glClearColor ctx 0 0 0 1
   GL.glClear ctx GL.gl_COLOR_BUFFER_BIT
+
+data StaticSprite = StaticSprite {
+  texture    :: GL.Texture,
+  dimensions :: V2 Float
+}
+
+data ComplexSprite = ComplexSprite {
+  atlasTexture :: GL.Texture,
+  paletteTexture :: GL.Texture,
+  meta :: Meta
+}
+
+makeShorthands ''ComplexSprite
+makeShorthands ''StaticSprite
