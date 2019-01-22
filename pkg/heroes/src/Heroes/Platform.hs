@@ -29,5 +29,6 @@ class (GLES) => Platform where
   loadChunk :: String -> IO Chunk
   freeChunk :: Chunk -> IO ()
   --
+  -- XXX move to GLHelpers?
   createQuadArray :: IO GL.AnyArray
   loadGLString :: String -> IO GL.GLString
