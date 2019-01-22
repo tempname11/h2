@@ -10,4 +10,24 @@ The rest of this post will be written incrementally as I do this, documenting th
 
 ## I
 
-_
+The first step was moving the `Web.Drawing.*` modules to `Heroes.Drawing.*`, fixing all the web-related dependencies along the way. This was relatively painless, mainly thanks to the use of nullary type classes (see GHC's `MultiParamTypeClasses`). That topic probably deserves it's own post but I'll describe it briefly. Suppose you have a module with code like this:
+
+```Haskell
+data SomeType = _
+someProcedure :: SomeType -> IO ()
+someProcedure = _
+```
+
+...and you would like to use a different implementation in different circumstances? By declaring...
+
+```Haskell
+class SomeCapability where
+  data SomeType
+  someProcedure :: SomeType -> IO ()
+```
+
+...you gain the ability to use the same "interface" while not requiring an "implementation" immediately. You can still use `SomeType` everywhere as a normal (albeit opaque) type, and using `someProcedure` usually will require a `SomeCapability` constraint around the use site.
+
+In this project, whenever I encounter a piece of functionality that, conceptually, I want to share between *Native* and *Web*, I put it into a nullary type class (`GLES` and `Platform` mostly, as of now). This enables me to write the instances in completely separate (Cabal) libraries. Which really is necessary since *Native* code wouldn't compile in GHCJS and vice versa!
+
+
