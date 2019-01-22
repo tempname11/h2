@@ -10,7 +10,7 @@ import qualified GLES                                      as GL
 import Control.Concurrent                                (ThreadId)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-class (Show ComplexSprite, GLES) => Platform where
+class (GLES) => Platform where
   --
   productionPrefix :: String
   staticSpriteExtension :: String

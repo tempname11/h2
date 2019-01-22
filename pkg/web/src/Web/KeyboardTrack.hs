@@ -40,5 +40,9 @@ jsStringOf = JSString.pack . prefix . go
   where
   prefix = ("keyCode:" <>)
   go Escape = "27"
-  go R      = "82"
-  go _      = "FIXME"
+  go R = "82"
+  go Left = "37"
+  go Right = "39"
+  go N1 = "49"
+  go N2 = "50"
+  go N3  = "51"

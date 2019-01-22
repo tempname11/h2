@@ -32,18 +32,16 @@ data Actor = Actor {
   animated :: Bool
 }
 
-deriving instance Platform.Platform => Show Actor
-
 data Prop = Prop {
   position :: Position,
   facing :: Facing
-} deriving (Show)
+}
 
 data Scene = Scene {
   actors :: Map Handle Actor,
   props :: Map ObstacleId Prop,
   curtain :: Float
-} deriving (Show)
+}
 
 makeShorthands ''Actor
 makeShorthands ''Prop

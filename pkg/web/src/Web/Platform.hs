@@ -2,12 +2,13 @@
 module Web.Platform where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.Drawing.Quad                                  (QBuffer)
+import Heroes.Drawing.Utilities                             (makePaletteTexture)
+import Heroes.Drawing.Utilities                             (makeTexture)
+import Heroes.Platform
 import Web
 import Web.GLES ()
-import Web.Drawing.Quad                                  (QBuffer)
-import Web.Drawing.Utilities                             (makeTexture)
-import Web.Drawing.Utilities                             (makePaletteTexture)
-import Heroes.Platform
+import qualified Heroes.Drawing                            as Drawing
 import qualified GLES                                      as GL
 import qualified Web.Audio                                 as Audio
 import qualified Web.Image                                 as Image
@@ -33,11 +34,12 @@ instance Platform where
   staticSpriteExtension = ".png"
   forkPreferred = forkIO
   --
-  type StaticSprite = WebStaticSprite
+  type StaticSprite = Drawing.StaticSprite
   type CursorResources = ()
   type Renderer = WebRenderer
   type InputProvider = Canvas
   --
+  type ComplexSprite = Drawing.ComplexSprite
   loadComplexSprite (WebRenderer ctx _) meta path = do
     image <- Image.load path
     atlasTexture <- makeTexture ctx image
@@ -54,7 +56,7 @@ instance Platform where
     --
     paletteArray <- freezeUint8Array paletteArray'
     paletteTexture <- makePaletteTexture ctx paletteArray
-    return $ ComplexSprite { .. }
+    return $ Drawing.ComplexSprite { .. }
   destroyComplexSprite _ = return () -- XXX
   --
   type Chunk = Audio.Audio
@@ -64,7 +66,7 @@ instance Platform where
   createQuadArray = createQuadArray'
   loadGLString path = do
     let request = simpleXHR path
-    result <- XHR.contents <$> XHR.xhrString request
+    result <- GL.toGLString <<$>> XHR.contents <$> XHR.xhrString request
     case result of
       Nothing -> raise "result is Nothing"
       Just str -> return str

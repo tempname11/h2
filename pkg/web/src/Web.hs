@@ -7,9 +7,8 @@ module Web (
   Platform,
   fromJSVal,
   inspect,
-  loadString,
-  module Heroes,
   simpleXHR,
+  module Heroes,
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

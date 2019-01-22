@@ -16,7 +16,7 @@ import Data.Default.Class                                (def)
 
 instance SystemLibraries where
   with next = do
-    void $ EKG.forkServer (fromString "localhost") 8000
+    void $ EKG.forkServer (fromString "localhost") 8010
     SDL.initialize [
         SDL.InitAudio,
         SDL.InitVideo, 

@@ -15,6 +15,7 @@ magik from to mods = do
 cp' from to = cp (Path.fromText from) (Path.fromText to)
 
 tm = Text.words "-transparent magenta"
+tc = Text.words "-transparent cyan"
 op = Text.words "-channel A -evaluate set 1"
 a8 = Text.words "-channel A -evaluate multiply 0.8"
 bk = Text.words "-channel RGB -evaluate set 0"
@@ -39,5 +40,5 @@ go = do
   magik (pcx <> "CCellShd.bmp") (prod <> "cell-shaded.png" ) $ tm<>bk<>a8
   magik (pcx <> "CCellGrd.bmp") (prod <> "cell-outline.png") $ tm
   magik (battleBgs <> "CmBkDes.bmp") (prod <> "bg.png") $ op
-  magik (obstacles <> "ObCFL00.bmp") (prod <> "ObCFL00.png") $ op
+  magik (obstacles <> "ObCFL00.bmp") (prod <> "ObCFL00.png") $ tc
   cp' (h3 <> "Silent.wav") (prod <> "silent.wav")

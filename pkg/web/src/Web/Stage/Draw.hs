@@ -5,18 +5,18 @@ module Web.Stage.Draw () where
 import Animation.Scene                                   (Actor)
 import Animation.Scene                                   (Prop)
 import Battle                                            (ObstacleId)
+import Heroes.Drawing                                    (CopySpec(..))
 import Heroes.StaticResources                            (StaticResources(..))
 import Heroes.UI                                         (fieldCenter)
 import Stage.Draw
 import Web
-import Web.Drawing                                       (CopySpec(..))
 import Web.Platform
 import qualified GLES                                      as GL
 import qualified Heroes.Cell                               as Cell
+import qualified Heroes.Drawing.OneColor                   as OneColor
+import qualified Heroes.Drawing.Paletted                   as Paletted
+import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Platform                           as Platform
-import qualified Web.Drawing.OneColor                      as OneColor
-import qualified Web.Drawing.Paletted                      as Paletted
-import qualified Web.Drawing.Regular                       as Regular
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 import qualified JavaScript.Web.AnimationFrame             as AF
@@ -44,7 +44,7 @@ fromActor actor = Paletted.Cmd sprite spec
   g = actor ^. groupN_
   -- @copypaste from Native.Stage.PrepareForDrawing_.toCopy
   facing = actor ^. facing_
-  screenPlace = (<§>) ((actor ^. position_) .+^ offset)
+  screenPlace = (<§>) ((actor ^. position_) .+^ offset .-^ (V2 0 (actor ^. height_)))
   offset = (frame ^. offset_) * sign
   sign = case facing of
     West -> V2 (-1) 1
@@ -73,8 +73,8 @@ run regular paletted oneColor ctx (Deps {..}) (In {..}) = do
     StaticResources {..} = staticResources
     --
     bgCmd = fullCopy background 0
-    outline = toRegularCmd cellOutline <$> darkHexes
-    shaded = toRegularCmd cellShaded <$> lightHexes
+    outline = toRegularCmd cellOutline <$> lightHexes
+    shaded = toRegularCmd cellShaded <$> darkHexes
     regularCmds = [bgCmd] <> (fromProp <$> props) <> shaded <> outline
     toRegularCmd sprite hex =
       fullCopy sprite $

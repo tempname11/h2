@@ -3,21 +3,22 @@
 module Web.Stage.Prerequisites () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.Drawing                                    (StaticSprite(..))
+import Heroes.Drawing.Utilities                          (makeTexture)
 import Heroes.Essentials                                 (Essentials)
 import Heroes.H3.Misc 
 import Heroes.StaticResources                            (StaticResources(..))
 import Heroes.UI                                         (viewportSize)
 import Stage.Prerequisites
 import Web
-import Web.Drawing.Utilities                             (makeTexture)
 import Web.Platform
+import qualified GLES                                      as GL
+import qualified Heroes.Drawing.Quad                       as Quad
 import qualified Heroes.Essentials                         as Essentials
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.Platform                           as Platform
-import qualified GLES                                      as GL
-import qualified Web.Drawing.Quad                          as Quad
-import qualified Web.Image                                 as Image
 import qualified Web.GLES                                  as GL
+import qualified Web.Image                                 as Image
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import JavaScript.Web.Canvas                             (Canvas)
 import qualified Data.Map.Strict                           as M
@@ -67,7 +68,7 @@ loadStatic ctx path = do
   h <- Image.height img
   texture <- makeTexture ctx img
   let dimensions = (<§>) $ V2 w h
-  return $ WebStaticSprite { texture, dimensions }
+  return $ StaticSprite { texture, dimensions }
 
 foreign import javascript unsafe "document.body.appendChild($1)"
   appendCanvasToBody :: Canvas -> IO ()
