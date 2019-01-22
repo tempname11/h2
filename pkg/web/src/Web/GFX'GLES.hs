@@ -1,37 +1,71 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
-module Web.Stage.Draw () where
+module Web.GFX'GLES () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation.Scene                                   (Actor)
 import Animation.Scene                                   (Prop)
 import Battle                                            (ObstacleId)
 import Heroes.Drawing                                    (CopySpec(..))
+import Heroes.Drawing                                    (StaticSprite(..))
+import Heroes.Drawing.Utilities                          (makeTexture)
+import Heroes.H3.Misc                                    (oImgName)
 import Heroes.StaticResources                            (StaticResources(..))
+import Heroes.Subsystems.GFX
 import Heroes.UI                                         (fieldCenter)
-import Stage.Draw
 import Web
 import Web.Platform
+import Web.WND'Canvas ()
 import qualified GLES                                      as GL
 import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Drawing.OneColor                   as OneColor
 import qualified Heroes.Drawing.Paletted                   as Paletted
+import qualified Heroes.Drawing.Quad                       as Quad
 import qualified Heroes.Drawing.Regular                    as Regular
+import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.Platform                           as Platform
+import qualified Web.GLES                                  as GL
+import qualified Web.Image                                 as Image
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 import qualified JavaScript.Web.AnimationFrame             as AF
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-instance Draw where
-  with (deps@Deps {..}) next = do
+instance GFX where
+  with (Deps {..}) next = do
+    ctx <- GL.getWebGLContext window
+    qBuffer <- Quad.createBuffer ctx
+    background <- loadStatic ctx FilePath.background
+    cellShaded <- loadStatic ctx FilePath.cellShaded
+    cellOutline <- loadStatic ctx FilePath.cellOutline
+    --
     let
-      WebRenderer ctx qBuffer = renderer
+      allObstacles = [minBound .. maxBound]
+    --
+    obstacleResourceMap <- (M.fromList <$>) $ for allObstacles $ \k -> do
+      v <- loadStatic ctx $ FilePath.staticPathOf (oImgName k)
+      return (k, v)
+    --
+    let
+      obstacles t = obstacleResourceMap M.! t
+      renderer = WebRenderer ctx qBuffer
+      staticResources = StaticResources {..}
+      prov = Prov {..}
+    --
     Regular.with ctx qBuffer $ \regular ->
       Paletted.with ctx qBuffer $ \paletted ->
       OneColor.with ctx qBuffer $ \oneColor ->
-      next $ run regular paletted oneColor ctx deps
+      next $ (, prov) $ run regular paletted oneColor ctx staticResources
 
 --------------------------------------------------------------------------------
+
+loadStatic :: GL.Ctx -> String -> IO Platform.StaticSprite
+loadStatic ctx path = do
+  img <- Image.load path
+  w <- Image.width img
+  h <- Image.height img
+  texture <- makeTexture ctx img
+  let dimensions = (<§>) $ V2 w h
+  return $ StaticSprite { texture, dimensions }
 
 fromActor ::
   Actor ->
@@ -61,10 +95,10 @@ run ::
   With (Handler Paletted.Cmd) ->
   With (Handler OneColor.Cmd) ->
   GL.Ctx ->
-  Deps ->
+  StaticResources ->
   In ->
   IO ()
-run regular paletted oneColor ctx (Deps {..}) (In {..}) = do
+run regular paletted oneColor ctx staticResources (In {..}) = do
   let
     curtain = 255 * scene ^. curtain_
     comparingY = (comparing . view) (position_ . _y)

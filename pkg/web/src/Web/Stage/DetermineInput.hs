@@ -4,6 +4,7 @@ module Web.Stage.DetermineInput () where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Web
 import Web.Platform ()
+import Web.WND'Canvas ()
 import Stage.DetermineInput
 import qualified Heroes.Input                              as Input
 import qualified Web.KeyboardTrack                         as KeyboardTrack
@@ -12,7 +13,7 @@ import qualified Web.MouseTrack                            as MouseTrack
 
 instance DetermineInput where
   with (Deps {..}) next = do
-    mtr <- MouseTrack.new inputProvider
+    mtr <- MouseTrack.new window
     ktr <- KeyboardTrack.new
     ref <- newIORef Input.zero
     --

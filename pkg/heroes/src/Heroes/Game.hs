@@ -5,6 +5,7 @@ import Heroes
 import Heroes.Platform                                   (Platform)
 import qualified Heroes.Requisites                         as RQ
 import qualified Heroes.Subsystems.GFX                     as GFX
+import qualified Heroes.Subsystems.WND                     as WND
 import qualified Stage.Animation                           as A
 import qualified Stage.Blackbox                            as B
 import qualified Stage.ChangeCursor                        as C
@@ -20,6 +21,7 @@ main' ::
   (
     C.ChangeCursor,
     GFX.GFX,
+    WND.WND,
     I.DetermineInput,
     PR.Prerequisites,
     S.ControlSound,
@@ -34,11 +36,12 @@ main' = do
     putStrLn "--------------------"
   --
   SL.with $ \(SL.Prov {..}) ->
-    GFX.with $ \(draw, GFX.Prov {..})        ->
-    PR.with (PR.Deps {..}) $ \(PR.Prov {..}) ->
-    RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..}) ->
-    LT.with (LT.Deps {..}) $ \(LT.Prov {..}) ->
-    -------------------------------------------------
+    WND.with $ \(WND.Prov {..}) ->
+    GFX.with (GFX.Deps {..}) $ \(draw, GFX.Prov {..}) ->
+    PR.with (PR.Deps {..}) $ \(PR.Prov {..})          ->
+    RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..})          ->
+    LT.with (LT.Deps {..}) $ \(LT.Prov {..})          ->
+    ----------------------------------------------------
     L.with (L.Deps {..}) $ \queryLoaded wishLoaded ->
     I.with (I.Deps {..}) $ \determineInput         ->
     B.with (B.Deps {..}) $ \blackbox               ->

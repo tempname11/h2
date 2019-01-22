@@ -3,11 +3,11 @@ module Stage.DetermineInput where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
 import qualified Heroes.Input                              as Input
-import qualified Heroes.Platform                           as Platform
+import qualified Heroes.Subsystems.WND                     as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
-  inputProvider :: Platform.InputProvider
+  window :: WND.Window
 }
 
 data Out = Out {

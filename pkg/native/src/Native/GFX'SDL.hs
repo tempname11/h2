@@ -8,23 +8,17 @@ import Heroes.Subsystems.GFX
 import Heroes.UI
 import Native
 import Native.Platform ()
+import Native.WND'SDL ()
 import qualified Heroes.Cell                               as Cell
 import qualified Native.ResourceIO                         as Resource
 import qualified Native.Stage.PrepareForDrawing_           as P
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Data.String                                       (fromString)
 import SDL                                               (($=))
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 instance GFX where
-  with next = do
-    SDL.initialize [
-        SDL.InitAudio,
-        SDL.InitVideo, 
-        SDL.InitEvents
-      ]
-    window <- SDL.createWindow (fromString "Fight!") windowConfig
+  with (Deps {..}) next = do
     renderer <- SDL.createRenderer window (-1) rendererConfig
     staticResources <- Resource.init renderer
     let prov = Prov {..}
@@ -36,13 +30,6 @@ instance GFX where
           run pDeps in_ drawingAct
     Resource.fini staticResources
     SDL.destroyRenderer renderer
-    SDL.destroyWindow window
-    SDL.quit
-
-windowConfig :: SDL.WindowConfig
-windowConfig = SDL.defaultWindow
-  { SDL.windowPosition = SDL.Absolute (P $ V2 100 100)
-  , SDL.windowInitialSize = (<§>) viewportSize }
 
 rendererConfig :: SDL.RendererConfig
 rendererConfig = SDL.RendererConfig

@@ -13,13 +13,13 @@ import Heroes
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Key
-  = Escape
-  | R
-  | Left
-  | Right
-  | N1
-  | N2
-  | N3
+  = Key'Escape
+  | Key'R
+  | Key'Left
+  | Key'Right
+  | Key'1
+  | Key'2
+  | Key'3
 
 data MouseButton
   = LMB

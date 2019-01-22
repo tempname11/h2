@@ -8,6 +8,7 @@ import Heroes.StaticResources                            (StaticResources)
 import Heroes.UI
 import Stage.Loading                                     (Loaded)
 import qualified Heroes.Platform                           as Platform
+import qualified Heroes.Subsystems.WND                     as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data In = In {
@@ -18,10 +19,14 @@ data In = In {
   scene :: Scene
 }
 
+data Deps = Deps {
+  window :: WND.Window
+}
+
 data Prov = Prov {
   staticResources :: StaticResources,
   renderer :: Platform.Renderer
 }
 
 class GFX where
-  with :: With (Handler In, Prov)
+  with :: Deps -> With (Handler In, Prov)

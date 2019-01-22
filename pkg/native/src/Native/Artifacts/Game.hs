@@ -3,6 +3,7 @@ module Native.Artifacts.Game where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Native
 import Native.GFX'SDL ()
+import Native.WND'SDL ()
 import Native.Platform ()
 import Native.Stage.ChangeCursor ()
 import Native.Stage.ControlSound ()

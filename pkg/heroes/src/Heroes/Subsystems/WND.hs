@@ -1,13 +1,13 @@
-module Stage.SystemLibraries where
--- XXX deprecated
+module Heroes.Subsystems.WND where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common
+import Heroes
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Prov = Prov {
-  noProv :: ()
+  window :: Window
 }
 
-class SystemLibraries where
-  with :: (Prov -> IO a) -> IO a
+class WND where
+  type Window
+  with :: With Prov

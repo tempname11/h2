@@ -47,13 +47,13 @@ external rw0 = do
 
 scancode :: Input.Key -> SDL.Scancode
 scancode = \case
-  Input.Escape -> SDL.ScancodeEscape
-  Input.Left   -> SDL.ScancodeLeft
-  Input.Right  -> SDL.ScancodeRight
-  Input.R      -> SDL.ScancodeR
-  Input.N1     -> SDL.Scancode1
-  Input.N2     -> SDL.Scancode2
-  Input.N3     -> SDL.Scancode3
+  Input.Key'Escape -> SDL.ScancodeEscape
+  Input.Key'Left -> SDL.ScancodeLeft
+  Input.Key'Right -> SDL.ScancodeRight
+  Input.Key'R -> SDL.ScancodeR
+  Input.Key'1 -> SDL.Scancode1
+  Input.Key'2 -> SDL.Scancode2
+  Input.Key'3 -> SDL.Scancode3
 
 mousecode :: Input.MouseButton -> SDL.MouseButton
 mousecode = \case

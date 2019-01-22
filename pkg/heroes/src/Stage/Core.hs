@@ -83,11 +83,11 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
     _ -> False
   --
   spellIndex =
-    (guard (keyDown Input.N1) >> Just 0)
+    (guard (keyDown Input.Key'1) >> Just 0)
     <|>
-    (guard (keyDown Input.N2) >> Just 1)
+    (guard (keyDown Input.Key'2) >> Just 1)
     <|>
-    (guard (keyDown Input.N3) >> Just 2)
+    (guard (keyDown Input.Key'3) >> Just 2)
 
   --
   moves = do

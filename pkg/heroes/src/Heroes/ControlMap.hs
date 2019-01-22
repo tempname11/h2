@@ -5,13 +5,13 @@ import qualified Heroes.Input                              as Input
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 exit :: Input.Key
-exit = Input.Escape
+exit = Input.Key'Escape
 
 reset :: Input.Key
-reset = Input.R
+reset = Input.Key'R
 
 intoPast :: Input.Key
-intoPast = Input.Left
+intoPast = Input.Key'Left
 
 intoFuture :: Input.Key
-intoFuture = Input.Right
+intoFuture = Input.Key'Right

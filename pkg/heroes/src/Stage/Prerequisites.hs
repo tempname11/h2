@@ -10,7 +10,6 @@ import qualified Heroes.Platform                           as Platform
 data Deps = Deps { noDeps :: () }
 
 data Prov = Prov {
-  inputProvider :: Platform.InputProvider,
   cursorResources :: Platform.CursorResources,
   essentials :: Essentials
 }

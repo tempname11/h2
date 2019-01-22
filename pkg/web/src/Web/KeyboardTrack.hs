@@ -39,10 +39,10 @@ jsStringOf :: Key -> JSString
 jsStringOf = JSString.pack . prefix . go
   where
   prefix = ("keyCode:" <>)
-  go Escape = "27"
-  go R = "82"
-  go Left = "37"
-  go Right = "39"
-  go N1 = "49"
-  go N2 = "50"
-  go N3  = "51"
+  go Key'Escape = "27"
+  go Key'R = "82"
+  go Key'Left = "37"
+  go Key'Right = "39"
+  go Key'1 = "49"
+  go Key'2 = "50"
+  go Key'3  = "51"
