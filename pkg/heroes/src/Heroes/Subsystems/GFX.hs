@@ -1,4 +1,4 @@
-module Stage.Draw where
+module Heroes.Subsystems.GFX where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation.Scene                                   (Scene)
@@ -10,11 +10,6 @@ import Stage.Loading                                     (Loaded)
 import qualified Heroes.Platform                           as Platform
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps {
-  renderer :: Platform.Renderer,
-  staticResources :: StaticResources
-}
-
 data In = In {
   darkHexes :: [Hex],
   extraColor :: FighterId -> Maybe Color,
@@ -23,5 +18,10 @@ data In = In {
   scene :: Scene
 }
 
-class Draw where
-  with :: Deps -> ((In -> IO ()) -> IO ()) -> IO ()
+data Prov = Prov {
+  staticResources :: StaticResources,
+  renderer :: Platform.Renderer
+}
+
+class GFX where
+  with :: With (Handler In, Prov)

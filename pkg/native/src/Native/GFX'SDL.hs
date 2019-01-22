@@ -1,38 +1,60 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
-module Native.Stage.Draw () where
+module Native.GFX'SDL () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.Platform
 import Heroes.Scaling
+import Heroes.Subsystems.GFX
 import Heroes.UI
 import Native
 import Native.Platform ()
-import Stage.Draw
 import qualified Heroes.Cell                               as Cell
+import qualified Native.ResourceIO                         as Resource
 import qualified Native.Stage.PrepareForDrawing_           as P
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Data.String                                       (fromString)
 import SDL                                               (($=))
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-instance Draw where
-  with (deps@Deps {..}) next =
-    P.with (P.Deps {..}) $
-      \pRun -> next $
+instance GFX where
+  with next = do
+    SDL.initialize [
+        SDL.InitAudio,
+        SDL.InitVideo, 
+        SDL.InitEvents
+      ]
+    window <- SDL.createWindow (fromString "Fight!") windowConfig
+    renderer <- SDL.createRenderer window (-1) rendererConfig
+    staticResources <- Resource.init renderer
+    let prov = Prov {..}
+    let pDeps = P.Deps {..}
+    P.with pDeps $
+      \pRun -> next $ (, prov) $
         \(in_@In {..}) -> do
           P.Out {..} <- pRun (P.In {..})
-          run deps in_ drawingAct
+          run pDeps in_ drawingAct
+    Resource.fini staticResources
+    SDL.destroyRenderer renderer
+    SDL.destroyWindow window
+    SDL.quit
 
---------------------------------------------------------------------------------
+windowConfig :: SDL.WindowConfig
+windowConfig = SDL.defaultWindow
+  { SDL.windowPosition = SDL.Absolute (P $ V2 100 100)
+  , SDL.windowInitialSize = (<§>) viewportSize }
+
+rendererConfig :: SDL.RendererConfig
+rendererConfig = SDL.RendererConfig
+  { SDL.rendererType = SDL.AcceleratedVSyncRenderer
+  , SDL.rendererTargetTexture = False }
 
 data Style
   = Outline
   | Shaded
 
---------------------------------------------------------------------------------
-
-run :: Deps -> In -> DrawingAct -> IO ()
-run (Deps {..}) (In {..}) (DrawingAct {..}) = do
+run :: P.Deps -> In -> DrawingAct -> IO ()
+run (P.Deps {..}) (In {..}) (DrawingAct {..}) = do
   SDL.rendererDrawColor renderer $= black
   SDL.clear renderer
   drawStatic 0 (staticResources ^. background_)

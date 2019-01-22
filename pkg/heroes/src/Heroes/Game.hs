@@ -4,12 +4,12 @@ module Heroes.Game where
 import Heroes
 import Heroes.Platform                                   (Platform)
 import qualified Heroes.Requisites                         as RQ
+import qualified Heroes.Subsystems.GFX                     as GFX
 import qualified Stage.Animation                           as A
 import qualified Stage.Blackbox                            as B
 import qualified Stage.ChangeCursor                        as C
 import qualified Stage.ControlSound                        as S
 import qualified Stage.DetermineInput                      as I
-import qualified Stage.Draw                                as D
 import qualified Stage.Loading                             as L
 import qualified Stage.LoadingThread                       as LT
 import qualified Stage.Prerequisites                       as PR
@@ -19,7 +19,7 @@ import qualified Stage.SystemLibraries                     as SL
 main' ::
   (
     C.ChangeCursor,
-    D.Draw,
+    GFX.GFX,
     I.DetermineInput,
     PR.Prerequisites,
     S.ControlSound,
@@ -34,6 +34,7 @@ main' = do
     putStrLn "--------------------"
   --
   SL.with $ \(SL.Prov {..}) ->
+    GFX.with $ \(draw, GFX.Prov {..})        ->
     PR.with (PR.Deps {..}) $ \(PR.Prov {..}) ->
     RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..}) ->
     LT.with (LT.Deps {..}) $ \(LT.Prov {..}) ->
@@ -44,7 +45,6 @@ main' = do
     A.with (A.Deps {..}) $ \animation              ->
     S.with (S.Deps {..}) $ \issueSoundCommands_    ->
     C.with (C.Deps {..}) $ \changeCursor           ->
-    D.with (D.Deps {..}) $ \draw                   ->
     --------------------------------------------------
     fix $ \again -> do
         ----------------------------------------
@@ -59,7 +59,7 @@ main' = do
           wishLoaded          (L.WishIn {..})
           issueSoundCommands_ (S.In {..})
           changeCursor        (C.In {..})
-          draw                (D.In {..})
+          draw                (GFX.In {..})
           --------------------------------
           again
   --

@@ -7,7 +7,6 @@ module Native.Stage.SystemLibraries (
 import Native
 import Stage.SystemLibraries
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified SDL
 import qualified SDL.Mixer                                 as Mix
 import qualified System.Remote.Monitoring                  as EKG
 import Data.String                                       (fromString)
@@ -17,11 +16,6 @@ import Data.Default.Class                                (def)
 instance SystemLibraries where
   with next = do
     void $ EKG.forkServer (fromString "localhost") 8010
-    SDL.initialize [
-        SDL.InitAudio,
-        SDL.InitVideo, 
-        SDL.InitEvents
-      ]
     Mix.initialize [
         Mix.InitMP3
       ]
@@ -31,6 +25,5 @@ instance SystemLibraries where
     --
     Mix.closeAudio
     Mix.quit
-    SDL.quit
     --
     return result
