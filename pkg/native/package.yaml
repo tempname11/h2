@@ -4,37 +4,42 @@ author: Vladimir Semyonov <tempname011@gmail.com>
 category: Game
 
 dependencies:
+  - heroes
+  #
+  - JuicyPixels
   - base
-  - vector
   - bytestring
   - containers
   - data-default-class
-  - mmorph # XXX
-  - split
-  - sdl2
-  - sdl2-mixer
+  - directory
   - ekg
   - ekg-json
-  - directory
-  - JuicyPixels
+  - generic-lens
   - gl
-  - heroes
+  - mmorph # XXX
+  - sdl2
+  - sdl2-mixer
+  - split
+  - vector
 
 default-extensions:
-  - GADTs
-  - ScopedTypeVariables
-  - NoImplicitPrelude
-  - StandaloneDeriving
+  - DataKinds
   - DeriveFunctor
-  - LambdaCase
-  - TupleSections
-  - MultiWayIf
-  - TypeFamilies
-  - RecordWildCards
-  - NamedFieldPuns
+  - DeriveGeneric
   - DuplicateRecordFields
+  - GADTs
   - GeneralizedNewtypeDeriving
+  - LambdaCase
   - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - NoImplicitPrelude
+  - RecordWildCards
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
 
 ghc-options:
   - -Wall

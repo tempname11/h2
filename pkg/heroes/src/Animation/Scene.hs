@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Animation.Scene (
   Handle(..),
   Actor(..),
@@ -11,7 +10,9 @@ module Animation.Scene (
 import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
 import Heroes
-import qualified Heroes.Platform                           as Platform
+import Heroes.GFX'Types                                  (ComplexSprite)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import GHC.Generics (Generic)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Position = Point V2 CInt
@@ -22,7 +23,7 @@ data Handle
   deriving (Eq, Ord, Show)
 
 data Actor = Actor {
-  sprite :: Platform.ComplexSprite,
+  sprite :: ComplexSprite,
   position :: Position,
   height :: CInt,
   facing :: Facing,
@@ -30,19 +31,15 @@ data Actor = Actor {
   frameN :: Int,
   subframeN :: Int,
   animated :: Bool
-}
+} deriving (Generic)
 
 data Prop = Prop {
   position :: Position,
   facing :: Facing
-}
+} deriving (Generic)
 
 data Scene = Scene {
   actors :: Map Handle Actor,
   props :: Map ObstacleId Prop,
   curtain :: Float
-}
-
-makeShorthands ''Actor
-makeShorthands ''Prop
-makeShorthands ''Scene
+} deriving (Generic)

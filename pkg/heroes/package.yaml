@@ -12,6 +12,7 @@ dependencies:
   - containers
   - data-fix
   - data-default-class
+  - generic-lens
   - hashable
   - hashtables
   - lens
@@ -26,20 +27,23 @@ dependencies:
   - field-optics
 
 default-extensions:
-  - GADTs
-  - ScopedTypeVariables
-  - NoImplicitPrelude
-  - StandaloneDeriving
+  - DataKinds
   - DeriveFunctor
-  - LambdaCase
-  - TupleSections
-  - MultiWayIf
-  - TypeFamilies
-  - RecordWildCards
-  - NamedFieldPuns
+  - DeriveGeneric
   - DuplicateRecordFields
+  - GADTs
   - GeneralizedNewtypeDeriving
+  - LambdaCase
   - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - NoImplicitPrelude
+  - RecordWildCards
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
 
 ghc-options:
   - -Wall

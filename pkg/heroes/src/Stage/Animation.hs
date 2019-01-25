@@ -51,43 +51,43 @@ run gso scene (In {..}) = (scene', Out { scene = scene' })
   scene' = increment gso >>> applyAll animationCommands $ scene
 
 increment :: GroupSizeOf -> Scene -> Scene
-increment groupSizeOf = over actors_ $ M.mapWithKey $ \h -> execState $ do
-  a <- use animated_
+increment groupSizeOf = over _actors $ M.mapWithKey $ \h -> execState $ do
+  a <- use _animated
   when a $ do
-    g <- use groupN_
+    g <- use _groupN
     let GroupSize n = groupSizeOf h (GroupNumber g)
-    s <- subframeN_ <%= ((+1) >>> (`mod` 4))
+    s <- _subframeN <%= ((+1) >>> (`mod` 4))
     when (s == 0) $
-      frameN_ %= ((+1) >>> (`mod` n))
+      _frameN %= ((+1) >>> (`mod` n))
 
 applyAll :: V.Vector Command -> Scene -> Scene
 applyAll cs s = foldr' apply s cs
 
 apply :: Command -> Scene -> Scene
-apply RemoveAll = set actors_ empty >>> set props_ empty
-apply (SetCurtainOpacity x) = set curtain_ x
+apply RemoveAll = set _actors empty >>> set _props empty
+apply (SetCurtainOpacity x) = set _curtain x
 apply (PC o c) = case c of
   PAdd a ->
-    set (props_ . at o) (Just a)
+    set (_props . at o) (Just a)
   PRemove ->
-    set (props_ . at o) Nothing
+    set (_props . at o) Nothing
 apply (HC h c) = case c of
   SetPosition p ->
-    setMayX (actors_ . by h . position_) p
+    setMayX (_actors . by h . _position) p
   SetHeight z ->
-    setMayX (actors_ . by h . height_) z
+    setMayX (_actors . by h . _height) z
   SetFacing f ->
-    setMayX (actors_ . by h . facing_) f
+    setMayX (_actors . by h . _facing) f
   SetGroupNumber (GroupNumber g) ->
-    setMayX (actors_ . by h . groupN_) g >>>
-    setMayX (actors_ . by h . frameN_) 0 >>>
-    setMayX (actors_ . by h . subframeN_) 0
+    setMayX (_actors . by h . _groupN) g >>>
+    setMayX (_actors . by h . _frameN) 0 >>>
+    setMayX (_actors . by h . _subframeN) 0
   SetAnimated b ->
-    setMayX (actors_ . by h . animated_ ) b
+    setMayX (_actors . by h . _animated) b
   Add a ->
-    set (actors_ . at h) (Just a)
+    set (_actors . at h) (Just a)
   Remove ->
-    set (actors_ . at h) Nothing
+    set (_actors . at h) Nothing
 
 
 setMayX :: ((a -> Maybe b) -> s -> Maybe s) -> b -> s -> s

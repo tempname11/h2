@@ -1,5 +1,6 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE TemplateHaskell #-}
-module Native.Stage.PrepareForDrawing_ (
+module Native.GFX'SDL.Prepare (
   with,
   Deps (..),
   In (..),
@@ -13,19 +14,16 @@ import Animation.Scene                                   (Prop(..))
 import Animation.Scene                                   (Scene)
 import Battle                                            (FighterId)
 import Heroes.Atlas                                      (Frame)
-import Heroes.Platform
 import Heroes.Scaling
-import Heroes.StaticResources                            (StaticResources)
 import Heroes.UI
 import Heroes.UI.Specials                                (Specials)
 import Native
-import Native.Platform
-import Stage.Loading                                     (Loaded)
+import Native.GFX'SDL.Common
+import qualified Heroes.GFX                                as GFX
 import qualified Heroes.UI.Specials                        as Specials
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Monad.Morph                               (generalize)
 import Control.Monad.Morph                               (hoist)
-import Data.Either                                       (partitionEithers)
 import Prelude                                           (truncate)
 import SDL                                               (($=))
 import qualified Data.Map.Strict                           as M
@@ -34,14 +32,13 @@ import qualified SDL
 
 data Deps = Deps {
   renderer :: SDL.Renderer,
-  staticResources :: StaticResources
+  staticResources :: GFX.StaticResources
 }
 
 data In = In {
   darkHexes :: [Hex],
   extraColor :: FighterId -> Maybe Color,
   lightHexes :: [Hex],
-  loaded :: Loaded,
   scene :: Scene
 }
 
@@ -90,34 +87,21 @@ run deps ref in_ = do
   writeIORef ref d1
   return out
 
-onlyLoadedWith
-  :: (Handle -> Maybe ComplexSprite)
-  -> HA
-  -> Either (Either SFX Creature) HFA
-onlyLoadedWith spriteOf (h, actor) =
-  case spriteOf h of
-    Just sprite ->
-      let frame = (sprite ^. groups_) & (! g) & (! f) -- XXX partial...
-          f = actor ^. frameN_
-          g = actor ^. groupN_
-      in Right (h, frame, actor)
-    _ -> Left $ case h of
-      Handle'SFX sfx -> Left sfx
-      Handle'Fighter fyr -> Right (fyr ^. creature_)
+toHFA :: HA -> HFA
+toHFA (h, actor) =
+  let frame = (actor ^. _sprite . groups_) & (! g) & (! f) -- XXX partial...
+      f = actor ^. _frameN
+      g = actor ^. _groupN
+  in (h, frame, actor)
 
 run' :: Deps -> In -> StateT Data IO Out
 run' (Deps {..}) (In {..}) = do
   let finalSpecialsOf = determineFinalSpecials extraColor
-      spriteOf (Handle'Fighter fyr) =
-        (loaded ^. creatures_) (fyr ^. creature_) <&> view sprite_
-      spriteOf (Handle'SFX s) =
-        (loaded ^. sfxes_) s <&> view sprite_
-      allActors = M.toList (scene ^. actors_)
-      (_, hfas) = partitionEithers
-        (onlyLoadedWith spriteOf <$> allActors)
+      allActors = M.toList (scene ^. _actors)
+      hfas = toHFA <$> allActors
   --
   palettesToUpdate <- morf $ zoom finalCache_ $
-    diffSpecials finalSpecialsOf spriteOf hfas
+    diffSpecials finalSpecialsOf hfas
   --
   stampsToDraw <- zoom stampCache_ $
     equipStamps renderer hfas
@@ -126,7 +110,7 @@ run' (Deps {..}) (In {..}) = do
     updatePalettes palettesToUpdate
   --
   void $ lift $
-    updateStamps spriteOf stampsToDraw
+    updateStamps stampsToDraw
   --
   let
     handleCopies = fmap toHandleCopy . sortBy comparingY $ stampsToDraw
@@ -134,16 +118,16 @@ run' (Deps {..}) (In {..}) = do
       fmap toPropCopy $
       fmap (over _1 ((staticResources ^. obstacles_) . view otype_)) $
       M.assocs $
-      (scene ^. props_)
+      (scene ^. _props)
     drawingAct = DrawingAct {
-      curtain = truncate (255 * scene ^. curtain_),
+      curtain = truncate (255 * scene ^. _curtain),
       outline = lightHexes,
       shaded = darkHexes,
       copies = obstacleCopies <> handleCopies
     }
   return (Out {..})
   where
-  comparingY = (comparing . view) (_1 . _3 . position_ . _y)
+  comparingY = (comparing . view) (_1 . _3 . _position . _y)
   morf = hoist generalize
 
 determineFinalSpecials :: (FighterId -> Maybe Color) -> FighterId -> Specials
@@ -153,19 +137,16 @@ determineFinalSpecials extraColor fyr =
 
 diffSpecials
   :: (FighterId -> Specials)
-  -> (Handle -> Maybe ComplexSprite)
   -> [HFA]
   -> State (Map FighterId Specials) [(SDL.Palette, Specials)]
-diffSpecials
-  finalSpecialsOf
-  spriteOf
-  xs
+diffSpecials finalSpecialsOf xs
   = catMaybes <$> for xs function
   where
   nevermind = return Nothing
   function (Handle'SFX _, _, _) = nevermind
-  function (h@(Handle'Fighter fyr), _, _) = case spriteOf h of
-    Just sprite -> do
+  function (Handle'Fighter fyr, _, actor) =
+    do
+      let sprite = actor ^. _sprite
       let new = Just (finalSpecialsOf fyr)
       old <- use $ at fyr
       if (old /= new)
@@ -175,7 +156,6 @@ diffSpecials
         return $ (palette,) <$> new
       else
         nevermind
-    Nothing -> nevermind
 
 updatePalettes :: [(SDL.Palette, Specials)] -> IO ()
 updatePalettes = mapM_ $ \(palette, specials) ->
@@ -206,16 +186,14 @@ equipStamps renderer xs
         return s
     return (x, stamp)
 
-updateStamps
-  :: (Handle -> Maybe ComplexSprite)
-  -> [(HFA, Stamp)]
-  -> IO ()
-updateStamps spriteOf xs
+updateStamps :: [(HFA, Stamp)] -> IO ()
+updateStamps xs
   = for_ xs function
   where
   function :: (HFA, Stamp) -> IO ()
-  function ((fyr, frame, _), stamp) = case spriteOf fyr of
-    Just sprite -> do
+  function ((_, frame, actor), stamp) = 
+    do
+      let sprite = actor ^. _sprite
       let spriteSurface = sprite ^. surface_
           stampSurface  = stamp  ^. surface_
           stampTexture  = stamp  ^. texture_
@@ -225,7 +203,6 @@ updateStamps spriteOf xs
           p   = frame ^. place_
       void $ SDL.surfaceBlit spriteSurface spriteRect stampSurface stampDest
       copySurfaceToTexture stampSurface stampTexture stampByteSize
-    _ -> return ()
 
 copySurfaceToTexture :: SDL.Surface -> SDL.Texture -> CInt -> IO ()
 copySurfaceToTexture s t len = do
@@ -235,8 +212,8 @@ copySurfaceToTexture s t len = do
   SDL.unlockTexture t
   SDL.unlockSurface s
 
-toPropCopy :: (StaticSprite, Prop) -> CopyCommand
-toPropCopy (NativeStaticSprite {..}, Prop {..}) = CopyCommand {
+toPropCopy :: (StaticSprite'SDL, Prop) -> CopyCommand
+toPropCopy (StaticSprite'SDL {..}, Prop {..}) = CopyCommand {
     texture,
     src = Just $ SDL.Rectangle 0 dimensions,
     dst = Just $ SDL.Rectangle (rescaled position) (rescaled dimensions),
@@ -259,8 +236,8 @@ toHandleCopy ((_, frame, actor), stamp) = CopyCommand {
         East -> V2 False False
   }
   where
-  facing = actor ^. facing_
-  screenPosition = (actor ^. position_) .+^ offset .-^ (V2 0 (actor ^. height_))
+  facing = actor ^. _facing
+  screenPosition = (actor ^. _position) .+^ offset .-^ (V2 0 (actor ^. _height))
   offset = (frame ^. offset_) * sign + flipOffset
   flipOffset =
     case facing of

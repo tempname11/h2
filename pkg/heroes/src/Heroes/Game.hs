@@ -4,11 +4,10 @@ module Heroes.Game where
 import Heroes
 import Heroes.Platform                                   (Platform)
 import qualified Heroes.Requisites                         as RQ
-import qualified Heroes.Subsystems.GFX                     as GFX
-import qualified Heroes.Subsystems.WND                     as WND
+import qualified Heroes.GFX                                as GFX
+import qualified Heroes.WND                                as WND
 import qualified Stage.Animation                           as A
 import qualified Stage.Blackbox                            as B
-import qualified Stage.ChangeCursor                        as C
 import qualified Stage.ControlSound                        as S
 import qualified Stage.DetermineInput                      as I
 import qualified Stage.Loading                             as L
@@ -19,7 +18,6 @@ import qualified Stage.SystemLibraries                     as SL
 
 main' ::
   (
-    C.ChangeCursor,
     GFX.GFX,
     WND.WND,
     I.DetermineInput,
@@ -36,7 +34,7 @@ main' = do
     putStrLn "--------------------"
   --
   SL.with $ \(SL.Prov {..}) ->
-    WND.with $ \(WND.Prov {..}) ->
+    WND.with $ \(changeCursor, WND.Prov {..}) ->
     GFX.with (GFX.Deps {..}) $ \(draw, GFX.Prov {..}) ->
     PR.with (PR.Deps {..}) $ \(PR.Prov {..})          ->
     RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..})          ->
@@ -47,8 +45,7 @@ main' = do
     B.with (B.Deps {..}) $ \blackbox               ->
     A.with (A.Deps {..}) $ \animation              ->
     S.with (S.Deps {..}) $ \issueSoundCommands_    ->
-    C.with (C.Deps {..}) $ \changeCursor           ->
-    --------------------------------------------------
+    -------------------------------------------------
     fix $ \again -> do
         ----------------------------------------
         L.QueryOut {..}  <- queryLoaded
@@ -56,14 +53,14 @@ main' = do
         B.Out {exit, ..} <- blackbox (B.In {..})
         ----------------------------------------
         unless exit $ do
-          --------------------------------------------
-          A.Out {..} <- animation          (A.In {..})
-          --------------------------------------------
+          -----------------------------------
+          A.Out {..} <- animation (A.In {..})
+          -----------------------------------
           wishLoaded          (L.WishIn {..})
           issueSoundCommands_ (S.In {..})
-          changeCursor        (C.In {..})
+          changeCursor        (WND.In {..})
           draw                (GFX.In {..})
-          --------------------------------
+          ---------------------------------
           again
   --
   do

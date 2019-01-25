@@ -1,6 +1,46 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Fields where
-import Common.TH
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Common.TH                                         (declareShorthand)
+import Control.Lens                                      (Lens)
+import Data.Generics.Product                             (field)
+import Data.Generics.Product                             (HasField)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+
+_animated :: HasField "animated" s t a b => Lens s t a b
+_animated = field @"animated"
+
+_subframeN :: HasField "subframeN" s t a b => Lens s t a b
+_subframeN = field @"subframeN"
+
+_actors :: HasField "actors" s t a b => Lens s t a b
+_actors = field @"actors"
+
+_curtain :: HasField "curtain" s t a b => Lens s t a b
+_curtain = field @"curtain"
+
+_props :: HasField "props" s t a b => Lens s t a b
+_props = field @"props"
+
+_position :: HasField "position" s t a b => Lens s t a b
+_position = field @"position"
+
+_height :: HasField "height" s t a b => Lens s t a b
+_height = field @"height"
+
+_facing :: HasField "facing" s t a b => Lens s t a b
+_facing = field @"facing"
+
+_sprite :: HasField "sprite" s t a b => Lens s t a b
+_sprite = field @"sprite"
+
+_frameN :: HasField "frameN" s t a b => Lens s t a b
+_frameN = field @"frameN"
+
+_groupN :: HasField "groupN" s t a b => Lens s t a b
+_groupN = field @"groupN"
 
 declareShorthand "abilities"
 declareShorthand "actors"

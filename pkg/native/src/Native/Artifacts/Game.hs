@@ -5,7 +5,6 @@ import Native
 import Native.GFX'SDL ()
 import Native.WND'SDL ()
 import Native.Platform ()
-import Native.Stage.ChangeCursor ()
 import Native.Stage.ControlSound ()
 import Native.Stage.DetermineInput ()
 import Native.Stage.Prerequisites ()

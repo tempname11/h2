@@ -2,9 +2,9 @@ module Web.Artifacts.Game where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Web
+import Web.WND'Canvas ()
 import Web.GFX'GLES ()
 import Web.Platform ()
-import Web.Stage.ChangeCursor ()
 import Web.Stage.ControlSound ()
 import Web.Stage.DetermineInput ()
 import Web.Stage.Prerequisites ()

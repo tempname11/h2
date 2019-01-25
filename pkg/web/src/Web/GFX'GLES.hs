@@ -8,29 +8,38 @@ import Battle                                            (ObstacleId)
 import Heroes.Drawing                                    (CopySpec(..))
 import Heroes.Drawing                                    (StaticSprite(..))
 import Heroes.Drawing.Utilities                          (makeTexture)
+import Heroes.Drawing.Utilities                          (makePaletteTexture)
+import Heroes.Drawing.Quad                               (QBuffer)
 import Heroes.H3.Misc                                    (oImgName)
-import Heroes.StaticResources                            (StaticResources(..))
-import Heroes.Subsystems.GFX
+import Heroes.GFX
 import Heroes.UI                                         (fieldCenter)
 import Web
 import Web.Platform
 import Web.WND'Canvas ()
 import qualified GLES                                      as GL
 import qualified Heroes.Cell                               as Cell
+import qualified Heroes.Drawing                            as Drawing
 import qualified Heroes.Drawing.OneColor                   as OneColor
 import qualified Heroes.Drawing.Paletted                   as Paletted
 import qualified Heroes.Drawing.Quad                       as Quad
 import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.FilePath                           as FilePath
-import qualified Heroes.Platform                           as Platform
 import qualified Web.GLES                                  as GL
 import qualified Web.Image                                 as Image
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
+import qualified JavaScript.TypedArray                     as TypedArray
 import qualified JavaScript.Web.AnimationFrame             as AF
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
+data WebRenderer = WebRenderer GL.Ctx QBuffer
+
+instance GFX'Types where
+  type StaticSprite = Drawing.StaticSprite
+  type ComplexSprite = Drawing.ComplexSprite
+
 instance GFX where
+  type Renderer = WebRenderer
   with (Deps {..}) next = do
     ctx <- GL.getWebGLContext window
     qBuffer <- Quad.createBuffer ctx
@@ -55,10 +64,30 @@ instance GFX where
       Paletted.with ctx qBuffer $ \paletted ->
       OneColor.with ctx qBuffer $ \oneColor ->
       next $ (, prov) $ run regular paletted oneColor ctx staticResources
+  --
+  loadComplexSprite (WebRenderer ctx _) meta path = do
+    image <- Image.load path
+    atlasTexture <- makeTexture ctx image
+    let palette = meta ^. palette_
+    paletteArray' <- TypedArray.create 1024
+    for_ [0..255] $ \i -> do
+      let V4 r g b a = if i > 8
+                      then (<§>) (palette ! i)
+                      else 0
+      TypedArray.unsafeSetIndex (i * 4 + 0) r paletteArray'
+      TypedArray.unsafeSetIndex (i * 4 + 1) g paletteArray'
+      TypedArray.unsafeSetIndex (i * 4 + 2) b paletteArray'
+      TypedArray.unsafeSetIndex (i * 4 + 3) a paletteArray'
+    --
+    paletteArray <- freezeUint8Array paletteArray'
+    paletteTexture <- makePaletteTexture ctx paletteArray
+    return $ Drawing.ComplexSprite { .. }
+  destroyComplexSprite _ = return () -- XXX
+  --
 
 --------------------------------------------------------------------------------
 
-loadStatic :: GL.Ctx -> String -> IO Platform.StaticSprite
+loadStatic :: GL.Ctx -> String -> IO Drawing.StaticSprite
 loadStatic ctx path = do
   img <- Image.load path
   w <- Image.width img
@@ -72,13 +101,13 @@ fromActor ::
   Paletted.Cmd
 fromActor actor = Paletted.Cmd sprite spec
   where
-  sprite = actor ^. sprite_
+  sprite = actor ^. _sprite
   frame = (sprite ^. meta_ . groups_) & (! g) & (! f) -- XXX partial...
-  f = actor ^. frameN_
-  g = actor ^. groupN_
+  f = actor ^. _frameN
+  g = actor ^. _groupN
   -- @copypaste from Native.Stage.PrepareForDrawing_.toCopy
-  facing = actor ^. facing_
-  screenPlace = (<§>) ((actor ^. position_) .+^ offset .-^ (V2 0 (actor ^. height_)))
+  facing = actor ^. _facing
+  screenPlace = (<§>) ((actor ^. _position) .+^ offset .-^ (V2 0 (actor ^. _height)))
   offset = (frame ^. offset_) * sign
   sign = case facing of
     West -> V2 (-1) 1
@@ -100,10 +129,10 @@ run ::
   IO ()
 run regular paletted oneColor ctx staticResources (In {..}) = do
   let
-    curtain = 255 * scene ^. curtain_
-    comparingY = (comparing . view) (position_ . _y)
-    actors = sortBy comparingY $ M.elems $ scene ^. actors_
-    props = M.assocs $ scene ^. props_
+    curtain = 255 * scene ^. _curtain
+    comparingY = (comparing . view) (_position . _y)
+    actors = sortBy comparingY $ M.elems $ scene ^. _actors
+    props = M.assocs $ scene ^. _props
     StaticResources {..} = staticResources
     --
     bgCmd = fullCopy background 0
@@ -118,10 +147,10 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     fromProp (o, prop) = Regular.Cmd sprite spec
       where
       sprite = obstacles (o ^. otype_)
-      sign = case prop ^. facing_ of
+      sign = case prop ^. _facing of
         West -> V2 (-1) 1
         East -> 1
-      screenPlace = (<§>) (prop ^. position_)
+      screenPlace = (<§>) (prop ^. _position)
       spec = CopySpec {
         box = sprite ^. dimensions_,
         place = 0,
@@ -144,9 +173,9 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     let color = V4 0 0 0 curtain
     draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
   --
-  void $ AF.waitForAnimationFrame -- XXX does not belong here?
+  void $ AF.waitForAnimationFrame -- XXX does not belong here.
 
-fullCopy :: Platform.StaticSprite -> Point V2 Float -> Regular.Cmd
+fullCopy :: Drawing.StaticSprite -> Point V2 Float -> Regular.Cmd
 fullCopy sprite screenPlace = Regular.Cmd sprite spec
   where
   spec = CopySpec {

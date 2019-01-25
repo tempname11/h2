@@ -8,13 +8,14 @@ import Heroes.Platform                                   (Platform)
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.H3                                 as H3
 import qualified Heroes.Platform                           as Platform
+import qualified Heroes.GFX                                as GFX
 import qualified Heroes.UI.Sound                           as Sound
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data CreatureResource = CreatureResource {
-  sprite :: Platform.ComplexSprite,
+  sprite :: GFX.ComplexSprite,
   sounds :: Map Sound.CType Platform.Chunk
 }
 
@@ -22,13 +23,18 @@ makeShorthands ''CreatureResource
 
 --------------------------------------------------------------------------------
 
-load :: Platform => Platform.Renderer -> Essentials -> Creature -> IO CreatureResource
+load ::
+  (GFX.GFX, Platform) =>
+  GFX.Renderer ->
+  Essentials ->
+  Creature ->
+  IO CreatureResource
 load r (Essentials {..}) c = do
   let
     pngPath = FilePath.pngPathOf (H3.cDefName c)
     meta = creatureMeta c
   --
-  sprite <- Platform.loadComplexSprite r meta pngPath
+  sprite <- GFX.loadComplexSprite r meta pngPath
   --
   let soundTypes = Sound.allTypes & if H3.shoots c
                                     then id
@@ -43,7 +49,7 @@ load r (Essentials {..}) c = do
   --
   return $ CreatureResource { sprite, sounds }
 
-destroy :: Platform => CreatureResource -> IO ()
+destroy :: (GFX.GFX, Platform) => CreatureResource -> IO ()
 destroy c = do
-  Platform.destroyComplexSprite (c ^. sprite_)
+  GFX.destroyComplexSprite (c ^. sprite_)
   mapM_ Platform.freeChunk (c ^. sounds_)

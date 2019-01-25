@@ -30,4 +30,12 @@ class SomeCapability where
 
 In this project, whenever I encounter a piece of functionality that, conceptually, I want to share between *Native* and *Web*, I put it into a nullary type class (`GLES` and `Platform` mostly, as of now). This enables me to write the instances in completely separate (Cabal) libraries. Which really is necessary since *Native* code wouldn't compile in GHCJS and vice versa!
 
+## II
 
+Although it wasn't strictly necessary, I decided to keep both the old SDL2 renderer and the new GL renderer together in the codebase for a while. At the very least, I find that having to solve this kind of problem helps overall program architecture. By the very necessity of choosing a suitable abstraction which can hide away both implementations, you are forced to think about the structure of the program in a bit more disciplined way. The program becomes a bit more conceptually clear, less ad-hoc.
+
+There are limits to this, though. Choosing the wrong abstraction can be worse than having none at all. It must "support its own weight", so to speak.
+
+In this case, I decided to factor out all functionality related to the graphics pipeline. It's actually deeper than just rendering — the assets are stored and hence loaded differently as well. I dubbed this the "GFX" module. Soon, "WND" followed — all the code for setting up a "window", doing input- and cursor-related tasks. "SND" for sound like seems a good idea as well. 
+
+## III

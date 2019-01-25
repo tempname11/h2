@@ -4,28 +4,34 @@ author: Vladimir Semyonov <tempname011@gmail.com>
 category: Game
 
 dependencies:
+  - heroes
+  #
   - base
+  - bytestring
+  - containers
+  - generic-lens
   - ghcjs-base
   - hashable
-  - containers
   - vector
-  - heroes
 
 default-extensions:
-  - GADTs
-  - ScopedTypeVariables
-  - NoImplicitPrelude
-  - StandaloneDeriving
+  - DataKinds
   - DeriveFunctor
-  - LambdaCase
-  - TupleSections
-  - MultiWayIf
-  - TypeFamilies
-  - RecordWildCards
-  - NamedFieldPuns
+  - DeriveGeneric
   - DuplicateRecordFields
+  - GADTs
   - GeneralizedNewtypeDeriving
+  - LambdaCase
   - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - NoImplicitPrelude
+  - RecordWildCards
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
 
 ghc-options:
   - -Wall

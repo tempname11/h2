@@ -8,10 +8,11 @@ import Heroes.Platform                                   (Platform)
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.H3                                 as H3
 import qualified Heroes.Platform                           as Platform
+import qualified Heroes.GFX                                as GFX
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data SFXResource = SFXResource {
-  sprite :: Platform.ComplexSprite,
+  sprite :: GFX.ComplexSprite,
   sound :: Platform.Chunk
 }
 
@@ -19,12 +20,17 @@ makeShorthands ''SFXResource
 
 --------------------------------------------------------------------------------
 
-load :: Platform => Platform.Renderer -> Essentials -> SFX -> IO SFXResource
+load ::
+  (GFX.GFX, Platform) =>
+  GFX.Renderer ->
+  Essentials ->
+  SFX ->
+  IO SFXResource
 load r (Essentials {..}) s = do
   let
     pngPath = FilePath.pngPathOf (H3.sDefName s)
     meta = sfxMeta s
-  sprite <- Platform.loadComplexSprite r meta pngPath
+  sprite <- GFX.loadComplexSprite r meta pngPath
   sound <- do
     let path = FilePath.prod <> "Sounds/" <> H3.sSndName s <> ".wav"
     putStrLn $ "Loading sound... " <> path
@@ -32,7 +38,7 @@ load r (Essentials {..}) s = do
   --
   return $ SFXResource { sprite, sound }
 
-destroy :: Platform => SFXResource -> IO ()
+destroy :: (GFX.GFX, Platform) => SFXResource -> IO ()
 destroy c = do
-  Platform.destroyComplexSprite (c ^. sprite_)
+  GFX.destroyComplexSprite (c ^. sprite_)
   Platform.freeChunk (c ^. sound_)

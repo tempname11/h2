@@ -3,7 +3,7 @@ module Stage.DetermineInput where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
 import qualified Heroes.Input                              as Input
-import qualified Heroes.Subsystems.WND                     as WND
+import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
