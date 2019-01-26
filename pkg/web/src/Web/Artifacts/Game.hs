@@ -1,17 +1,17 @@
 module Web.Artifacts.Game where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.GFX'GLES ()
 import Web
 import Web.WND'Canvas ()
-import Web.GFX'GLES ()
 import Web.Platform ()
 import Web.Stage.ControlSound ()
 import Web.Stage.DetermineInput ()
 import Web.Stage.Prerequisites ()
 import Web.Stage.SystemLibraries ()
 import Web.WND'Canvas ()
-import qualified Heroes.Game
+import qualified Heroes.Game                               as Game
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 main' :: IO ()
-main' = Heroes.Game.main'
+main' = Game.main'

@@ -36,6 +36,10 @@ Although it wasn't strictly necessary, I decided to keep both the old SDL2 rende
 
 There are limits to this, though. Choosing the wrong abstraction can be worse than having none at all. It must "support its own weight", so to speak.
 
-In this case, I decided to factor out all functionality related to the graphics pipeline. It's actually deeper than just rendering — the assets are stored and hence loaded differently as well. I dubbed this the "GFX" module. Soon, "WND" followed — all the code for setting up a "window", doing input- and cursor-related tasks. "SND" for sound like seems a good idea as well. 
+In this case, I decided to factor out all functionality related to the graphics pipeline. It's actually deeper than just rendering — the assets are stored and hence loaded differently as well. I dubbed this the `GFX` module. Soon, `WND` followed — all the code for setting up a "window", doing input- and cursor-related tasks. `SND` for sound like seems a good idea as well. 
 
 ## III
+
+Finally I had a `GFX` typeclass and a `Web.GFX'GLES` instance for it. The next step was moving this code to the base platform-independent package. This mainly involved getting rid of GHCJS-related dependencies, again using the nullary typeclass trick.
+
+An aside: when you don't have hard time constraints, refactoring one thing can often lead to another and another - you touch them already, so why not redo them properly. This can be both a blessing and a curse. On one hand you can do a lot of "damage" (in a good sense), on the other you take more time than you expect.

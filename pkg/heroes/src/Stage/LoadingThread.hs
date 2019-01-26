@@ -55,7 +55,7 @@ with deps next = do
   loadedChan <- NBChan.new
   let loadingChannels = (wishChan, loadedChan)
   void $ forkPreferred (loadingThread deps loadingChannels)
-  next (Prov {..})
+  next $ Prov {..}
 
 loadingThread :: (GFX.GFX, Platform) => Deps -> LoadingChannels -> IO ()
 loadingThread (Deps {..}) (wishChan, loadedChan) = do

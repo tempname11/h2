@@ -12,10 +12,12 @@ data In = In {
 
 data Prov = Prov {
   window :: Window,
-  cursorResources :: CursorResources
+  cursorResources :: CursorResources,
+  waitForVsync :: IO (),
+  changeCursor :: Handler In
 }
 
 class WND where
   type Window
   type CursorResources
-  with :: With (Handler In, Prov)
+  with :: With Prov

@@ -25,13 +25,13 @@ instance GFX where
   with (Deps {..}) next = do
     renderer <- SDL.createRenderer window (-1) rendererConfig
     staticResources <- Resource.init renderer
-    let prov = Prov {..}
     let pDeps = Prepare.Deps {..}
-    Prepare.with pDeps $
-      \pRun -> next $ (, prov) $
-        \(in_@In {..}) -> do
+    Prepare.with pDeps $ \pRun -> do
+      let
+        draw = \(in_@In {..}) -> do
           Prepare.Out {..} <- pRun (Prepare.In {..})
           run pDeps in_ drawingAct
+      next $ Prov {..}
     Resource.fini staticResources
     SDL.destroyRenderer renderer
   --

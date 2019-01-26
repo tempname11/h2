@@ -5,6 +5,7 @@ import GLES                                              (GLES)
 import Heroes.Platform                                   (Platform)
 import Heroes
 import qualified GLES                                      as GL
+import qualified Heroes.Image                                 as Image
 import qualified Heroes.Platform                           as Platform
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -62,13 +63,15 @@ makePaletteTexture ctx array = do
   -- XXX GL.unbindTexture?
   return texture
 
-makeTexture :: GLES => GL.Ctx -> GL.Image -> IO GL.Texture
+makeTexture :: GLES => GL.Ctx -> Image.AnyImage -> IO GL.Texture
 makeTexture ctx image = do
   texture <- GL.glCreateTexture ctx
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
+  w <- Image.width image
+  h <- Image.height image
   --
   GL.glTexImage2DImage ctx GL.gl_TEXTURE_2D
-    0 ((§) GL.gl_RGBA) GL.gl_RGBA GL.gl_UNSIGNED_BYTE image
+    0 ((§) GL.gl_RGBA) ((§) w) ((§) h) 0 GL.gl_RGBA GL.gl_UNSIGNED_BYTE image
   --
   GL.glTexParameteri ctx GL.gl_TEXTURE_2D
     ((§) GL.gl_TEXTURE_MAG_FILTER) ((§) GL.gl_NEAREST)

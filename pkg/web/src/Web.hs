@@ -1,6 +1,5 @@
 module Web (
   Canvas,
-  Image,
   IsJSVal,
   JSString,
   JSVal,
@@ -21,7 +20,7 @@ import Data.JSString                                     (JSString)
 import GHCJS.Marshal                                     (fromJSVal)
 import GHCJS.Types                                       (IsJSVal)
 import GHCJS.Types                                       (JSVal)
-import JavaScript.Web.Canvas                             (Image, Canvas)
+import JavaScript.Web.Canvas                             (Canvas)
 import Unsafe.Coerce                                     (unsafeCoerce)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 

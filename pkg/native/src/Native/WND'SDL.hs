@@ -47,8 +47,10 @@ instance WND where
         d0 <- readIORef ref
         d1 <- changeCursor' in_ d0
         writeIORef ref d1
+      --
+      waitForVsync = return () -- SDL.present takes care of this with the correct flags
     --
-    next (changeCursor, Prov {..})
+    next $ Prov {..}
     (mapM_ . mapM_) SDL.freeCursor cursorResources
     SDL.destroyWindow window
     SDL.quit

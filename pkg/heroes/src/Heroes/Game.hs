@@ -34,12 +34,12 @@ main' = do
     putStrLn "--------------------"
   --
   SL.with $ \(SL.Prov {..}) ->
-    WND.with $ \(changeCursor, WND.Prov {..}) ->
-    GFX.with (GFX.Deps {..}) $ \(draw, GFX.Prov {..}) ->
-    PR.with (PR.Deps {..}) $ \(PR.Prov {..})          ->
-    RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..})          ->
-    LT.with (LT.Deps {..}) $ \(LT.Prov {..})          ->
-    ----------------------------------------------------
+    WND.with $ \(WND.Prov {..}) ->
+    GFX.with (GFX.Deps {..}) $ \(GFX.Prov {..}) ->
+    PR.with (PR.Deps {..}) $ \(PR.Prov {..})    ->
+    RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..})    ->
+    LT.with (LT.Deps {..}) $ \(LT.Prov {..})    ->
+    -------------------------------------------------
     L.with (L.Deps {..}) $ \queryLoaded wishLoaded ->
     I.with (I.Deps {..}) $ \determineInput         ->
     B.with (B.Deps {..}) $ \blackbox               ->
@@ -59,6 +59,7 @@ main' = do
           wishLoaded          (L.WishIn {..})
           issueSoundCommands_ (S.In {..})
           changeCursor        (WND.In {..})
+          waitForVsync
           draw                (GFX.In {..})
           ---------------------------------
           again

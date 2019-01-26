@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Heroes.SpriteMeta (
+  Palette,
   Meta(..),
   getIt,
   putIt,
@@ -19,9 +20,11 @@ import Data.Binary.Put                                   (putWord16le)
 import Data.Binary.Put                                   (putWord8)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
+type Palette = SV.Vector (V4 Word8)
+
 data Meta = Meta {
   dimensions :: V2 CInt,
-  palette    :: SV.Vector (V4 Word8),
+  palette    :: Palette,
   groups     :: V.Vector Atlas.Group
 }
 

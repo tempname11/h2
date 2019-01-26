@@ -2,9 +2,11 @@
 module Native.Platform where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Native
-import Native.GLES ()
 import Heroes.Platform
+import Native
+import Native.Image ()
+import Native.GLES'Types ()
+import Native.GLES'Utils                                 (makeContext)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (forkOS)
 import Foreign.ForeignPtr                                (newForeignPtr_)
@@ -13,6 +15,7 @@ import Foreign.Ptr                                       (castPtr)
 import Foreign.Ptr                                       (plusPtr)
 import Foreign.Storable                                  (poke)
 import System.IO                                         (readFile)
+import qualified Codec.Picture                             as Juicy
 import qualified SDL.Mixer                                 as Mix
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -44,3 +47,8 @@ instance Platform where
     fPtr <- newForeignPtr_ $ castPtr ptr
     return ((§) size, fPtr)
   loadGLString = readFile
+  getGLContext _ = makeContext
+  loadImage = Juicy.readPng
+  --
+  generatePaletteArray palette = do
+    undefined palette

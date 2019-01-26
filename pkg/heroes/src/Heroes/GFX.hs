@@ -28,7 +28,8 @@ data Deps = Deps {
 
 data Prov = Prov {
   staticResources :: StaticResources,
-  renderer :: Renderer
+  renderer :: Renderer,
+  draw :: Handler In
 }
 
 data StaticResources = StaticResources {
@@ -43,6 +44,6 @@ class GFX'Types => GFX where
   loadComplexSprite :: Renderer -> Meta -> String -> IO ComplexSprite
   destroyComplexSprite :: ComplexSprite -> IO ()
   --
-  with :: Deps -> With (Handler In, Prov)
+  with :: Deps -> With Prov
 
 makeShorthands ''StaticResources
