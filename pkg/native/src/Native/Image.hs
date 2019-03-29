@@ -22,4 +22,4 @@ withImagePtr :: AnyImage -> (Ptr () -> IO a) -> IO a
 withImagePtr image = Juicy'.dynamicMap (withPtr . Juicy.imageData) image
   where
   withPtr :: Storable a => SV.Vector a -> (Ptr () -> IO b) -> IO b
-  withPtr v f = unsafeWith v (f . castPtr)
+  withPtr v f = unsafeWith v $ f. castPtr

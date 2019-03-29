@@ -27,6 +27,9 @@ foreign import javascript unsafe
   "$r = new Uint8Array($1);"
   freezeUint8Array :: TypedArray'.IOUint8Array -> IO TypedArray.Uint8Array
 
+shaderPrefix :: JSString
+shaderPrefix = JSString.pack "precision mediump float;\n"
+
 instance Platform where
   productionPrefix = "../.production-assets/"
   staticSpriteExtension = ".png"
@@ -37,18 +40,20 @@ instance Platform where
   freeChunk _ = return () -- XXX
   --
   createQuadArray = createQuadArray'
-  loadGLString path = do
+  loadGLSL path = do
     let request = simpleXHR path
     result <- GL.toGLString <<$>> XHR.contents <$> XHR.xhrString request
     case result of
       Nothing -> raise "result is Nothing"
-      Just str -> return str
+      Just str -> return (shaderPrefix <> str)
   getGLContext = getWebGLContext
+  --
   loadImage path = do
     img <- newImage
     setImageSrc img (JSString.pack path)
     waitTillImageLoads img
     return (Right img) -- XXX errors are not handled
+  --
   generatePaletteArray palette = do
     paletteArray' <- TypedArray.create 1024
     for_ [0..255] $ \i -> do

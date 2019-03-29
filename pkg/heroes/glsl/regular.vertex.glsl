@@ -1,5 +1,3 @@
-precision mediump float;
-
 attribute vec2 interp;
 
 uniform vec2 texDimensions;

@@ -18,7 +18,7 @@ import qualified Graphics.GL.Ext.ARB.FramebufferObject     as GL
 import qualified Graphics.GL.Ext.ARB.TextureFloat          as GL
 import qualified Graphics.GL.Ext.ARB.VertexArrayObject     as GL
 import qualified Graphics.GL.Ext.EXT.BlendColor            as GL
-import qualified Graphics.GL.Standard20                    as GL -- XXX Embedded?
+import qualified Graphics.GL.Core32                        as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 genToCreate :: Storable a => (GLsizei -> Ptr a -> IO ()) -> ctx -> IO a
@@ -354,6 +354,8 @@ instance GLES where
   gl_DEPTH_COMPONENT = GL.GL_DEPTH_COMPONENT
   gl_DEPTH_STENCIL = GL.GL_DEPTH_STENCIL
   gl_ALPHA = GL.GL_ALPHA
+  gl_R8 = GL.GL_R8
+  gl_RED = GL.GL_RED
   gl_RGB = GL.GL_RGB
   gl_RGBA = GL.GL_RGBA
   gl_RGBA32F = GL.GL_RGBA32F_ARB

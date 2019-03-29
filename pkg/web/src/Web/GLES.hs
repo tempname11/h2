@@ -41,7 +41,7 @@ instance Eq TagProgram where
 instance Hashable TagProgram where
         hashWithSalt salt (TagProgram t _) = hashWithSalt salt t
 
-foreign import javascript unsafe "$r = $1.getContext(\"webgl\");"
+foreign import javascript unsafe "$r = $1.getContext(\"webgl2\");"
         getWebGLContext' :: Canvas -> IO JSVal
 
 getWebGLContext :: Canvas -> IO Ctx
@@ -371,6 +371,8 @@ instance GLES where
   gl_DEPTH_COMPONENT = JS.gl_DEPTH_COMPONENT
   gl_DEPTH_STENCIL = JS.gl_DEPTH_STENCIL
   gl_ALPHA = JS.gl_ALPHA
+  gl_R8 = JS.gl_R8
+  gl_RED = JS.gl_RED
   gl_RGB = JS.gl_RGB
   gl_RGBA = JS.gl_RGBA
   gl_RGBA32F = JS.gl_RGBA32F_EXT

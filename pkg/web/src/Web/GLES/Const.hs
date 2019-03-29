@@ -380,6 +380,12 @@ gl_DEPTH_COMPONENT = 0x1902
 gl_ALPHA :: Num a => a
 gl_ALPHA = 0x1906
 
+gl_R8 :: Num a => a
+gl_R8 = 0x8229
+
+gl_RED :: Num a => a
+gl_RED = 0x1903
+
 gl_RGB :: Num a => a
 gl_RGB = 0x1907
 

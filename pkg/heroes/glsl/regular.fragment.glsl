@@ -1,5 +1,3 @@
-precision mediump float;
-
 uniform sampler2D texImage;
 varying vec2 texPos;
 

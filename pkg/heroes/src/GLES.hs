@@ -309,6 +309,8 @@ class (GLES'Types, Capability'Image) => GLES where
   gl_DEPTH_COMPONENT :: GLEnum
   gl_DEPTH_STENCIL :: GLEnum
   gl_ALPHA :: GLEnum
+  gl_RED :: GLEnum
+  gl_R8 :: GLEnum
   gl_RGB :: GLEnum
   gl_RGBA :: GLEnum
   gl_RGBA32F :: GLEnum

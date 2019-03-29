@@ -48,7 +48,7 @@ instance WND where
         d1 <- changeCursor' in_ d0
         writeIORef ref d1
       --
-      waitForVsync = return () -- SDL.present takes care of this with the correct flags
+      waitForVsync = SDL.glSwapWindow window -- XXX
     --
     next $ Prov {..}
     (mapM_ . mapM_) SDL.freeCursor cursorResources

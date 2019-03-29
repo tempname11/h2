@@ -23,6 +23,7 @@ git submodule update
 ```sh
 mkdir .production-assets
 ln -s ../h3-assets/Sounds .production-assets/Sounds
+ln -s ../pkg/heroes/glsl .production-assets/glsl
 ./hhclix prepare-assets
 ./hhcli run-tool compile-essentials
 ```

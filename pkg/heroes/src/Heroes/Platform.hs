@@ -24,7 +24,7 @@ class Platform where
   -- XXX GLESHelpers?
   createQuadArray :: IO GL.AnyArray
   generatePaletteArray :: Palette -> IO GL.UInt8Array
-  loadGLString :: String -> IO GL.GLString
+  loadGLSL :: String -> IO GL.GLString
   getGLContext :: WND.Window -> IO GL.Ctx
   -- XXX ImageHelpers?
   loadImage :: String -> IO (Either String AnyImage)

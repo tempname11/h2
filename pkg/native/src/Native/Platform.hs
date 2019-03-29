@@ -8,7 +8,7 @@ import Native.Image ()
 import Native.GLES'Types ()
 import Native.GLES'Utils                                 (makeContext)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Control.Concurrent                                (forkOS)
+import Control.Concurrent                                (forkIO)
 import Foreign.ForeignPtr                                (newForeignPtr_)
 import Foreign.Marshal.Alloc                             (mallocBytes)
 import Foreign.Ptr                                       (castPtr)
@@ -16,14 +16,17 @@ import Foreign.Ptr                                       (plusPtr)
 import Foreign.Storable                                  (poke)
 import System.IO                                         (readFile)
 import qualified Codec.Picture                             as Juicy
+import qualified Data.Vector.Storable                      as SV
+import qualified Heroes.WND                                as WND
+import qualified SDL
 import qualified SDL.Mixer                                 as Mix
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-instance Platform where
+instance (SDL.Window ~ WND.Window) => Platform where
   --
   productionPrefix = ".production-assets/"
-  staticSpriteExtension = ".bmp"
-  forkPreferred = forkOS
+  staticSpriteExtension = ".png"
+  forkPreferred = forkIO
   --
   type Chunk = Mix.Chunk
   loadChunk = Mix.load
@@ -46,9 +49,25 @@ instance Platform where
     poke (castPtr $ plusPtr ptr 44) (1 :: Float)
     fPtr <- newForeignPtr_ $ castPtr ptr
     return ((§) size, fPtr)
-  loadGLString = readFile
-  getGLContext _ = makeContext
+  loadGLSL = readFile
+  getGLContext window = do
+    void $ SDL.glCreateContext window
+    makeContext
   loadImage = Juicy.readPng
   --
   generatePaletteArray palette = do
-    undefined palette
+    let
+      channel (V4 r g b a) = \case
+        0 -> r
+        1 -> g
+        2 -> b
+        _ -> a
+      --
+      v = SV.generate 1024 $ \i' ->
+        let (i, c) = i' `divMod` 4
+        in if i > 8
+          then channel (palette ! i) c
+          else 0
+    --
+    let (ptr, size) = SV.unsafeToForeignPtr0 v
+    return ((§) size, ptr)

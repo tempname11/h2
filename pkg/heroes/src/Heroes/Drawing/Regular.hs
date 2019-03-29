@@ -9,6 +9,7 @@ import GLES                                              (GLES)
 import Heroes
 import Heroes.Drawing
 import Heroes.Drawing.Utilities
+import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
 import Heroes.UI (viewportSize)
 import qualified GLES                                      as GL
@@ -50,8 +51,8 @@ data Prog = Prog {
 init :: (Platform, GLES) => GL.Ctx -> IO Prog
 init ctx = do
   program <- makeProgram ctx
-    "../glsl/regular.fragment.glsl"
-    "../glsl/regular.vertex.glsl"
+    (prod <> "glsl/regular.fragment.glsl")
+    (prod <> "glsl/regular.vertex.glsl")
   --
   attr_interp <- (§) <$> -- Int32 vs Word32 for some reason
     GL.glGetAttribLocation ctx program (GL.toGLString "interp")

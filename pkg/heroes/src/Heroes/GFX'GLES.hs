@@ -31,14 +31,14 @@ import qualified Heroes.Platform                           as Platform
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data WebRenderer = WebRenderer GL.Ctx QBuffer
+data Renderer'GLES = Renderer'GLES GL.Ctx QBuffer
 
 instance GFX'Types where
   type StaticSprite = Drawing.StaticSprite
   type ComplexSprite = Drawing.ComplexSprite
 
-instance {-# OVERLAPPING #-} (GLES, Platform) => GFX where
-  type Renderer = WebRenderer
+instance (GLES, Platform, GFX'Types) => GFX where
+  type Renderer = Renderer'GLES
   with (Deps {..}) next = do
     ctx <- Platform.getGLContext window
     qBuffer <- Quad.createBuffer ctx
@@ -55,7 +55,7 @@ instance {-# OVERLAPPING #-} (GLES, Platform) => GFX where
     --
     let
       obstacles t = obstacleResourceMap M.! t
-      renderer = WebRenderer ctx qBuffer
+      renderer = Renderer'GLES ctx qBuffer
       staticResources = StaticResources {..}
     --
     Regular.with ctx qBuffer $ \regular ->
@@ -64,11 +64,11 @@ instance {-# OVERLAPPING #-} (GLES, Platform) => GFX where
         let draw = run regular paletted oneColor ctx staticResources
         next $ Prov {..}
   --
-  loadComplexSprite (WebRenderer ctx _) meta path = do
+  loadComplexSprite (Renderer'GLES ctx _) meta path = do
     image <- Platform.loadImage path >>= \case
       Right image -> return image
       Left str -> raise str
-    atlasTexture <- makeTexture ctx image
+    atlasTexture <- makeTexture ctx GL.gl_R8 GL.gl_RED image
     paletteArray <- Platform.generatePaletteArray (meta ^. palette_)
     paletteTexture <- makePaletteTexture ctx paletteArray
     return $ Drawing.ComplexSprite { .. }
@@ -86,7 +86,7 @@ loadStatic ctx path = do
     Left str -> raise str
   w <- Image.width image
   h <- Image.height image
-  texture <- makeTexture ctx image
+  texture <- makeTexture ctx GL.gl_RGBA GL.gl_RGBA image
   let dimensions = (<§>) $ V2 w h
   return $ StaticSprite { texture, dimensions }
 
@@ -155,6 +155,7 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     --
     palettedCmds = fromActor <$> actors
   --
+  Drawing.clear ctx
   GL.glEnable ctx GL.gl_BLEND
   GL.glBlendFunc ctx GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA
   --

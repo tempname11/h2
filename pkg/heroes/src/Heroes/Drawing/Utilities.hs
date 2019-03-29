@@ -16,8 +16,8 @@ bindTextureTo ctx slot texture = do
 
 makeProgram :: (Platform, GLES) => GL.Ctx -> String -> String -> IO GL.Program
 makeProgram ctx fragmentFilename vertexFilename = do
-  fragmentSource <- Platform.loadGLString fragmentFilename
-  vertexSource <- Platform.loadGLString vertexFilename
+  fragmentSource <- Platform.loadGLSL fragmentFilename
+  vertexSource <- Platform.loadGLSL vertexFilename
   --
   fs <- makeShader ctx GL.gl_FRAGMENT_SHADER fragmentSource
   vs <- makeShader ctx GL.gl_VERTEX_SHADER vertexSource
@@ -63,15 +63,15 @@ makePaletteTexture ctx array = do
   -- XXX GL.unbindTexture?
   return texture
 
-makeTexture :: GLES => GL.Ctx -> Image.AnyImage -> IO GL.Texture
-makeTexture ctx image = do
+makeTexture :: GLES => GL.Ctx -> GL.GLEnum -> GL.GLEnum -> Image.AnyImage -> IO GL.Texture
+makeTexture ctx ifmt fmt image = do
   texture <- GL.glCreateTexture ctx
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
   w <- Image.width image
   h <- Image.height image
   --
   GL.glTexImage2DImage ctx GL.gl_TEXTURE_2D
-    0 ((§) GL.gl_RGBA) ((§) w) ((§) h) 0 GL.gl_RGBA GL.gl_UNSIGNED_BYTE image
+    0 ((§) ifmt) ((§) w) ((§) h) 0 fmt GL.gl_UNSIGNED_BYTE image -- XXX hardcoded format
   --
   GL.glTexParameteri ctx GL.gl_TEXTURE_2D
     ((§) GL.gl_TEXTURE_MAG_FILTER) ((§) GL.gl_NEAREST)

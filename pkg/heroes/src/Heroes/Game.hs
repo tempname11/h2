@@ -48,6 +48,7 @@ main' = do
     -------------------------------------------------
     fix $ \again -> do
         ----------------------------------------
+        load
         L.QueryOut {..}  <- queryLoaded
         I.Out {..}       <- determineInput
         B.Out {exit, ..} <- blackbox (B.In {..})

@@ -5,6 +5,7 @@ import Heroes.Essentials
 import Heroes.UI
 import Native
 import Native.Platform ()
+import Native.WND'SDL () -- XXX
 import qualified Heroes.Atlas                              as Atlas
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.H3                                 as H3

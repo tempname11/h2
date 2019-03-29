@@ -1,8 +1,11 @@
+{-# OPTIONS_GHC -Wno-orphans #-}
 module Native.Artifacts.Game where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Native.GLES ()
 import Native
-import Native.GFX'SDL ()
+import Heroes.GFX'GLES ()
+-- import Native.GFX'SDL ()
 import Native.WND'SDL ()
 import Native.Platform ()
 import Native.Stage.ControlSound ()
