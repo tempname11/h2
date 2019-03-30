@@ -2,6 +2,7 @@ module Heroes.Plan.Path where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation.Scene
+import Battle                                            (_creature)
 import Heroes
 import Heroes.Plan.Other
 import Heroes.Plan.Types

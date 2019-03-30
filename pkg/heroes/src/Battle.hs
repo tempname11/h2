@@ -6,7 +6,7 @@ import Baked
 import Heroes
 import Heroes.H3.Misc
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Data.Generics.Product                             (HasField'(..))
+import Control.Lens                                      (Lens')
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Failure
@@ -31,8 +31,8 @@ instance Baked FighterId where
 makeFighterId :: Creature -> Int -> FighterId
 makeFighterId = baked
 
-instance {-# OVERLAPS #-} HasField' "creature" FighterId Creature where
-  field' = lower_
+_creature :: Lens' FighterId Creature
+_creature = lower_
 
 --------------------------------------------------------------------------------
 
@@ -49,8 +49,8 @@ instance Baked ObstacleId where
 makeObstacleId :: ObstacleType -> Int -> ObstacleId
 makeObstacleId = baked
 
-instance {-# OVERLAPS #-} HasField' "otype" ObstacleId ObstacleType  where
-  field' = lower_
+_otype :: Lens' ObstacleId ObstacleType
+_otype = lower_
 
 --------------------------------------------------------------------------------
 

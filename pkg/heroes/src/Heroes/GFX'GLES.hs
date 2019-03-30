@@ -8,6 +8,7 @@ import Animation.Scene                                   (Handle(..))
 import Animation.Scene                                   (Prop)
 import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
+import Battle                                            (_otype)
 import GLES                                              (GLES)
 import Heroes
 import Heroes.Drawing                                    (CopySpec(..))

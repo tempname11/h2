@@ -3,20 +3,21 @@ module Heroes.Plan.Other where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation
 import Animation.Scene
+import Battle                                            (FighterId)
+import Battle                                            (_creature)
 import Heroes
 import Heroes.H3.Misc
 import Heroes.Plan.Types
 import Heroes.SFXResource                                (SFXResource(..))
 import Heroes.UI
+import Heroes.UI.Sound                                   (Sound(..))
 import Stage.LoadingThread                               (LoadRequest(..))
-import qualified Heroes.Plan.Animation                     as Animation
-import qualified Heroes.Plan.Sound                         as Sound
-import qualified Heroes.UI.Sound                           as Sound
 import qualified Heroes.Bearing                            as Bearing
 import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Placing                            as Placing
-import Battle                                            (FighterId)
-import Heroes.UI.Sound                                   (Sound(..))
+import qualified Heroes.Plan.Animation                     as Animation
+import qualified Heroes.Plan.Sound                         as Sound
+import qualified Heroes.UI.Sound                           as Sound
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 (+!) :: Offset -> GroupSize -> Offset
