@@ -60,8 +60,8 @@ main' = do
           wishLoaded          (L.WishIn {..})
           issueSoundCommands_ (S.In {..})
           changeCursor        (WND.In {..})
-          waitForVsync
           draw                (GFX.In {..})
+          waitForVsync
           ---------------------------------
           again
   --

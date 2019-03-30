@@ -56,8 +56,9 @@ increment groupSizeOf = over _actors $ M.mapWithKey $ \h -> execState $ do
   when a $ do
     g <- use _groupN
     let GroupSize n = groupSizeOf h (GroupNumber g)
-    s <- _subframeN <%= ((+1) >>> (`mod` 4))
-    when (s == 0) $
+    let _15fps s = s `mod` 4 == 0
+    s <- _subframeN <%= (+1)
+    when (_15fps s) $
       _frameN %= ((+1) >>> (`mod` n))
 
 applyAll :: V.Vector Command -> Scene -> Scene

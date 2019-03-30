@@ -14,6 +14,7 @@ import Foreign.Marshal.Alloc                             (mallocBytes)
 import Foreign.Ptr                                       (castPtr)
 import Foreign.Ptr                                       (plusPtr)
 import Foreign.Storable                                  (poke)
+import SDL                                               (($=))
 import System.IO                                         (readFile)
 import qualified Codec.Picture                             as Juicy
 import qualified Data.Vector.Storable                      as SV
@@ -52,6 +53,7 @@ instance (SDL.Window ~ WND.Window) => Platform where
   loadGLSL = readFile
   getGLContext window = do
     void $ SDL.glCreateContext window
+    SDL.swapInterval $= SDL.SynchronizedUpdates
     makeContext
   loadImage = Juicy.readPng
   --

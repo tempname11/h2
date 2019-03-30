@@ -10,7 +10,7 @@ Technical:
 [x] Use latest stock SDL2{,_mixer}
 [x] Use monorepo
 [x] Get Web up to speed
-[ ] Fix Native vSync
+[ ] Fix "index out of bounds" when moving
 [ ] Add memoization back
 [ ] Unify Web & Native
 [ ] Refactor the Battle monad
