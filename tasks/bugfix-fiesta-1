@@ -2,7 +2,7 @@
 [x] Fix movement hexes highlighting
 [x] Fix selection fighter highlighting
 [x] Fix shadows (!)
-[ ] Fix curtain
+[x] Fix curtain
 [ ] Fix lack of EOM after attack
 [ ] Fix non-closest processedMovement
 [ ] Fix non-closest pathfinding

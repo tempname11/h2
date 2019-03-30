@@ -134,7 +134,6 @@ run ::
   IO ()
 run regular paletted oneColor ctx staticResources (In {..}) = do
   let
-    curtain = 255 * scene ^. _curtain
     comparingY = comparing (view $ _2 . _position . _y)
     actors = sortBy comparingY $ M.assocs $ scene ^. _actors
     props = M.assocs $ scene ^. _props
@@ -176,7 +175,7 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     for_ palettedCmds draw
   --
   oneColor $ \draw -> do
-    let color = V4 0 0 0 curtain
+    let color = V4 0 0 0 (floor . (255 *) $ (scene ^. _curtain))
     draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
 
 fullCopy :: Drawing.StaticSprite -> Point V2 Float -> Regular.Cmd

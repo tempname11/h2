@@ -11,6 +11,7 @@ import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
 import Heroes.UI (viewportSize)
+import Heroes.UI (Color)
 import qualified GLES                                      as GL
 import qualified Heroes.Drawing.Quad                       as Quad
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -18,7 +19,7 @@ import qualified Heroes.Drawing.Quad                       as Quad
 data Cmd = Cmd {
   box :: Maybe (V2 Float),
   place :: Point V2 Float,
-  color :: V4 Float
+  color :: Color
 }
 
 --------------------------------------------------------------------------------
@@ -86,10 +87,10 @@ draw ctx prog cmd = do
   --
   GL.glUniform2f ctx loc_scrDimensions (vsize ^. _x) (vsize ^. _y)
   GL.glUniform2f ctx loc_scrPlace (place ^. _x) (place ^. _y)
-  let
   --
+  let
     b = maybe vsize id box
-    c = color
+    c = ((/ 255.0) . (§)) <$> color
   --
   GL.glUniform2f ctx loc_scrBox (b ^. _x) (b ^. _y)
   GL.glUniform4f ctx loc_color (c ^. _x) (c ^. _y) (c ^. _z) (c ^. _w)
