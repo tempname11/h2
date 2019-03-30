@@ -4,7 +4,9 @@ module Heroes.GFX'GLES () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation.Scene                                   (Actor)
+import Animation.Scene                                   (Handle(..))
 import Animation.Scene                                   (Prop)
+import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
 import GLES                                              (GLES)
 import Heroes
@@ -17,6 +19,8 @@ import Heroes.GFX
 import Heroes.H3.Misc                                    (oImgName)
 import Heroes.Platform                                   (Platform)
 import Heroes.UI                                         (fieldCenter)
+import Heroes.UI                                         (Color)
+import Heroes.UI                                         (transparent)
 import qualified GLES                                      as GL
 import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Drawing                            as Drawing
@@ -91,10 +95,16 @@ loadStatic ctx path = do
   return $ StaticSprite { texture, dimensions }
 
 fromActor ::
-  Actor ->
+  (FighterId -> Maybe Color) ->
+  (Handle, Actor) ->
   Paletted.Cmd
-fromActor actor = Paletted.Cmd sprite spec
+fromActor extraColor (h, actor) = Paletted.Cmd sprite spec outlineColor
   where
+  outlineColor =
+    case h of
+      Handle'Fighter fyr -> maybe transparent id (extraColor fyr)
+      _ -> transparent
+    
   sprite = actor ^. _sprite . _some
   frame = (sprite ^. meta_ . groups_) & (! g) & (! f) -- XXX partial...
   f = actor ^. _frameN
@@ -125,8 +135,8 @@ run ::
 run regular paletted oneColor ctx staticResources (In {..}) = do
   let
     curtain = 255 * scene ^. _curtain
-    comparingY = (comparing . view) (_position . _y)
-    actors = sortBy comparingY $ M.elems $ scene ^. _actors
+    comparingY = comparing (view $ _2 . _position . _y)
+    actors = sortBy comparingY $ M.assocs $ scene ^. _actors
     props = M.assocs $ scene ^. _props
     StaticResources {..} = staticResources
     --
@@ -153,7 +163,7 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
         screenBox = (sprite ^. dimensions_) * sign
       }
     --
-    palettedCmds = fromActor <$> actors
+    palettedCmds = fromActor extraColor <$> actors
   --
   Drawing.clear ctx
   GL.glEnable ctx GL.gl_BLEND

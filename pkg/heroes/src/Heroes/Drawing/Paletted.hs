@@ -13,6 +13,7 @@ import Heroes.Drawing
 import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
+import Heroes.UI (Color)
 import Heroes.UI (viewportSize)
 import qualified GLES                                      as GL
 import qualified Heroes.Drawing.Quad                       as Quad
@@ -20,7 +21,8 @@ import qualified Heroes.Drawing.Quad                       as Quad
 
 data Cmd = Cmd {
   sprite :: ComplexSprite,
-  copySpec :: CopySpec
+  copySpec :: CopySpec,
+  outlineColor :: Color
 }
 
 --------------------------------------------------------------------------------
@@ -46,6 +48,8 @@ data Prog = Prog {
   loc_scrPlace      :: GL.UniformLocation,
   loc_texBox        :: GL.UniformLocation,
   loc_scrBox        :: GL.UniformLocation,
+  loc_outlineColor  :: GL.UniformLocation,
+  loc_shadowColor   :: GL.UniformLocation,
   attr_interp       :: GL.GLUInt
 }
 
@@ -70,6 +74,8 @@ init ctx = do
   loc_scrBox        <- locate "scrBox"
   loc_texAtlas      <- locate "texAtlas"
   loc_texPalette    <- locate "texPalette"
+  loc_outlineColor  <- locate "outlineColor"
+  loc_shadowColor   <- locate "shadowColor"
   --
   return $ Prog { .. }
 
@@ -96,11 +102,13 @@ draw ctx prog cmd = do
           paletteTexture = palette,
           meta
         },
-        copySpec = CopySpec { place, screenPlace, box, screenBox }
+        copySpec = CopySpec { place, screenPlace, box, screenBox },
+        outlineColor
       } = cmd
       vsize = viewportSize <&> (§)
   --
   let dimensions = (<§>) (meta ^. dimensions_)
+  let oc = (/ 255.0) . (§) <$> outlineColor;
   GL.glUniform1i ctx loc_texAtlas 0
   GL.glUniform1i ctx loc_texPalette 1
   GL.glUniform2f ctx loc_texDimensions (dimensions ^. _x) (dimensions ^. _y)
@@ -109,6 +117,8 @@ draw ctx prog cmd = do
   GL.glUniform2f ctx loc_scrPlace (screenPlace ^. _x) (screenPlace ^. _y)
   GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
   GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
+  GL.glUniform4f ctx loc_outlineColor (oc ^. _x) (oc ^. _y) (oc ^. _z) (oc ^. _w)
+  GL.glUniform4f ctx loc_shadowColor 0 0 0 1
   -- bind textures
   bindTextureTo ctx GL.gl_TEXTURE0 atlas
   bindTextureTo ctx GL.gl_TEXTURE1 palette

@@ -7,7 +7,6 @@ import Heroes.WND
 import Heroes.UI                                         (viewportSize)
 import Native
 import Native.Platform ()
-import Native.Utils                                      (createPalettedSurface)
 import qualified Heroes.Bearing                            as Bearing
 import qualified Heroes.UI.Cursor                          as Cursor
 import qualified Native.UI.Cursor                          as Cursor
@@ -17,6 +16,7 @@ import Data.String                                       (fromString)
 import SDL                                               (($=))
 import qualified Data.ByteString                           as B
 import qualified Data.Vector                               as V
+import qualified Data.Vector.Storable                      as SV
 import qualified Data.Vector.Storable.Mutable              as MSV
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -136,3 +136,23 @@ loadCursor infos path = do
 
   fmap V.fromList . V.fromList . decat <$>
     zipWithM make (V.toList allocations) (concat infos)
+
+createPalettedSurface ::
+  MSV.IOVector Word8 ->
+  SV.Vector (V4 Word8) ->
+  V2 CInt ->
+  IO (SDL.Surface, SDL.Palette)
+createPalettedSurface mpixels colors (V2 w h) = do
+  surface <- SDL.createRGBSurfaceFrom mpixels (V2 w h) w SDL.Index8 -- XXX?
+  format <- SDL.surfaceFormat surface
+  m <- SDL.formatPalette format
+  --
+  let
+    palette = m
+      & presumeJust "8-bit SDL surfaces should have a palette. \
+      \ Reference: https://wiki.libsdl.org/SDL_CreateRGBSurfaceFrom"
+    eightZeroes = SV.fromList (const 0 <$> ([0..8] :: [Int]))
+  --
+  SDL.setPaletteColors palette colors 0
+  SDL.setPaletteColors palette eightZeroes 0
+  return (surface, palette)

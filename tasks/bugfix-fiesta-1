@@ -1,6 +1,7 @@
 [x] Fix "index out of bounds" when moving
 [x] Fix movement hexes highlighting
-[ ] Fix selection fighter highlighting
+[x] Fix selection fighter highlighting
+[x] Fix shadows (!)
 [ ] Fix curtain
 [ ] Fix lack of EOM after attack
 [ ] Fix non-closest processedMovement
