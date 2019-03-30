@@ -7,8 +7,8 @@ import Battle.Movement
 import Battle.Monad.Utils
 import Battle.Rules
 import Battle.Setup
-import Common.Hot
 import Heroes
+import qualified Common.Hot                                as Hot
 import qualified Heroes.Hex                                as Hex
 import qualified Heroes.Bearing                            as Bearing
 import qualified Heroes.Placing                            as Placing
@@ -63,9 +63,11 @@ payloadAt
     M.lookup hex s <&>
       (\(i, _, a) -> (a, [i], Nothing))
 
--- TODO memoize, split
 aux :: Current (Setup, Battle) -> Aux
-aux (Current (setup, battle)) = Aux {
+aux = Hot.forget . Hot.memo1 aux' . Hot.currently
+
+aux' :: Current (Setup, Battle) -> Aux
+aux' current@(Hot.Current (setup, battle)) = Aux {
     movementHexes = processedMovement (setup, battle),
     selectionHexes = M.fromList $ concat $ fmap f1 selectables,
     selectableFighters = S.fromList $ map f2 selectables
@@ -73,7 +75,7 @@ aux (Current (setup, battle)) = Aux {
   where
   f1 (x, _) = fmap (, x) (Placing.visit (view _2 x))
   f2 (_, x) = x
-  selectables = mapMaybe sel . filter isGood $ acceptableMoves (setup, battle)
+  selectables = mapMaybe sel . filter isGood $ acceptableMovesMemo current
     where
     isGood m = isJust ((setup, battle) #?. makeMove m)
     sel :: Move -> Maybe ((Move, Placing, Annotation), FighterId)

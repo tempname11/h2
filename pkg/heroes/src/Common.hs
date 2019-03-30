@@ -2,6 +2,7 @@ module Common (
   module Common.FFree,
   module Common.Misc,
   module Common.With,
+  module Common.Hot,
   module Control.Applicative,
   module Control.Arrow,
   module Control.Lens,
@@ -43,6 +44,7 @@ module Common (
 import Common.FFree
 import Common.Misc
 import Common.With
+import Common.Hot                                        (Current(..))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Applicative                               ((*>))
 import Control.Applicative                               ((<$>))

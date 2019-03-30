@@ -13,7 +13,7 @@ import Data.Maybe                                        (isJust)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 ai :: (Setup, Battle) -> Maybe [Move]
-ai (s, b) = case filter isGood $ acceptableMoves (s, b) of
+ai (s, b) = case filter isGood $ acceptableMoves' (s, b) of
   i : _ -> Just [i]
   [] -> Nothing
   where

@@ -20,12 +20,12 @@ instance DetermineInput where
 
 --------------------------------------------------------------------------------
 
-type Data = Input.Current
+type Data = Input.Snapshot
 
 --------------------------------------------------------------------------------
 
 initially :: Data
-initially = Input.Current offScreen none none
+initially = Input.Snapshot offScreen none none
   where
   none = const False
   offScreen = Nothing
@@ -33,7 +33,7 @@ initially = Input.Current offScreen none none
 external :: Data -> IO (Out, Data)
 external rw0 = do
   events <- collectJustsM SDL.pollEvent
-  rw1 <- Input.Current
+  rw1 <- Input.Snapshot
     <$> (Just . (<§>) <$> SDL.getAbsoluteMouseLocation) -- XXX check if offscreen.
     <*> ((. mousecode) <$> SDL.getMouseButtons)
     <*> ((. scancode) <$> SDL.getKeyboardState)

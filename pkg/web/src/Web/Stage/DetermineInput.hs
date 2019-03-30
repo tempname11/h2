@@ -27,13 +27,13 @@ instance DetermineInput where
     KeyboardTrack.disable ktr
     return result
 
-type Data = Input.Current
+type Data = Input.Snapshot
 
 external :: MouseTrack.Ref -> KeyboardTrack.Ref -> Data -> IO (Out, Data)
 external mtr ktr d0 = do
   (place, mousePressed) <- MouseTrack.readLatest mtr
   keyPressed <- KeyboardTrack.readLatest ktr
-  let d1 = Input.Current (Just place) mousePressed keyPressed
+  let d1 = Input.Snapshot (Just place) mousePressed keyPressed
                                 -- XXX check if offscreen?
       fullInput = Input.toFull d0 d1 quitEvent
       quitEvent = False

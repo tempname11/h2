@@ -1,6 +1,7 @@
 module Battle.Rules (
   makeMove,
-  acceptableMoves,
+  acceptableMovesMemo,
+  acceptableMoves',
   -- helpers
   currentPlayerType,
   currentFighterPlacing,
@@ -15,10 +16,10 @@ import Battle
 import Battle.Monad
 import Battle.Monad.Utils
 import Battle.Setup
-import Common.Hot
 import Heroes
 import qualified Battle.AM.Rules                           as AM
 import qualified Battle.PM                                 as PM
+import qualified Common.Hot                                as Hot
 import qualified Heroes.Bearing                            as Bearing
 import qualified Heroes.H3                                 as H3
 import qualified Heroes.Placing                            as Placing
@@ -35,8 +36,11 @@ data WalkingResult
 
 --------------------------------------------------------------------------------
 
-acceptableMoves :: (Setup, Battle) -> [Move]
-acceptableMoves = unHot . memo1 acceptableMoves' . Hot
+acceptableMovesMemo :: Current (Setup, Battle) -> [Move]
+acceptableMovesMemo =
+  Hot.forget .
+  Hot.memo1 (\(Current c) -> acceptableMoves' c) .
+  Hot.currently
 
 acceptableMoves' :: (Setup, Battle) -> [Move]
 acceptableMoves' (s, b) =

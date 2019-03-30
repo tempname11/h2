@@ -12,7 +12,6 @@ import Battle.Monad.Utils
 import Battle.Rules
 import Battle.Setup
 import Battle.Movement
-import Common.Hot
 import Heroes
 import Heroes.Aux
 import Heroes.UI
@@ -99,7 +98,7 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
           isSpell = \case
             SpellSelected {} -> True
             _ -> False
-          spellMoves = filter isSpell (acceptableMoves (setup, battle0))
+          spellMoves = filter isSpell (acceptableMovesMemo current0)
         case spellMoves `atMay` i of
           Just m -> Just [m]
           Nothing -> Nothing

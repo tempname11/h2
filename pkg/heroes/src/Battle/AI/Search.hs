@@ -87,7 +87,7 @@ branch s (b, eomsLeft) =
           (M.elems p <> M.elems c) <&>
             \(MR { moves, battle = b' }) -> (moves, (b', eomsLeft - assumingOneEOM))
     --
-    _ -> Branching b $ mapMaybe id (apply <$> acceptableMoves (s, b))
+    _ -> Branching b $ mapMaybe id (apply <$> acceptableMoves' (s, b))
   --
   where
   apply m = (s, b) #?. do

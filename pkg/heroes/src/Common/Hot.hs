@@ -1,28 +1,31 @@
 {-# LANGUAGE RankNTypes #-}
 module Common.Hot (
-  Hot(Hot, unHot),
-  Current(Current, unCurrent),
+  Hot(forget),
+  Current(Current, this),
+  currently,
   memo1
 ) where
 
-import Common
---import Prelude (seq)
+import Prelude
 import System.IO.Unsafe (unsafePerformIO)
 import qualified System.Mem.StableName as S
 import qualified Data.HashTable.IO as H
 import qualified System.Mem.Weak as W
 
-newtype Hot a = Hot { unHot :: a }
-data Current a = Current { unCurrent :: a } -- deliberately not a newtype
+newtype Hot a = Hot { forget :: a }
+data Current a = Current { this :: a } -- deliberately not a newtype
+
+currently :: Current a -> Hot (Current a)
+currently = Hot
 
 disabled :: Bool
-disabled = True -- TODO
+disabled = False
 
 -- XXX concurrency does not work. (try stm-containers?)
 memo1 :: forall a b. (a -> b) -> (Hot a -> Hot b)
 memo1 f =
   if disabled
-  then Hot . f . unHot
+  then Hot . f . (\(Hot x) -> x)
   else unsafePerformIO $ do
   (t :: H.BasicHashTable Int (W.Weak (b, S.StableName a))) <- H.new
   let miss x s h = do
@@ -34,7 +37,7 @@ memo1 f =
         H.insert t h w
         return y
   return $ \(Hot x) -> unsafePerformIO $ do
-    s <- {-seq x $-} S.makeStableName x
+    s <- seq x $ S.makeStableName x
     let h = S.hashStableName s
     l <- H.lookup t h
     Hot <$> case l of

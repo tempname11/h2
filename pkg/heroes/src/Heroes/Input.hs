@@ -1,5 +1,5 @@
 module Heroes.Input (
-  Current(..),
+  Snapshot(..),
   Full(..),
   Key(..),
   MouseButton(..),
@@ -24,7 +24,7 @@ data MouseButton
   = LMB
   | RMB
 
-data Current = Current {
+data Snapshot = Snapshot {
   mouseXY      :: Maybe (Point V2 Int),
   mouseButtons :: MouseButton -> Bool,
   keys         :: Key -> Bool
@@ -43,12 +43,12 @@ data Full = Full {
 
 --------------------------------------------------------------------------------
 
-zero :: Current
-zero = Current Nothing (const False) (const False)
+zero :: Snapshot
+zero = Snapshot Nothing (const False) (const False)
 
-toFull :: Current -> Current -> Bool -> Full
-toFull (Current _  m1 k1)
-       (Current p2 m2 k2)
+toFull :: Snapshot -> Snapshot -> Bool -> Full
+toFull (Snapshot _  m1 k1)
+       (Snapshot p2 m2 k2)
        quitEvent
 
   = Full {
