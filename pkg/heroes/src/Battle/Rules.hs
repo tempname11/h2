@@ -30,8 +30,8 @@ import Control.Lens                                      (contains)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data WalkingResult
-  = CanAttack Facing Hex FighterId
-  | CanMove Facing Placing
+  = CanAttack Placing Facing Hex FighterId
+  | CanMove Placing Facing
 
 --------------------------------------------------------------------------------
 
@@ -69,17 +69,23 @@ allMoves = do
           EOM @@ do
             enforce didMove
             placing <- fighterPlacing fyr
-            AM.landing fyr
             case plane of
               Ground -> return ()
-              Aerial -> enforcePlane Ground placing
+              Aerial -> do
+                enforceNoObstacles Ground placing
+                AM.landing fyr
             proceed
         ] <> (
           Bearing.list <&> \bearing -> BearingSelected bearing @@ do
-            result <- tryWalking plane bearing fyr
-            case result of
+            wr <- tryWalking bearing fyr
+            case wr of
               --
-              CanAttack facing hit dfyr -> do -- We are attacking.
+              CanAttack placing facing hit dfyr -> do -- We are attacking.
+                case plane of
+                  Ground -> return ()
+                  Aerial -> do
+                    enforceNoObstacles Ground placing
+                    AM.landing fyr
                 pointsExhaustedFromAttack
                 considerTurning fyr facing
                 -- Perform attack.
@@ -87,11 +93,12 @@ allMoves = do
                 AM.meleeAttack fyr dfyr bearing
                 fyr `attacks` dfyr
               --
-              CanMove facing newPlacing -> do -- We are walking.
+              CanMove placing facing -> do -- We are walking.
+                enforceNoObstacles plane placing
                 pointsSpent 1
                 considerTurning fyr facing
                 -- Perform the actual movement
-                walks fyr newPlacing
+                walks fyr placing
         )
       Phase'Terminal -> [
           EOM @@ proceed
@@ -101,13 +108,11 @@ allMoves = do
         [
           MovementSelected @@ do
             speed <- (?!) $ fighters_ . by fyr . speed_
-            plane <- do
-              canFly <-
-                (?!) $ fighters_ . by fyr . abilities_ . contains Ability'Flight
-              return $ if canFly then Aerial else Ground
-            AM.takeoff fyr
+            canFly <-
+              (?!) $ fighters_ . by fyr . abilities_ . contains Ability'Flight
+            when (canFly) $ AM.takeoff fyr
             phase_ .= Phase'Movement {
-                plane,
+                plane = if canFly then Aerial else Ground,
                 fighter = fyr,
                 points = speed,
                 didMove = False
@@ -188,7 +193,7 @@ spawns c attr = do
           . M.keys
           $ fighters
       placing = attr ^. placing_
-  enforcePlane Ground placing
+  enforceNoObstacles Ground placing
   enforceM $ placingEmpty placing
   fighters_ . at f .= Just attr
 
@@ -237,23 +242,24 @@ dies fyr = do
   bodies_ . at fyr .= Just BodyAttr {..}
   fighters_ . at fyr  .= Nothing
 
-enforcePlane :: Plane -> Placing -> P ()
-enforcePlane plane p = do
+enforceNoObstacles :: Plane -> Placing -> P ()
+enforceNoObstacles plane p = do
   field <- (?-) $ field_
-  obstacles <-
-    case plane of
-      Ground -> (?) $ obstacles_
-      Aerial -> return empty
-  let
-    blocked =
-      S.unions $
-      Hex.fromMulti . view multiplacing_ <$> M.elems obstacles
-    free = field `S.difference` blocked
-  for_ (Placing.visit p) $ \hex -> do
-    enforce $ hex `elem` free
+  case plane of
+    Aerial -> return ()
+    Ground -> do
+      obstacles <- (?) $ obstacles_
+      let
+        blocked =
+          S.unions $
+          Hex.fromMulti . view multiplacing_ <$> M.elems obstacles
+        free = field `S.difference` blocked
+      for_ (Placing.visit p) $ \hex -> do
+        enforce $ hex `elem` free
 
-tryWalking :: Plane -> Bearing -> FighterId -> P WalkingResult
-tryWalking plane bearing fyr = do
+-- XXX does not look at obstacles, rename?
+tryWalking :: Bearing -> FighterId -> P WalkingResult
+tryWalking bearing fyr = do
   --
   placing <- (?!) $ fighters_ . by fyr . placing_
   let facing' = Bearing.toFacing bearing
@@ -263,7 +269,7 @@ tryWalking plane bearing fyr = do
   fighters <- (?) $ fighters_
   --
   let loopF :: [(FighterId, FighterAttr)] -> Maybe WalkingResult
-      loopF [] = Just $ CanMove facing' placing'
+      loopF [] = Just $ CanMove placing' facing'
       loopF ((ofyr, other) : us) =
         if | ofyr /= fyr ->
              let otherPlacing = other ^. placing_
@@ -271,25 +277,18 @@ tryWalking plane bearing fyr = do
              in case overlap of
                Placing.NoOverlap -> continue
                Placing.OneOverlap hex -> if hex == headHex
-                                         then Just $ CanAttack facing' hex ofyr
+                                         then Just $ CanAttack placing facing' hex ofyr
                                          else Nothing
                Placing.TwoOverlaps hexWest hexEast ->
                  let hex = case facing' of
                              West -> hexWest
                              East -> hexEast
-                 in Just $ CanAttack facing' hex ofyr
+                 in Just $ CanAttack placing facing' hex ofyr
            | otherwise -> continue
         where continue = loopF us
   --
   case loopF $ M.toList fighters of
-    Just wr@(CanMove {}) -> do
-      enforcePlane plane placing'
-      return wr
-    Just wr@(CanAttack {}) -> do
-      -- XXX wrong place?
-      AM.landing fyr
-      enforcePlane Ground placing
-      return wr
+    Just wr -> return wr
     Nothing -> invalid
 
 fighterPlacing :: FighterId -> P Placing

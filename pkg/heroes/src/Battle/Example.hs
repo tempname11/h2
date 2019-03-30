@@ -60,9 +60,9 @@ one = fromFighters $ M.fromList [
   f1 = FighterAttr {
     team = red,
     speed = 5,
-    attack = 4,
+    attack = 3,
     defence = 3,
-    abilities = S.fromList [Ability'Ranged, Ability'Flight],
+    abilities = S.fromList [Ability'Flight],
     placing = Wide $ Hex (-2) (-2),
     facing = East
   }
@@ -71,7 +71,7 @@ one = fromFighters $ M.fromList [
     speed = 2,
     attack = 4,
     defence = 3,
-    abilities = empty,
+    abilities = S.fromList [Ability'Ranged],
     placing = Narrow $ Hex 2 2,
     facing = West
   }

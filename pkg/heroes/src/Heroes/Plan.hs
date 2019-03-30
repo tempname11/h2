@@ -130,7 +130,7 @@ fromList (Offset n, cs) = V.create $ do
 
 fromMarkers' :: [AM.Marker] -> M0
 fromMarkers' [] = return ()
-fromMarkers' (m : ms) = case m of
+fromMarkers' (m : ms) = case traceShow m m of
   AM.MeleeAttack x -> do
     meleeAttack x
     fromMarkers' ms
