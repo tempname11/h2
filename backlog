@@ -9,7 +9,9 @@ Mechanics:
 Technical:
 [x] Use latest stock SDL2{,_mixer}
 [x] Use monorepo
-[ ] Get Web up to speed
+[x] Get Web up to speed
+[ ] Fix Native vSync
+[ ] Add memoization back
 [ ] Unify Web & Native
 [ ] Refactor the Battle monad
 [ ] Refactor the Animation subsystem
