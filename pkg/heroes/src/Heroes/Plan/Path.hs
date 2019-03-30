@@ -18,8 +18,8 @@ path fyr ps = do
   o <- get
   path' False fyr ps
   o' <- get
-  Sound.start (Sound'Creature (fyr ^. creature_) Sound.Move) o
-  Sound.stop  (Sound'Creature (fyr ^. creature_) Sound.Move) (o' +!. (-1))
+  Sound.start (Sound'Creature (fyr ^. _creature) Sound.Move) o
+  Sound.stop  (Sound'Creature (fyr ^. _creature) Sound.Move) (o' +!. (-1))
   let h = Handle'Fighter fyr
   Animation.setGroupNumber h (is Idling) o'
   put (o' +!. 1)

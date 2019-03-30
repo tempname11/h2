@@ -44,8 +44,8 @@ rangeAttack (a, d) = do
   Animation.setGroupNumber hd gd o
   Animation.setGroupNumber ha gi oa
   Animation.setGroupNumber hd gi od
-  Sound.playOnce (Sound'Creature (a ^. creature_) Sound.Attack) o
-  Sound.playOnce (Sound'Creature (d ^. creature_) Sound.Defence) o
+  Sound.playOnce (Sound'Creature (a ^. _creature) Sound.Attack) o
+  Sound.playOnce (Sound'Creature (d ^. _creature) Sound.Defence) o
   put $ (oa >< od) +!. 1
 
 meleeAttack :: (FighterId, FighterId, Bearing) -> M0
@@ -63,8 +63,8 @@ meleeAttack (a, d, _bear) = do
   Animation.setGroupNumber hd gd o
   Animation.setGroupNumber ha gi oa
   Animation.setGroupNumber hd gi od
-  Sound.playOnce (Sound'Creature (a ^. creature_) Sound.Attack) o
-  Sound.playOnce (Sound'Creature (d ^. creature_) Sound.Defence) o
+  Sound.playOnce (Sound'Creature (a ^. _creature) Sound.Attack) o
+  Sound.playOnce (Sound'Creature (d ^. _creature) Sound.Defence) o
   put $ (oa >< od) +!. 1
 
 specialEffect :: (SFX, Facing, Placing) -> M0
@@ -101,7 +101,7 @@ death fyr = do
       o' = o +! gso h g
   Animation.setGroupNumber h g o
   Animation.setAnimated h False (o' +!. (-1))
-  Sound.playOnce (Sound'Creature (fyr ^. creature_) Sound.Death) o
+  Sound.playOnce (Sound'Creature (fyr ^. _creature) Sound.Death) o
   put o'
 
 obstaclePositionAt :: ObstacleType -> Facing -> Multiplacing -> Position

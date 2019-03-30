@@ -150,7 +150,7 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     fromProp :: (ObstacleId, Prop) -> Regular.Cmd
     fromProp (o, prop) = Regular.Cmd sprite spec
       where
-      sprite = obstacles (o ^. otype_)
+      sprite = obstacles (o ^. _otype)
       sign = case prop ^. _facing of
         West -> V2 (-1) 1
         East -> 1

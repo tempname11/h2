@@ -1,9 +1,12 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Battle where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Baked
 import Heroes
 import Heroes.H3.Misc
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Data.Generics.Product                             (HasField'(..))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Failure
@@ -28,10 +31,8 @@ instance Baked FighterId where
 makeFighterId :: Creature -> Int -> FighterId
 makeFighterId = baked
 
-type instance Field_creature FighterId = Creature
-type instance Constraint_creature FighterId = Functor
-instance Has_creature FighterId where
-  creature_ = lower_
+instance {-# OVERLAPS #-} HasField' "creature" FighterId Creature where
+  field' = lower_
 
 --------------------------------------------------------------------------------
 
@@ -48,10 +49,8 @@ instance Baked ObstacleId where
 makeObstacleId :: ObstacleType -> Int -> ObstacleId
 makeObstacleId = baked
 
-type instance Field_otype ObstacleId = ObstacleType
-type instance Constraint_otype ObstacleId = Functor
-instance Has_otype ObstacleId where
-  otype_ = lower_
+instance {-# OVERLAPS #-} HasField' "otype" ObstacleId ObstacleType  where
+  field' = lower_
 
 --------------------------------------------------------------------------------
 

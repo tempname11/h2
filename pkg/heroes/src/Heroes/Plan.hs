@@ -81,7 +81,7 @@ fromBattle b loaded =
   convertO (ob, attr) = Animation.PC ob (Animation.PAdd prop)
     where
     prop = Prop {
-      position = obstaclePositionAt (ob ^. otype_) East (attr ^. _multiplacing),
+      position = obstaclePositionAt (ob ^. _otype) East (attr ^. _multiplacing),
       facing = East
     }
   --
@@ -92,7 +92,7 @@ fromBattle b loaded =
         Animation.HC (Handle'Fighter fyr) (Animation.Add actor)
     where
       GroupNumber g = is Idling
-      c = fyr ^. creature_
+      c = fyr ^. _creature
       actor' = case (loaded ^. _creatures) c of
         Just (CreatureResource { sprite }) ->
           Right $ Actor {
