@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Battle where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -86,36 +85,34 @@ data Ability
 --------------------------------------------------------------------------------
 
 -- XXX consider alternative structure (think AoS/SoA)
-data FighterAttr = FighterAttr
-  { team      :: Team
-  , speed     :: Int
-  , attack    :: Int
-  , defence   :: Int
-  , abilities :: Set Ability
-  , placing   :: Placing
-  , facing    :: Facing
-  }
-  deriving (Show)
+data FighterAttr = FighterAttr {
+  team :: Team,
+  speed :: Int,
+  attack :: Int,
+  defence :: Int,
+  abilities :: Set Ability,
+  placing :: Placing,
+  facing :: Facing
+} deriving (Generic, Show)
 
-data BodyAttr = BodyAttr
-  { placing :: Placing
-  , facing  :: Facing
-  }
-  deriving (Show)
+data BodyAttr = BodyAttr {
+  placing :: Placing,
+  facing  :: Facing
+} deriving (Generic, Show)
 
-data ObstacleAttr = ObstacleAttr
-  { multiplacing :: Multiplacing }
-  deriving (Show)
+data ObstacleAttr = ObstacleAttr {
+  multiplacing :: Multiplacing
+} deriving (Generic, Show)
 
 --------------------------------------------------------------------------------
 
-data Battle = Battle
-  { fighters  :: Map FighterId FighterAttr
-  , bodies    :: Map FighterId BodyAttr
-  , obstacles :: Map ObstacleId ObstacleAttr
-  , phase     :: Phase
-  , order     :: Stream (Team, Turn)
-  }
+data Battle = Battle {
+  fighters :: Map FighterId FighterAttr,
+  bodies :: Map FighterId BodyAttr,
+  obstacles :: Map ObstacleId ObstacleAttr,
+  phase :: Phase,
+  order :: Stream (Team, Turn)
+} deriving (Generic)
 
 --------------------------------------------------------------------------------
 
@@ -128,10 +125,3 @@ data Move
   | BearingSelected Bearing
   | EOM
   deriving (Eq, Ord, Show)
-
---------------------------------------------------------------------------------
-
-makeShorthands ''Battle
-makeShorthands ''BodyAttr
-makeShorthands ''FighterAttr
-makeShorthands ''ObstacleAttr

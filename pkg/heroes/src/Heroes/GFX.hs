@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Heroes.GFX (
   module Heroes.GFX,
   module Heroes.GFX'Types,
@@ -37,7 +36,7 @@ data StaticResources = StaticResources {
   cellOutline :: StaticSprite,
   background :: StaticSprite,
   obstacles :: ObstacleType -> StaticSprite
-}
+} deriving (Generic)
 
 class GFX'Types => GFX where
   type Renderer
@@ -45,5 +44,3 @@ class GFX'Types => GFX where
   destroyComplexSprite :: ComplexSprite -> IO ()
   --
   with :: Deps -> With Prov
-
-makeShorthands ''StaticResources

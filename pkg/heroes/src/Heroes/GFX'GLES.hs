@@ -73,7 +73,7 @@ instance (GLES, Platform, GFX'Types) => GFX where
       Right image -> return image
       Left str -> raise str
     atlasTexture <- makeTexture ctx GL.gl_R8 GL.gl_RED image
-    paletteArray <- Platform.generatePaletteArray (meta ^. palette_)
+    paletteArray <- Platform.generatePaletteArray (meta ^. _palette)
     paletteTexture <- makePaletteTexture ctx paletteArray
     return $ Drawing.ComplexSprite { .. }
   --
@@ -106,21 +106,21 @@ fromActor extraColor (h, actor) = Paletted.Cmd sprite spec outlineColor
       _ -> transparent
     
   sprite = actor ^. _sprite . _some
-  frame = (sprite ^. meta_ . groups_) & (! g) & (! f) -- XXX partial...
+  frame = (sprite ^. _meta . _groups) & (! g) & (! f) -- XXX partial...
   f = actor ^. _frameN
   g = actor ^. _groupN
   -- @copypaste from Native.Stage.Prepare.toCopy
   facing = actor ^. _facing
   screenPlace = (<§>) ((actor ^. _position) .+^ offset .-^ (V2 0 (actor ^. _height)))
-  offset = (frame ^. offset_) * sign
+  offset = (frame ^. _offset) * sign
   sign = case facing of
     West -> V2 (-1) 1
     East -> 1
   spec = CopySpec {
-    box = (<§>) (frame ^. box_),
-    place = (<§>) (frame ^. place_),
+    box = (<§>) (frame ^. _box),
+    place = (<§>) (frame ^. _place),
     screenPlace,
-    screenBox = (<§>) ((frame ^. box_) * sign)
+    screenBox = (<§>) ((frame ^. _box) * sign)
   }
 
 run ::
@@ -156,10 +156,10 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
         East -> 1
       screenPlace = (<§>) (prop ^. _position)
       spec = CopySpec {
-        box = sprite ^. dimensions_,
+        box = sprite ^. _dimensions,
         place = 0,
         screenPlace,
-        screenBox = (sprite ^. dimensions_) * sign
+        screenBox = (sprite ^. _dimensions) * sign
       }
     --
     palettedCmds = fromActor extraColor <$> actors
@@ -182,8 +182,8 @@ fullCopy :: Drawing.StaticSprite -> Point V2 Float -> Regular.Cmd
 fullCopy sprite screenPlace = Regular.Cmd sprite spec
   where
   spec = CopySpec {
-    box = sprite ^. dimensions_,
-    screenBox = sprite ^. dimensions_,
+    box = sprite ^. _dimensions,
+    screenBox = sprite ^. _dimensions,
     place = 0,
     screenPlace
   }

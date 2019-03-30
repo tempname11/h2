@@ -1,7 +1,6 @@
 module Common.Optics (
   module Control.Lens,
   module Linear,
-  module Common.TH,
   module Extra.Field.Optics,
 ) where
 
@@ -36,9 +35,6 @@ import Linear                                            (_x)
 import Linear                                            (_y)
 import Linear                                            (_z)
 import Linear                                            (_w)
-
-import Common.TH                                         (makeShorthands)
-import Common.TH                                         (declareShorthand)
 
 import Extra.Field.Optics                                (by)
 import Extra.Field.Optics                                (useMay)

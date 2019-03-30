@@ -38,7 +38,7 @@ fromFighters fighters = (setup, battle)
       )
     ],
     bodies = empty,
-    order = orderFrom (-1) [] (M.keys (setup ^. participants_)),
+    order = orderFrom (-1) [] (M.keys (setup ^. _participants)),
     phase = Phase'Initial
   }
 

@@ -107,7 +107,7 @@ draw ctx prog cmd = do
       } = cmd
       vsize = viewportSize <&> (§)
   --
-  let dimensions = (<§>) (meta ^. dimensions_)
+  let dimensions = (<§>) (meta ^. _dimensions)
   let oc = (/ 255.0) . (§) <$> outlineColor;
   GL.glUniform1i ctx loc_texAtlas 0
   GL.glUniform1i ctx loc_texPalette 1

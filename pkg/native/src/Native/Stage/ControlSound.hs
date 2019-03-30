@@ -55,16 +55,16 @@ sound (In {..}) =
   --
   play times s =
     case s of
-      Sound'Creature c t -> case (loaded ^. creatures_) c of
-        Just resource -> case M.lookup t $ resource ^. sounds_ of
+      Sound'Creature c t -> case (loaded ^. _creatures) c of
+        Just resource -> case M.lookup t $ resource ^. _sounds of
           Just chunk -> do
             ch <- Mix.playOn (-1) times chunk
             return (Just ch)
           Nothing -> sorry
         Nothing -> sorry
-      Sound'SFX sfx -> case (loaded ^. sfxes_) sfx of
+      Sound'SFX sfx -> case (loaded ^. _sfxes) sfx of
         Just resource -> do
-          ch <- Mix.playOn (-1) times (resource ^. sound_)
+          ch <- Mix.playOn (-1) times (resource ^. _sound)
           return (Just ch)
         Nothing -> sorry
     where

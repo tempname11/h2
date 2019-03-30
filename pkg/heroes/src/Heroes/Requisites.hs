@@ -45,8 +45,8 @@ toGroupSizeOf (Essentials {..}) =
   \h g ->
     case h of
       Handle'Fighter fyr ->
-        groupSize (creatureMeta (fyr ^. creature_) ^. groups_) g
-      Handle'SFX sfx -> groupSize (sfxMeta sfx ^. groups_) g
+        groupSize (creatureMeta (fyr ^. creature_) ^. _groups) g
+      Handle'SFX sfx -> groupSize (sfxMeta sfx ^. _groups) g
 
 groupSize :: V.Vector (V.Vector a) -> GroupNumber -> GroupSize
 groupSize gs (GroupNumber g) =

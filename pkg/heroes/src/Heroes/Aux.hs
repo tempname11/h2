@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleContexts #-}
 module Heroes.Aux where
 
@@ -24,7 +23,7 @@ data Aux = Aux
   { movementHexes :: Movement
   , selectionHexes :: Map Hex (Move, Placing, Annotation)
   , selectableFighters :: Set FighterId
-  }
+  } deriving (Generic)
 
 data Annotation
   = MeleeAttackingFrom Bearing
@@ -33,8 +32,6 @@ data Annotation
   | Selecting
   | RangeAttacking
   deriving (Eq, Ord, Show)
-
-makeShorthands ''Aux
 
 --------------------------------------------------------------------------------
 

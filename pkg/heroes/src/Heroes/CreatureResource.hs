@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Heroes.CreatureResource where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -17,9 +16,7 @@ import qualified Data.Map.Strict                           as M
 data CreatureResource = CreatureResource {
   sprite :: GFX.ComplexSprite,
   sounds :: Map Sound.CType Platform.Chunk
-}
-
-makeShorthands ''CreatureResource
+} deriving (Generic)
 
 --------------------------------------------------------------------------------
 
@@ -51,5 +48,5 @@ load r (Essentials {..}) c = do
 
 destroy :: (GFX.GFX, Platform) => CreatureResource -> IO ()
 destroy c = do
-  GFX.destroyComplexSprite (c ^. sprite_)
-  mapM_ Platform.freeChunk (c ^. sounds_)
+  GFX.destroyComplexSprite (c ^. _sprite)
+  mapM_ Platform.freeChunk (c ^. _sounds)

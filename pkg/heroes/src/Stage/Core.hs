@@ -110,10 +110,10 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
   --
   intent = view _1 <$> payload
   --
-  battleField = setup ^. field_
+  battleField = setup ^. _field
   movementHexes =
     if isActive0 && isHuman
-    then (M.keys . \(M p _) -> p) (aux (current data1) ^. movementHexes_)
+    then (M.keys . \(M p _) -> p) (aux (current data1) ^. _movementHexes)
     else []
   destinationHexes =
     if isActive0 && isHuman
@@ -145,7 +145,7 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
     Nothing -> Nothing
     Just nbc' -> do
       let segment = Cell.toSegment ((<§>) nbc' .-. fieldCenter)
-          hex     = segment ^. hex_
+          hex     = segment ^. _hex
           inField = hex `elem` battleField
       guard inField
       return segment
@@ -166,7 +166,7 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
           Data {
             current = Current (setup, battle1),
             pastBattles =
-              case (battle0 ^. phase_, isHuman) of
+              case (battle0 ^. _phase, isHuman) of
                 (Phase'Initial {}, True) -> battle0 : pastBattles0
                 _ -> pastBattles0,
             futureBattles = []
@@ -207,12 +207,12 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
   --
   hoveredFighter = do
     guard isActive0
-    hex <- view hex_ <$> hoveredSegment
+    hex <- view _hex <$> hoveredSegment
     join $ current0' #?. whoIsOn hex
 
   extraColor fyr =
     if isActive0 && isHuman
-    then if fyr `elem` (aux0 ^. selectableFighters_)
+    then if fyr `elem` (aux0 ^. _selectableFighters)
          then Just $
            if (hoveredFighter == Just fyr)
            then cyan

@@ -28,12 +28,12 @@ landing f = aMark $ AM.Path f AM.Landing
 
 move :: FighterId -> Placing -> P0
 move fyr p' = do
-  p <- (?!) $ fighters_ . by fyr . placing_
-  f <- (?!) $ fighters_ . by fyr . facing_
+  p <- (?!) $ _fighters . by fyr . _placing
+  f <- (?!) $ _fighters . by fyr . _facing
   aMark $ AM.Path fyr (AM.Move (p, f, p'))
 
 turn :: FighterId -> Facing -> P0
 turn fyr f' = do
-  p <- (?!) $ fighters_ . by fyr . placing_
-  f <- (?!) $ fighters_ . by fyr . facing_
+  p <- (?!) $ _fighters . by fyr . _placing
+  f <- (?!) $ _fighters . by fyr . _facing
   aMark $ AM.Path fyr (AM.Turn (f, p, f'))

@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TemplateHaskell #-}
 module Stage.Loading (
   with,
   Loaded(..),
@@ -37,15 +36,13 @@ data QueryOut = QueryOut {
 data Loaded = Loaded {
   creatures :: Creature -> Maybe CreatureResource,
   sfxes :: SFX -> Maybe SFXResource
-}
+} deriving (Generic)
 
 type Maps =
   (
     Map Creature CreatureResource,
     Map SFX SFXResource
   )
-
-makeShorthands ''Loaded
 
 --------------------------------------------------------------------------------
 

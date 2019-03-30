@@ -71,7 +71,7 @@ specialEffect :: (SFX, Facing, Placing) -> M0
 specialEffect (sfx, f, p) = do
   o <- get
   (gso, loaded) <- ask
-  sprite <- case (loaded ^. sfxes_) sfx of
+  sprite <- case (loaded ^. _sfxes) sfx of
     Just (SFXResource { sprite }) -> return (Some sprite)
     Nothing -> loadRequest (LoadRequest'SFX sfx)
   let

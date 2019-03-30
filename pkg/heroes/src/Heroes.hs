@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Heroes (
   module Heroes.Internal,
   module Fields,
@@ -33,10 +32,10 @@ import Data.Set                                           (Set)
 --------------------------------------------------------------------------------
 
 newtype Team = Team Int
-  deriving (Eq, Ord, Show)
+  deriving (Generic, Eq, Ord, Show)
 
 newtype Turn = Turn Int
-  deriving (Eq, Ord, Show, Num)
+  deriving (Generic, Eq, Ord, Show, Num)
 
 type Creature = H3.Creature
 type SFX = H3.SFX
@@ -44,12 +43,12 @@ type SFX = H3.SFX
 data Facing
   = West
   | East
-  deriving (Eq, Ord, Show, Bounded, Enum)
+  deriving (Generic, Eq, Ord, Show, Bounded, Enum)
 
 data Plane
   = Ground
   | Aerial
-  deriving (Eq, Ord, Show)
+  deriving (Generic, Eq, Ord, Show)
 
 --------------------------------------------------------------------------------
 
@@ -65,14 +64,12 @@ data Bearing -- like "compass bearing"
 data Segment = Segment {
   hex :: Hex,
   bearing :: Bearing
-} deriving (Eq, Show)
+} deriving (Generic, Eq, Show)
 
 data Placing
   = Narrow Hex
   | Wide Hex
-  deriving (Eq, Show)
+  deriving (Generic, Eq, Show)
 
 data Multiplacing = Multiplacing Hex (Set HexDiff)
-  deriving (Show)
-
-makeShorthands ''Segment
+  deriving (Generic, Show)

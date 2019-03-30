@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Battle.AI.Search (
   ai
 ) where
@@ -25,12 +24,10 @@ data Branching a = Branching Battle [([Move], a)]
 data Result = Result {
   prediction :: Battle,
   bestMoves :: Maybe [Move]
-}
+} deriving (Generic)
 
 numberOfEoms :: Int
 numberOfEoms = 2
-
-makeShorthands ''Result
 
 heuristic :: Team -> Setup -> Battle -> Int
 heuristic t s b =
@@ -40,7 +37,7 @@ heuristic t s b =
 
 heuristic' :: Team -> P Int
 heuristic' t = do
-  fighters <- (?) fighters_
+  fighters <- (?) _fighters
   let
     (ours, theirs) =
       partition (\FighterAttr { team } -> team == t) (M.elems fighters)
@@ -48,7 +45,7 @@ heuristic' t = do
 
 ai :: (Setup, Battle) -> Maybe [Move]
 ai (setup, battle) =
-  view bestMoves_ .
+  view _bestMoves .
   deepResult setup .
   deepBranch setup $
     (battle, numberOfEoms)
@@ -65,7 +62,7 @@ result s (Branching b bs) = case bs of
   _ -> convert (maximumBy (comparing (heu . prediction . snd)) bs)
   where
   heu = heuristic team s
-  team = (fst . currentS) (b ^. order_)
+  team = (fst . currentS) (b ^. _order)
   convert (moves, Result { bestMoves = futureMoves, prediction = p }) =
     Result {
       prediction = p,
@@ -82,7 +79,7 @@ branch :: Setup -> (Battle, Int) -> Branching (Battle, Int)
 branch s (b, eomsLeft) =
   if eomsLeft <= 0
   then Branching b []
-  else case b ^. phase_ of
+  else case b ^. _phase of
     Phase'Movement {} ->
       Branching b $
         let M p c = movement [] (s, b)
@@ -98,4 +95,3 @@ branch s (b, eomsLeft) =
     b' <- get
     let eomCount = case m of { EOM -> 1; _ -> 0 }
     return ([m], (b', eomsLeft - eomCount))
-          

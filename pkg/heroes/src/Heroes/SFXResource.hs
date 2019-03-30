@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Heroes.SFXResource where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -14,9 +13,7 @@ import qualified Heroes.GFX                                as GFX
 data SFXResource = SFXResource {
   sprite :: GFX.ComplexSprite,
   sound :: Platform.Chunk
-}
-
-makeShorthands ''SFXResource
+} deriving (Generic)
 
 --------------------------------------------------------------------------------
 
@@ -40,5 +37,5 @@ load r (Essentials {..}) s = do
 
 destroy :: (GFX.GFX, Platform) => SFXResource -> IO ()
 destroy c = do
-  GFX.destroyComplexSprite (c ^. sprite_)
-  Platform.freeChunk (c ^. sound_)
+  GFX.destroyComplexSprite (c ^. _sprite)
+  Platform.freeChunk (c ^. _sound)

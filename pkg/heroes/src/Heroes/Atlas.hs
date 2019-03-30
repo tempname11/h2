@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleContexts #-}
 module Heroes.Atlas (
   Frame(..),
@@ -19,23 +18,21 @@ import qualified Data.Vector.Storable                      as SV
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Frame = Frame {
-  box    :: V2 CInt,
-  place  :: Point V2 CInt,
+  box :: V2 CInt,
+  place :: Point V2 CInt,
   offset :: V2 CInt
-}
+} deriving (Generic)
 
 type Group = V.Vector Frame
 type Poke m = V2 CInt -> ByteString -> m ()
 type PokeCombinator m = Poke m -> m ()
 
 data Blueprint m = Blueprint {
-  groups         :: V.Vector Group,
+  groups :: V.Vector Group,
   pokeCombinator :: PokeCombinator m,
-  dimensions     :: V2 CInt,
-  palette        :: SV.Vector (V4 Word8)
+  dimensions :: V2 CInt,
+  palette :: SV.Vector (V4 Word8)
 }
-
-makeShorthands ''Frame
 
 --------------------------------------------------------------------------------
 

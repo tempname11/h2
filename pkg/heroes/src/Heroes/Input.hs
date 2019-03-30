@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Heroes.Input (
   Current(..),
   Full(..),
@@ -29,7 +28,7 @@ data Current = Current {
   mouseXY      :: Maybe (Point V2 Int),
   mouseButtons :: MouseButton -> Bool,
   keys         :: Key -> Bool
-}
+} deriving (Generic)
 
 data Full = Full {
   mouseXY      :: Maybe (Point V2 Int),
@@ -40,7 +39,7 @@ data Full = Full {
   keyUp        :: Key -> Bool,
   keyDown      :: Key -> Bool,
   quitEvent    :: Bool
-}
+} deriving (Generic)
 
 --------------------------------------------------------------------------------
 
@@ -67,6 +66,3 @@ toFull (Current _  m1 k1)
   mDown = \b -> m2 b && not (m1 b)
   kUp   = \b -> k1 b && not (k2 b)
   kDown = \b -> k2 b && not (k1 b)
-
-makeShorthands ''Current
-makeShorthands ''Full
