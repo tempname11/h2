@@ -157,7 +157,7 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
   (update, data1) =
     let
       result = moves >>= \moves' -> do
-        traceShowM moves'
+        -- USEFUL traceShowM moves'
         return $
           rightIsJust (current0' #%!&. for_ moves' makeMove)
           & presumeJust "If this is Nothing, we must have done something \

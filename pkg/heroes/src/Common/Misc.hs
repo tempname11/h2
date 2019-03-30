@@ -1,37 +1,37 @@
 module Common.Misc where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Foreign.Ptr
+import Control.Exception.Base                            (ErrorCall(ErrorCall))
+import Control.Exception.Base                            (throwIO)
+import Control.Lens                                      (Lens')
+import Control.Monad.State                               (StateT(StateT))
+import Control.Monad.State                               (state)
+import Data.Binary.Get                                   (Decoder(..))
+import Data.Binary.Get                                   (Get)
+import Data.Binary.Get                                   (pushChunk)
+import Data.Binary.Get                                   (pushEndOfInput)
+import Data.Binary.Get                                   (runGetIncremental)
+import Data.Binary.Put                                   (Put)
+import Data.Binary.Put                                   (runPut)
+import Data.ByteString                                   (ByteString)
+import Data.ByteString.Lazy                              (toStrict)
 import Foreign.C.Types
-
+import Foreign.Ptr
 import Prelude                                             as P
 import qualified Data.IntMap.Strict                        as I
 import qualified Data.Map.Strict                           as M
 import qualified Data.Set                                  as S
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Storable                      as SV
-
-import Control.Monad.State                               (StateT(StateT))
-import Control.Monad.State                               (state)
-
-import Data.Binary.Get                                   (Get)
-import Data.Binary.Get                                   (pushChunk)
-import Data.Binary.Get                                   (Decoder(..))
-import Data.Binary.Get                                   (pushEndOfInput)
-import Data.Binary.Get                                   (runGetIncremental)
-
-import Data.Binary.Put                                   (Put)
-import Data.Binary.Put                                   (runPut)
-
-import Debug.Trace                                       (traceShow)
-import Data.ByteString                                   (ByteString)
-import Data.ByteString.Lazy                              (toStrict)
-import Data.Monoid                                       ((<>))
-
-import Control.Exception.Base                            (throwIO)
-import Control.Exception.Base                            (ErrorCall(ErrorCall))
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+
+newtype Some a = Some a
+
+_some :: Lens' (Some a) a
+_some f (Some a) = fmap Some (f a)
+
+instance Show (Some a) where
+  show _ = "Some"
 
 -- XXX use a library definition?
 data Stream a = Cons a (Stream a)
@@ -162,14 +162,6 @@ instance SV.Storable a => Bang (SV.Vector a) where
   type I (SV.Vector a) = Int
   type V (SV.Vector a) = a
   (!) = (SV.!)
-
-warn :: String -> a -> a
-warn = warnC True
-
-warnC :: Bool -> String -> a -> a
-warnC c s x = if c then traceShow (decorated s) x else x
-  where
-  decorated str ="   >>> *** !!! " <> str <> " !!! *** <<<   "
 
 asStateT :: Monad m => (a -> m a) -> StateT a m ()
 asStateT = StateT . fmap2 ((),)

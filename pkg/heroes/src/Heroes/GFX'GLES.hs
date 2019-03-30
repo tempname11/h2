@@ -95,7 +95,7 @@ fromActor ::
   Paletted.Cmd
 fromActor actor = Paletted.Cmd sprite spec
   where
-  sprite = actor ^. _sprite
+  sprite = actor ^. _sprite . _some
   frame = (sprite ^. meta_ . groups_) & (! g) & (! f) -- XXX partial...
   f = actor ^. _frameN
   g = actor ^. _groupN

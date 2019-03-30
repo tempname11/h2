@@ -72,7 +72,7 @@ specialEffect (sfx, f, p) = do
   o <- get
   (gso, loaded) <- ask
   sprite <- case (loaded ^. sfxes_) sfx of
-    Just (SFXResource { sprite }) -> return sprite
+    Just (SFXResource { sprite }) -> return (Some sprite)
     Nothing -> loadRequest (LoadRequest'SFX sfx)
   let
     h = Handle'SFX sfx

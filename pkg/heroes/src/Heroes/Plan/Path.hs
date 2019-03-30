@@ -22,6 +22,7 @@ path fyr ps = do
   Sound.stop  (Sound'Creature (fyr ^. creature_) Sound.Move) (o' +!. (-1))
   let h = Handle'Fighter fyr
   Animation.setGroupNumber h (is Idling) o'
+  put (o' +!. 1)
 
 path' :: Bool -> FighterId -> [AM.PathMarker] -> M0
 path' prevMove fyr ps = do

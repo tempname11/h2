@@ -12,10 +12,12 @@ data Command
   | PC ObstacleId PCommand
   | RemoveAll
   | SetCurtainOpacity Float
+  deriving (Show)
 
 data PCommand
   = PAdd Prop
   | PRemove
+  deriving (Show)
 
 data HCommand
   = SetPosition Position
@@ -25,3 +27,4 @@ data HCommand
   | SetAnimated Bool
   | Add Actor
   | Remove
+  deriving (Show)

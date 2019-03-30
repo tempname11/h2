@@ -1,0 +1,5 @@
+[x] Fix "index out of bounds" when moving
+[ ] Fix strange pathfinding
+[ ] Fix "next player" after attack
+[ ] Fix cursor hover highlighting
+[ ] Fix curtain

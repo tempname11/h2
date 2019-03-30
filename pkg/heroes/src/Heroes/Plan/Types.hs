@@ -13,6 +13,7 @@ import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 newtype Offset = Offset Int
+  deriving (Show)
 type M0 = M ()
 type Plan = V.Vector (V.Vector Animation.Command, V.Vector Sound.Command)
 

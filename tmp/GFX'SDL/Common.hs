@@ -26,8 +26,5 @@ data ComplexSprite'SDL = ComplexSprite'SDL {
   groups  :: V.Vector Atlas.Group
 }
 
-instance Show ComplexSprite'SDL where
-  show _ = "ComplexSprite'SDL" -- XXX
-
 makeShorthands ''StaticSprite'SDL
 makeShorthands ''ComplexSprite'SDL

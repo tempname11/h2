@@ -96,7 +96,7 @@ fromBattle b loaded =
       actor' = case (loaded ^. creatures_) c of
         Just (CreatureResource { sprite }) ->
           Right $ Actor {
-            sprite,
+            sprite = Some sprite,
             position = actorPositionAt (attr ^. facing_) (attr ^. placing_),
             height = 0,
             facing = attr ^. facing_,
@@ -130,7 +130,7 @@ fromList (Offset n, cs) = V.create $ do
 
 fromMarkers' :: [AM.Marker] -> M0
 fromMarkers' [] = return ()
-fromMarkers' (m : ms) = case traceShow m m of
+fromMarkers' (m : ms) = case m of
   AM.MeleeAttack x -> do
     meleeAttack x
     fromMarkers' ms

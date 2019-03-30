@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Animation.Scene (
   Handle(..),
   Actor(..),
@@ -23,7 +24,7 @@ data Handle
   deriving (Eq, Ord, Show)
 
 data Actor = Actor {
-  sprite :: ComplexSprite,
+  sprite :: Some ComplexSprite,
   position :: Position,
   height :: CInt,
   facing :: Facing,
@@ -31,15 +32,15 @@ data Actor = Actor {
   frameN :: Int,
   subframeN :: Int,
   animated :: Bool
-} deriving (Generic)
+} deriving (Show, Generic)
 
 data Prop = Prop {
   position :: Position,
   facing :: Facing
-} deriving (Generic)
+} deriving (Show, Generic)
 
 data Scene = Scene {
   actors :: Map Handle Actor,
   props :: Map ObstacleId Prop,
   curtain :: Float
-} deriving (Generic)
+} deriving (Show, Generic)
