@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Fields where
@@ -9,37 +10,45 @@ import Data.Generics.Product                             (field)
 import Data.Generics.Product                             (HasField)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-_animated :: HasField "animated" s t a b => Lens s t a b
+type FieldLens f = forall s t a b . HasField f s t a b => Lens s t a b
+
+_animated :: FieldLens "animated"
 _animated = field @"animated"
 
-_subframeN :: HasField "subframeN" s t a b => Lens s t a b
+_subframeN :: FieldLens "subframeN"
 _subframeN = field @"subframeN"
 
-_actors :: HasField "actors" s t a b => Lens s t a b
+_actors :: FieldLens "actors"
 _actors = field @"actors"
 
-_curtain :: HasField "curtain" s t a b => Lens s t a b
+_curtain :: FieldLens "curtain"
 _curtain = field @"curtain"
 
-_props :: HasField "props" s t a b => Lens s t a b
+_props :: FieldLens "props"
 _props = field @"props"
 
-_position :: HasField "position" s t a b => Lens s t a b
+_moves :: FieldLens "moves"
+_moves = field @"moves"
+
+_peaceful :: FieldLens "peaceful"
+_peaceful = field @"peaceful"
+
+_position :: FieldLens "position"
 _position = field @"position"
 
-_height :: HasField "height" s t a b => Lens s t a b
+_height :: FieldLens "height"
 _height = field @"height"
 
-_facing :: HasField "facing" s t a b => Lens s t a b
+_facing :: FieldLens "facing"
 _facing = field @"facing"
 
-_sprite :: HasField "sprite" s t a b => Lens s t a b
+_sprite :: FieldLens "sprite"
 _sprite = field @"sprite"
 
-_frameN :: HasField "frameN" s t a b => Lens s t a b
+_frameN :: FieldLens "frameN"
 _frameN = field @"frameN"
 
-_groupN :: HasField "groupN" s t a b => Lens s t a b
+_groupN :: FieldLens "groupN"
 _groupN = field @"groupN"
 
 declareShorthand "abilities"

@@ -43,7 +43,6 @@ data Out = Out {
   darkHexes :: [Hex],
   exit :: Bool,
   extraColor :: FighterId -> Maybe Color,
-  ghostPlacing :: Maybe Placing,
   intent :: Maybe Annotation,
   lightHexes :: [Hex],
   loadRequests :: Set LoadRequest,

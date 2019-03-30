@@ -1,5 +1,7 @@
 [x] Fix "index out of bounds" when moving
-[ ] Fix strange pathfinding
-[ ] Fix "next player" after attack
-[ ] Fix cursor hover highlighting
+[x] Fix movement hexes highlighting
+[ ] Fix lack of EOM after attack
+[ ] Fix non-closest processedMovement
+[ ] Fix selection fighter highlighting
 [ ] Fix curtain
+[ ] Fix non-closest pathfinding

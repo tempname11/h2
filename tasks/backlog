@@ -15,6 +15,7 @@ Technical:
 [ ] Unify Web & Native
 [ ] Refactor the Battle monad
 [ ] Refactor the Animation subsystem
+[ ] Migrate to GHJCS 8.6?
 [ ] Fix SpriteConverter crashes?
 [ ] Fix the cursor jump in Native?
 [ ] Migrate from Map to IntMap?

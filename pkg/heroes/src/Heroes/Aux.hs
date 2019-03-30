@@ -38,24 +38,33 @@ makeShorthands ''Aux
 
 --------------------------------------------------------------------------------
 
-approximate :: Bearing -> (Bearing -> Maybe a) -> Maybe (Bearing, a)
+approximate :: Bearing -> (Bearing -> Maybe a) -> Maybe a
 approximate b0 f = foldl choose Nothing (Bearing.closest b0)
   where
-  choose c b = c <|> (b,) <$> f b
+  choose c b = c <|> f b
 
-payloadAt :: Segment -> Aux -> Maybe (Annotation, [Move])
+payloadAt :: Segment -> Aux -> Maybe (Annotation, [Move], Maybe Placing)
 payloadAt
   (Segment hex b0)
   Aux { movementHexes = M p c, selectionHexes = s }
   --
   = peaceful <|> conflict <|> selecting
   where
-  peaceful, conflict, selecting :: Maybe (Annotation, [Move])
-  peaceful = (Running,) . fst <$> M.lookup hex p
+  peaceful, conflict, selecting :: Maybe (Annotation, [Move], Maybe Placing)
+  peaceful =
+    case M.lookup hex p of
+      Just (MR { moves, destinationPlacing }) ->
+        Just (Running, moves, Just destinationPlacing)
+      Nothing -> Nothing
   conflict =
-    over _1 MeleeAttackingFrom <$>
-      (approximate b0 $ \b -> fst <$> M.lookup (b, hex) c)
-  selecting = M.lookup hex s <&> (\(i, _, a) -> (a, [i]))
+    approximate b0 $ \b ->
+      case M.lookup (b, hex) c of
+        Just (MR { moves, destinationPlacing }) -> 
+          Just (MeleeAttackingFrom b, moves, Just destinationPlacing)
+        Nothing -> Nothing
+  selecting =
+    M.lookup hex s <&>
+      (\(i, _, a) -> (a, [i], Nothing))
 
 -- TODO memoize, split
 aux :: Current (Setup, Battle) -> Aux

@@ -89,7 +89,11 @@ allMoves = do
                 pointsExhaustedFromAttack
                 considerTurning fyr facing
                 -- Perform attack.
-                pMark $ PM.Attack bearing hit
+                pMark $ PM.Attack {
+                  attackerPlacing = placing,
+                  bearing,
+                  hit
+                }
                 AM.meleeAttack fyr dfyr bearing
                 fyr `attacks` dfyr
               --
@@ -314,8 +318,7 @@ pNode = do
       _ -> invalid
   --
   placing <- fighterPlacing fyr
-  let hex = Placing.base placing
-  return $ PM.Node hex points
+  return $ PM.Node placing points
 
 considerTurning :: FighterId -> Facing -> P0
 considerTurning fyr facing' = do

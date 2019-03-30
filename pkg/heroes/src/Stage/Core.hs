@@ -17,10 +17,10 @@ import Heroes
 import Heroes.Aux
 import Heroes.UI
 import qualified Heroes.Cell                               as Cell
-import qualified Heroes.Placing                            as Placing
 import qualified Heroes.ControlMap                         as ControlMap
 import qualified Battle.AM                                 as AM
 import qualified Heroes.Input                              as Input
+import qualified Heroes.Placing                            as Placing
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Set                                  as S
 import qualified Data.Map.Strict                           as M
@@ -41,7 +41,6 @@ data Out = Out {
   darkHexes :: [Hex],
   exit :: Bool,
   extraColor :: FighterId -> Maybe Color,
-  ghostPlacing :: Maybe Placing,
   intent :: Maybe Annotation,
   lightHexes :: [Hex],
   update :: AM.Update
@@ -106,28 +105,25 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
           Nothing -> Nothing
       Nothing ->
         if mouseDown Input.LMB
-          then snd <$> payload
+          then view _2 <$> payload
           else Nothing
   --
-  intent = fst <$> payload
+  intent = view _1 <$> payload
   --
-  ghostHex = do
-    guard isActive0
-    view hex_ <$> hoveredSegment
-  --
-  ghostPlacing = Placing.teleport <$> ghostHex <*> placing
   battleField = setup ^. field_
-  placing = current0' #?. currentFighterPlacing
   movementHexes =
-    if isHuman
+    if isActive0 && isHuman
     then (M.keys . \(M p _) -> p) (aux (current data1) ^. movementHexes_)
     else []
-  ghostHexes =
-    if isHuman
-    then maybe [] Placing.visit ghostPlacing
+  destinationHexes =
+    if isActive0 && isHuman
+    then
+      case join $ view _3 <$> payload of
+        Just p -> Placing.visit p
+        Nothing -> []
     else []
   lightHexes = S.toList battleField
-  darkHexes = movementHexes <> ghostHexes
+  darkHexes = movementHexes <> destinationHexes
   exit = quitEvent || keyUp ControlMap.exit
   --
   payload = do

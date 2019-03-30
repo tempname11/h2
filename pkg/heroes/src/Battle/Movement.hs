@@ -1,6 +1,7 @@
 module Battle.Movement (
   movement,
-  Movement(..)
+  Movement(..),
+  MovementResult(..),
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -11,19 +12,26 @@ import Battle.Setup
 import Battle.Monad.Utils
 import qualified Battle.PM                                 as PM
 import qualified Heroes.Bearing                            as Bearing
+import qualified Heroes.Placing                            as Placing
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Monad.Writer                              (writer)
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
+data MovementResult = MR {
+  moves :: [Move], 
+  destinationPlacing :: Placing,
+  battle :: Battle
+} deriving (Generic)
+
 data Movement = M {
-  peaceful :: M.Map Hex ([Move], Battle),
-  conflict :: M.Map (Bearing, Hex) ([Move], Battle)
-}
+  peaceful :: M.Map Hex MovementResult,
+  conflict :: M.Map (Bearing, Hex) MovementResult
+} deriving (Generic)
 
 newtype Approaches = A (M.Map Hex [Move]) -- moves are in reverse order
 
-data Situation = S Battle Hex Int [Move]
+data Situation = S Battle Placing Int [Move]
 
 --------------------------------------------------------------------------------
 
@@ -44,9 +52,9 @@ movement initialMoves (s, b0) =
     for_ initialMoves makeMove
     pNode
   of
-    Just (PM.Node hex pts, b) ->
+    Just (PM.Node { currentPlacing,  points }, b) ->
       fst $
-        (m0, A empty) & repeatedlyExplore [S b hex pts initialMoves]
+        (m0, A empty) & repeatedlyExplore [S b currentPlacing points initialMoves]
     Nothing -> m0
   where
   --
@@ -66,9 +74,11 @@ movement initialMoves (s, b0) =
     (Movement, Approaches) ->
     Writer [Situation] (Movement, Approaches)
   --
-  explore sit@(S b hex pts stack) (M p c, A a) =
+  explore sit@(S b currentPlacing pts stack) (M p c, A a) =
     tryMoreMoves (M p' c', A a')
     where
+    --
+    base = Placing.base currentPlacing
     --
     tryMoreMoves =
       if pts >= 0
@@ -83,11 +93,18 @@ movement initialMoves (s, b0) =
     --
     p' =
       case afterEom of
-        Just b' -> p & M.insert hex ((reverse (EOM : stack)), b')
+        Just b' ->
+          let
+            r = MR {
+              moves = reverse (EOM : stack),
+              battle = b',
+              destinationPlacing = currentPlacing
+            }
+          in p & M.insert base r
         Nothing -> p
     --
     c' = c
-    a' = a & M.insert hex stack
+    a' = a & M.insert base stack
     --
   try ::
     Situation ->
@@ -99,15 +116,21 @@ movement initialMoves (s, b0) =
     case (s, b) #%!*. (makeMove m >> pNode) of
       Left _ -> ((M p c, A a), [])
       --
-      Right (b', Last Nothing, PM.Node hex pts) ->
-        let (wasThere, a') = a & insertMissing' hex stack'
-        in ((M p c, A a'), if wasThere then [] else [S b' hex pts stack'])
+      Right (b', Last Nothing, PM.Node { currentPlacing, points }) ->
+        let
+          base = Placing.base currentPlacing
+          (wasThere, a') = a & insertMissing' base stack'
+        in ((M p c, A a'), if wasThere then [] else [S b' currentPlacing points stack'])
       --
-      Right (b', Last (Just (PM.Attack bearing hex)), _) ->
+      Right (b', Last (Just (PM.Attack { attackerPlacing, bearing, hit })), _) ->
         let
           c' = c & insertMissing
-            (Bearing.opposite bearing, hex)
-            (reverse stack', b')
+            (Bearing.opposite bearing, hit)
+            MR {
+              moves = reverse stack',
+              battle = b',
+              destinationPlacing = attackerPlacing
+            }
         in ((M p c', A a), [])
     where
     --

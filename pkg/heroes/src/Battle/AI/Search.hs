@@ -88,7 +88,7 @@ branch s (b, eomsLeft) =
         let M p c = movement [] (s, b)
         in
           (M.elems p <> M.elems c) <&>
-            \(ms, b') -> (ms, (b', eomsLeft - assumingOneEOM))
+            \(MR { moves, battle = b' }) -> (moves, (b', eomsLeft - assumingOneEOM))
     --
     _ -> Branching b $ mapMaybe id (apply <$> acceptableMoves (s, b))
   --

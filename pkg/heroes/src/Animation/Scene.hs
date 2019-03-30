@@ -13,8 +13,6 @@ import Battle                                            (ObstacleId)
 import Heroes
 import Heroes.GFX'Types                                  (ComplexSprite)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import GHC.Generics (Generic)
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Position = Point V2 CInt
 

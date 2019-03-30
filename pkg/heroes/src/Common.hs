@@ -32,6 +32,7 @@ module Common (
   module Foreign.C.Types,
   module Foreign.Ptr,
   module GHC.Exts,
+  module GHC.Generics,
   module Linear,
   module Linear.Affine,
   module Prelude,
@@ -149,6 +150,7 @@ import Debug.Trace                                       (traceShowM)
 import Foreign.C.Types                                   (CInt)
 import Foreign.Ptr                                       (Ptr)
 import GHC.Exts                                          (Double)
+import GHC.Generics                                      (Generic)
 import Linear                                            (V0 (V0))
 import Linear                                            (V1 (V1))
 import Linear                                            (V2 (V2))
