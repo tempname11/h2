@@ -10,7 +10,7 @@ Technical:
 [x] Use latest stock SDL2{,_mixer}
 [x] Use monorepo
 [x] Get Web up to speed
-[ ] Add memoization back [debug Web]
+[x] Add memoization back [debug Web]
 [ ] Bugfix fiesta #1
 [ ] Unify Web & Native [decompose!]
 [ ] Matchmaking MVP
