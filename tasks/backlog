@@ -10,11 +10,14 @@ Technical:
 [x] Use latest stock SDL2{,_mixer}
 [x] Use monorepo
 [x] Get Web up to speed
+[ ] Add memoization back [debug Web]
 [ ] Bugfix fiesta #1
-[ ] Add memoization back
-[ ] Unify Web & Native
+[ ] Unify Web & Native [decompose!]
+[ ] Matchmaking MVP
 [ ] Refactor the Battle monad
 [ ] Refactor the Animation subsystem
+[ ] Convert cursors to PNG on build
+[ ] Web: cursors
 [ ] Migrate to GHJCS 8.6?
 [ ] Fix SpriteConverter crashes?
 [ ] Fix the cursor jump in Native?

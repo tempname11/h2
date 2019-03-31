@@ -1,0 +1,18 @@
+Server:
+  [ ] Setup package
+  [ ] Setup websocket
+  [ ] "Current sessions" state
+  [ ] Accept two connections
+  [ ] Send setup info
+  [ ] Accept moves
+  [ ] Send moves
+
+Client:
+  [ ] Setup websockets (Web & Native)
+  [ ] Concept of remote players
+  [ ] Dynamic lifecycle of application
+  [ ] Generate persistent clientID
+  [ ] Connect
+  [ ] Receive setup info
+  [ ] Send moves
+  [ ] Accept moves
