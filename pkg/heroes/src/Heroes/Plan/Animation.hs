@@ -2,7 +2,7 @@ module Heroes.Plan.Animation where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import Heroes.Plan.Types
+import Heroes.Plan.Common
 import Animation
 import Animation.Scene
 import Animation.Command

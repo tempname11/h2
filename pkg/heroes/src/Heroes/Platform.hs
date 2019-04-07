@@ -17,10 +17,6 @@ class Platform where
   staticSpriteExtension :: String
   --
   forkPreferred :: IO () -> IO ThreadId
-  --
-  type Chunk
-  loadChunk :: String -> IO Chunk
-  freeChunk :: Chunk -> IO ()
   -- XXX GLESHelpers?
   createQuadArray :: IO GL.AnyArray
   generatePaletteArray :: Palette -> IO GL.UInt8Array

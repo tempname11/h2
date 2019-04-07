@@ -20,7 +20,6 @@ import qualified Codec.Picture                             as Juicy
 import qualified Data.Vector.Storable                      as SV
 import qualified Heroes.WND                                as WND
 import qualified SDL
-import qualified SDL.Mixer                                 as Mix
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 instance (SDL.Window ~ WND.Window) => Platform where
@@ -28,10 +27,6 @@ instance (SDL.Window ~ WND.Window) => Platform where
   productionPrefix = ".production-assets/"
   staticSpriteExtension = ".png"
   forkPreferred = forkIO
-  --
-  type Chunk = Mix.Chunk
-  loadChunk = Mix.load
-  freeChunk = Mix.free
   --
   createQuadArray = do
     let size = 12 * (4 {- float32 -})

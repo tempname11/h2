@@ -6,28 +6,15 @@ import Animation.Scene
 import Battle                                            (FighterId)
 import Battle                                            (_creature)
 import Heroes
-import Heroes.H3.Misc
-import Heroes.Plan.Types
+import Heroes.Plan.Common
 import Heroes.SFXResource                                (SFXResource(..))
-import Heroes.UI
-import Heroes.UI.Sound                                   (Sound(..))
+import Heroes.Sound                                      (Sound(..))
 import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Heroes.Bearing                            as Bearing
-import qualified Heroes.Cell                               as Cell
-import qualified Heroes.Placing                            as Placing
 import qualified Heroes.Plan.Animation                     as Animation
 import qualified Heroes.Plan.Sound                         as Sound
-import qualified Heroes.UI.Sound                           as Sound
+import qualified Heroes.Sound                              as Sound
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-(+!) :: Offset -> GroupSize -> Offset
-(+!) (Offset o) (GroupSize s) = Offset (o + 4 * s) -- XXX why 4? 15fps -> 60fps?
-
-(+!.) :: Offset -> Int -> Offset
-(+!.) (Offset o) i = Offset (o + i)
-
-(><) :: Offset -> Offset -> Offset
-(Offset a) >< (Offset b) = Offset (max a b)
 
 -- XXX share with as meleeAttack?
 rangeAttack :: (FighterId, FighterId) -> M0
@@ -45,8 +32,13 @@ rangeAttack (a, d) = do
   Animation.setGroupNumber hd gd o
   Animation.setGroupNumber ha gi oa
   Animation.setGroupNumber hd gi od
-  Sound.playOnce (Sound'Creature (a ^. _creature) Sound.Attack) o
-  Sound.playOnce (Sound'Creature (d ^. _creature) Sound.Defence) o
+  let
+    sa = (Sound'Creature (a ^. _creature) Sound.Attack)
+    sd = (Sound'Creature (d ^. _creature) Sound.Defence)
+  ca <- getChunk sa
+  cd <- getChunk sd
+  Sound.playOnce ha ca o
+  Sound.playOnce hd cd o
   put $ (oa >< od) +!. 1
 
 meleeAttack :: (FighterId, FighterId, Bearing) -> M0
@@ -64,8 +56,13 @@ meleeAttack (a, d, _bear) = do
   Animation.setGroupNumber hd gd o
   Animation.setGroupNumber ha gi oa
   Animation.setGroupNumber hd gi od
-  Sound.playOnce (Sound'Creature (a ^. _creature) Sound.Attack) o
-  Sound.playOnce (Sound'Creature (d ^. _creature) Sound.Defence) o
+  let
+    sa = (Sound'Creature (a ^. _creature) Sound.Attack)
+    sd = (Sound'Creature (d ^. _creature) Sound.Defence)
+  ca <- getChunk sa
+  cd <- getChunk sd
+  Sound.playOnce ha ca o
+  Sound.playOnce hd cd o
   put $ (oa >< od) +!. 1
 
 specialEffect :: (SFX, Facing, Placing) -> M0
@@ -74,7 +71,7 @@ specialEffect (sfx, f, p) = do
   (gso, loaded) <- ask
   sprite <- case (loaded ^. _sfxes) sfx of
     Just (SFXResource { sprite }) -> return (Some sprite)
-    Nothing -> loadRequest (LoadRequest'SFX sfx)
+    Nothing -> singleRequest (LoadRequest'SFX sfx)
   let
     h = Handle'SFX sfx
     actor = Actor {
@@ -90,7 +87,8 @@ specialEffect (sfx, f, p) = do
     o' = o +! gso h sfxGroupNumber
   Animation.add h actor o
   Animation.remove h o'
-  Sound.playOnce (Sound'SFX sfx) o
+  c <- getChunk (Sound'SFX sfx)
+  Sound.playOnce h c o
   put $ o' +!. 1
 
 death :: FighterId -> M0
@@ -102,47 +100,12 @@ death fyr = do
       o' = o +! gso h g
   Animation.setGroupNumber h g o
   Animation.setAnimated h False (o' +!. (-1))
-  Sound.playOnce (Sound'Creature (fyr ^. _creature) Sound.Death) o
+  c <- getChunk (Sound'Creature (fyr ^. _creature) Sound.Death)
+  Sound.playOnce h c o
   put o'
-
-obstaclePositionAt :: ObstacleType -> Facing -> Multiplacing -> Position
-obstaclePositionAt o _ (Multiplacing hex _) = 
-  fieldCenter .+^ Cell.fromHex hex .+^ obstacleOffset o
-
-actorPositionAt :: Facing -> Placing -> Position
-actorPositionAt facing placing =
-  fieldCenter .+^ Cell.fromHex hex .+^ legsOffset .+^ widthOffset'
-  where hex = Placing.base placing
-        widthOffset' = if Placing.isWide placing && facing == West
-                          then widthOffset
-                          else 0
-
-data Group -- XXX creature group
-  = Moving
-  | Taunting
-  | Idling
-  | Hitting
-  | Defending
-  | Dying
-  | Turning
-  | MeleeAttackingFrom Bearing.Semi
 
 sfxFacing :: Facing
 sfxFacing = West
 
 sfxGroupNumber :: GroupNumber
 sfxGroupNumber = GroupNumber 0
-
-is :: Group -> GroupNumber
-is = GroupNumber . go
-  where
-  go Moving    = 0
-  go Taunting  = 1
-  go Idling    = 2
-  go Hitting   = 3
-  go Defending = 4
-  go Dying     = 5
-  go Turning   = 8 -- DEF preview says this is 'turn right'
-  go (MeleeAttackingFrom Bearing.Up)      = 10
-  go (MeleeAttackingFrom Bearing.Forward) = 11
-  go (MeleeAttackingFrom Bearing.Down)    = 12

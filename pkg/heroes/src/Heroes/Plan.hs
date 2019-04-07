@@ -11,14 +11,14 @@ import Animation.Scene
 import Battle
 import Heroes
 import Heroes.CreatureResource                           (CreatureResource(..))
+import Heroes.Plan.Common
 import Heroes.Plan.Other
 import Heroes.Plan.Path
-import Heroes.Plan.Types
 import Stage.Loading                                     (Loaded)
 import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Animation.Command                         as Animation
 import qualified Battle.AM                                 as AM
-import qualified Heroes.UI.Sound                           as Sound
+import qualified Heroes.SND                                as SND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 import qualified Data.Set                                  as S
@@ -119,7 +119,7 @@ fromMarkers ms gso loaded =
         flip runReaderT (gso, loaded) $
           fromMarkers' ms
 
-fromList :: (Offset, [(Offset, Either Animation.Command Sound.Command)]) -> Plan
+fromList :: (Offset, [(Offset, Either Animation.Command SND.Command)]) -> Plan
 fromList (Offset n, cs) = V.create $ do
   mv <- MV.replicate n (V.empty, V.empty)
   for_ cs $ \(Offset i, c) ->

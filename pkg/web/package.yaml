@@ -36,10 +36,6 @@ default-extensions:
 ghc-options:
   - -Wall
   - -Werror
-  - -dedupe
-
-cpp-options:
-  - -DGHCJS_BROWSER
 
 library:
   source-dirs:

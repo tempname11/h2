@@ -1,4 +1,4 @@
-module Heroes.UI.Sound where
+module Heroes.Sound where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
@@ -20,15 +20,6 @@ data Sound
   --
   deriving (Eq, Ord, Show)
 
-data Command
-  = PlayOnce Sound
-  | Start Sound
-  | Stop Sound
-  --
-  deriving (Eq, Ord, Show)
-
---------------------------------------------------------------------------------
-
 suffix :: CType -> String
 suffix Attack  = "ATTK"
 suffix Defence = "DFND"
@@ -39,4 +30,3 @@ suffix Shot    = "SHOT"
 
 allTypes :: [CType]
 allTypes = [minBound .. maxBound]
-

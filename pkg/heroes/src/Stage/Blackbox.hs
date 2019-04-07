@@ -21,7 +21,7 @@ import qualified Animation.Command                         as Animation
 import qualified Battle.AM                                 as AM
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Plan                               as Plan
-import qualified Heroes.UI.Sound                           as Sound
+import qualified Heroes.SND                                as SND
 import qualified Stage.Core                                as C
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V
@@ -46,7 +46,7 @@ data Out = Out {
   intent :: Maybe Annotation,
   lightHexes :: [Hex],
   loadRequests :: Set LoadRequest,
-  soundCommands :: V.Vector Sound.Command
+  soundCommands :: V.Vector SND.Command
 }
 
 data Data = Data {

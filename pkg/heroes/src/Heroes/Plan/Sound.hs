@@ -1,20 +1,20 @@
 module Heroes.Plan.Sound where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Animation.Scene                                   (Handle)
 import Heroes
-import Heroes.Plan.Types
-import qualified Heroes.UI.Sound                           as Sound
-import Heroes.UI.Sound                                   (Sound)
+import Heroes.Plan.Common
+import qualified Heroes.SND                                as SND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-playOnce :: Sound -> Offset -> M0
-playOnce w = append (Sound.PlayOnce w)
+playOnce :: Handle -> SND.Chunk -> Offset -> M0
+playOnce h c = append (SND.PlayOnce h (Some c))
 
-start :: Sound -> Offset -> M0
-start w = append (Sound.Start w)
+start :: Handle -> SND.Chunk -> Offset -> M0
+start h c  = append (SND.Start h (Some c))
 
-stop :: Sound -> Offset -> M0
-stop w = append (Sound.Stop w)
+stop :: Handle -> Offset -> M0
+stop h = append (SND.Stop h)
 
-append :: Sound.Command -> Offset -> M0
+append :: SND.Command -> Offset -> M0
 append c o = tell [(o, Right c)]

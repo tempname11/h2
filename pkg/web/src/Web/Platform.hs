@@ -8,7 +8,6 @@ import Web
 import Web.WND'Canvas ()
 import Web.GLES                                          (getWebGLContext)
 import qualified GLES                                      as GL
-import qualified Web.Audio                                 as Audio
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (forkIO)
 import JavaScript.TypedArray.ArrayBuffer                 (ArrayBuffer)
@@ -34,10 +33,6 @@ instance Platform where
   productionPrefix = "../.production-assets/"
   staticSpriteExtension = ".png"
   forkPreferred = forkIO
-  --
-  type Chunk = Audio.Audio
-  loadChunk = Audio.load
-  freeChunk _ = return () -- XXX
   --
   createQuadArray = createQuadArray'
   loadGLSL path = do

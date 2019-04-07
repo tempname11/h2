@@ -3,9 +3,9 @@ module Web.Artifacts.Game where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.GFX'GLES ()
 import Web
+import Web.SND'Audio ()
 import Web.WND'Canvas ()
 import Web.Platform ()
-import Web.Stage.ControlSound ()
 import Web.Stage.DetermineInput ()
 import Web.Stage.Prerequisites ()
 import Web.Stage.SystemLibraries ()

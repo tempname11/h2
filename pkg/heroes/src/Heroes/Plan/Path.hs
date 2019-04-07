@@ -4,14 +4,13 @@ module Heroes.Plan.Path where
 import Animation.Scene
 import Battle                                            (_creature)
 import Heroes
-import Heroes.Plan.Other
-import Heroes.Plan.Types
+import Heroes.Plan.Common
 import qualified Battle.AM                                 as AM
 import qualified Heroes.Plan.Animation                     as Animation
 import qualified Heroes.Plan.Sound                         as Sound
-import qualified Heroes.UI.Sound                           as Sound
+import qualified Heroes.Sound                              as Sound
 import Battle                                            (FighterId)
-import Heroes.UI.Sound                                   (Sound(..))
+import Heroes.Sound                                      (Sound(..))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 path :: FighterId -> [AM.PathMarker] -> M0
@@ -19,9 +18,10 @@ path fyr ps = do
   o <- get
   path' False fyr ps
   o' <- get
-  Sound.start (Sound'Creature (fyr ^. _creature) Sound.Move) o
-  Sound.stop  (Sound'Creature (fyr ^. _creature) Sound.Move) (o' +!. (-1))
+  c <- getChunk (Sound'Creature (fyr ^. _creature) Sound.Move)
   let h = Handle'Fighter fyr
+  Sound.start h c o
+  Sound.stop h (o' +!. (-1))
   Animation.setGroupNumber h (is Idling) o'
   put (o' +!. 1)
 
