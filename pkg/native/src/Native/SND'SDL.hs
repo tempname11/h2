@@ -42,7 +42,7 @@ sound (In {..}) =
       Start h (Some c) -> do
         channel <- lift $ Mix.playOn (-1) Mix.Forever c
         assign (at h) (Just channel)
-      Stop h -> do
+      Stop h _ -> do
         m <- use $ at h
         case m of
           Nothing -> do

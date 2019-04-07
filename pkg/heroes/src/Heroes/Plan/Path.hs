@@ -21,7 +21,7 @@ path fyr ps = do
   c <- getChunk (Sound'Creature (fyr ^. _creature) Sound.Move)
   let h = Handle'Fighter fyr
   Sound.start h c o
-  Sound.stop h (o' +!. (-1))
+  Sound.stop h c (o' +!. (-1))
   Animation.setGroupNumber h (is Idling) o'
   put (o' +!. 1)
 

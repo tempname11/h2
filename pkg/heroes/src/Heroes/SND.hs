@@ -27,6 +27,6 @@ class SND where
 data Command
   = PlayOnce Handle (Some Chunk)
   | Start Handle (Some Chunk)
-  | Stop Handle
+  | Stop Handle (Some Chunk)
   --
   deriving (Generic, Show)

@@ -16,6 +16,15 @@ foreign import javascript unsafe "new Audio()"
 foreign import javascript unsafe "$1.src = $2"
   setSrc :: Audio -> JSString -> IO ()
 
+foreign import javascript unsafe "$1.loop = false; $1.play();"
+  playOnce :: Audio -> IO ()
+
+foreign import javascript unsafe "$1.loop = true; $1.play();"
+  start :: Audio -> IO ()
+
+foreign import javascript unsafe "$1.pause(); $1.currentTime = 0;"
+  stop :: Audio -> IO ()
+
 foreign import javascript interruptible
   " \
   \ if ($1.readyState > 3) {    \
