@@ -29,9 +29,10 @@ data IData = IData {
   _counter :: Int
 }
 
+type CursorResources = V.Vector (V.Vector SDL.Cursor)
+
 instance WND where
   type Window = SDL.Window
-  type CursorResources = V.Vector (V.Vector SDL.Cursor)
   with next = do
     SDL.initialize [
         SDL.InitAudio,
@@ -45,7 +46,7 @@ instance WND where
     let
       changeCursor in_ = do
         d0 <- readIORef ref
-        d1 <- changeCursor' in_ d0
+        d1 <- changeCursor' cursorResources in_ d0
         writeIORef ref d1
       --
       waitForVsync = SDL.glSwapWindow window -- XXX
@@ -63,8 +64,8 @@ windowConfig =
     SDL.windowInitialSize = (<§>) viewportSize
   }
 
-changeCursor' :: Platform => In -> Data -> IO Data
-changeCursor' (In {..}) d = do
+changeCursor' :: Platform => CursorResources -> In -> Data -> IO Data
+changeCursor' cursorResources (In {..}) d = do
   SDL.activeCursor $= cursorResources ! g' ! f'
   return d'
   where

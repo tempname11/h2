@@ -13,7 +13,6 @@ import qualified JavaScript.Web.Canvas                     as Canvas
 
 instance WND where
   type Window = Canvas
-  type CursorResources = () -- XXX
   with next = do
     let
       waitForVsync = void $ AF.waitForAnimationFrame
