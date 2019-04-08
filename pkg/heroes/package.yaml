@@ -13,6 +13,7 @@ dependencies:
   - data-fix
   - data-default-class
   - generic-lens
+  - generic-deriving
   - hashable
   - hashtables
   - lens

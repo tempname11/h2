@@ -64,4 +64,3 @@ magenta = V4 255 0 255 255
 
 transparent :: Color
 transparent = V4 0 0 0 0
-

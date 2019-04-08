@@ -32,6 +32,7 @@ module Common (
   module Debug.Trace,
   module Foreign.C.Types,
   module Foreign.Ptr,
+  module Generics.Deriving.Enum,
   module GHC.Exts,
   module GHC.Generics,
   module Linear,
@@ -153,6 +154,8 @@ import Foreign.C.Types                                   (CInt)
 import Foreign.Ptr                                       (Ptr)
 import GHC.Exts                                          (Double)
 import GHC.Generics                                      (Generic)
+import Generics.Deriving.Enum                            (GEnum)
+import Generics.Deriving.Enum                            (genum)
 import Linear                                            (V0 (V0))
 import Linear                                            (V1 (V1))
 import Linear                                            (V2 (V2))

@@ -26,11 +26,11 @@ data Aux = Aux
   } deriving (Generic)
 
 data Annotation
-  = MeleeAttackingFrom Bearing
-  | Running
-  | Pondering
-  | Selecting
-  | RangeAttacking
+  = Annotation'MeleeFrom Bearing
+  | Annotation'Range
+  | Annotation'Running
+  | Annotation'Pondering
+  | Annotation'Selecting
   deriving (Eq, Ord, Show)
 
 --------------------------------------------------------------------------------
@@ -51,13 +51,13 @@ payloadAt
   peaceful =
     case M.lookup hex p of
       Just (MR { moves, destinationPlacing }) ->
-        Just (Running, moves, Just destinationPlacing)
+        Just (Annotation'Running, moves, Just destinationPlacing)
       Nothing -> Nothing
   conflict =
     approximate b0 $ \b ->
       case M.lookup (b, hex) c of
         Just (MR { moves, destinationPlacing }) -> 
-          Just (MeleeAttackingFrom b, moves, Just destinationPlacing)
+          Just (Annotation'MeleeFrom b, moves, Just destinationPlacing)
         Nothing -> Nothing
   selecting =
     M.lookup hex s <&>
@@ -82,11 +82,11 @@ aux' current@(Hot.Current (setup, battle)) = Aux {
     sel m = case m of
       FighterSelected fyr -> do
         p <- (setup, battle) #?. fighterPlacing fyr
-        let a = Selecting
+        let a = Annotation'Selecting
         return ((m, p, a), fyr)
       RangeAttackSelected fyr -> do
         p <- (setup, battle) #?. fighterPlacing fyr
-        let a = RangeAttacking
+        let a = Annotation'Range
         return ((m, p, a), fyr)
       _ -> Nothing
 

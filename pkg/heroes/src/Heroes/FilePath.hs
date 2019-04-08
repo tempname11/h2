@@ -39,3 +39,6 @@ staticPathOf defName = prod <> defName <> Platform.staticSpriteExtension
 
 soundPathOf :: Platform => String -> String
 soundPathOf wavName = prod <> "Sounds/" <> wavName <> ".wav"
+
+cursorPathOf :: Platform => String -> String
+cursorPathOf curName = prod <> "Cursors/" <> curName <> ".png"

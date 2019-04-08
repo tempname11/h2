@@ -16,7 +16,6 @@ dependencies:
   - ekg-json
   - generic-lens
   - gl
-  - mmorph # XXX
   - sdl2
   - sdl2-mixer
   - split
@@ -64,5 +63,12 @@ executables:
     source-dirs: misc
     main: Main.hs
     cpp-options: -DMAIN_MODULE=Native.Artifacts.CompileEssentials
+    dependencies:
+      - heroes-native
+
+  compile-cursors:
+    source-dirs: misc
+    main: Main.hs
+    cpp-options: -DMAIN_MODULE=Native.Artifacts.CompileCursors
     dependencies:
       - heroes-native

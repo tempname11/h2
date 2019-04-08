@@ -50,6 +50,10 @@ data Plane
   | Aerial
   deriving (Generic, Eq, Ord, Show)
 
+-- XXX DeriveAnyClass (since ghc 8.2)
+instance GEnum Bearing
+instance GEnum Plane
+
 --------------------------------------------------------------------------------
 
 data Bearing -- like "compass bearing"
@@ -59,7 +63,7 @@ data Bearing -- like "compass bearing"
   | NE
   | SW
   | SE
-  deriving (Eq, Ord, Show)
+  deriving (Generic, Eq, Ord, Show)
 
 data Segment = Segment {
   hex :: Hex,

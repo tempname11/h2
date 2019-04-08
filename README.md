@@ -22,10 +22,12 @@ git submodule update
 ### Preparing the assets
 ```sh
 mkdir .production-assets
+mkdir .production-assets/Cursors
 ln -s ../h3-assets/Sounds .production-assets/Sounds
 ln -s ../pkg/heroes/glsl .production-assets/glsl
 ./hhclix prepare-assets
 ./hhcli run-tool compile-essentials
+./hhcli run-tool compile-cursors
 ```
 
 ### Running the native version

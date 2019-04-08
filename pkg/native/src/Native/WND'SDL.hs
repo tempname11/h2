@@ -2,34 +2,23 @@
 module Native.WND'SDL () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes.Aux                                        (Annotation(..))
+import Heroes.Cursor                                     (cursorMeta)
 import Heroes.WND
 import Heroes.UI                                         (viewportSize)
 import Native
 import Native.Platform ()
-import qualified Heroes.Bearing                            as Bearing
-import qualified Heroes.UI.Cursor                          as Cursor
-import qualified Native.UI.Cursor                          as Cursor
+import qualified Heroes.Cursor                             as Cursor
+import qualified Heroes.FilePath                           as FilePath
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Data.List.Split                                   (splitPlaces)
 import Data.String                                       (fromString)
 import SDL                                               (($=))
-import qualified Data.ByteString                           as B
-import qualified Data.Vector                               as V
+import qualified Codec.Picture                             as Juicy
+import qualified Data.Map.Strict                           as M
 import qualified Data.Vector.Storable                      as SV
-import qualified Data.Vector.Storable.Mutable              as MSV
 import qualified SDL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-type Data = Maybe IData
-
-data IData = IData {
-  _frame   :: Int,
-  _group   :: Int,
-  _counter :: Int
-}
-
-type CursorResources = V.Vector (V.Vector SDL.Cursor)
+type Cursors = Cursor.Type -> SDL.Cursor
 
 instance WND where
   type Window = SDL.Window
@@ -40,19 +29,14 @@ instance WND where
         SDL.InitEvents
       ]
     window <- SDL.createWindow (fromString "Fight!") windowConfig
-    cursorResources <- V.concat <$> for Cursor.stuff (uncurry loadCursor)
-    ref <- newIORef Nothing
+    cursors <- loadCursors
     --
     let
-      changeCursor in_ = do
-        d0 <- readIORef ref
-        d1 <- changeCursor' cursorResources in_ d0
-        writeIORef ref d1
-      --
+      changeCursor (In {..}) = SDL.activeCursor $= cursors (Cursor.fromIntent intent)
       waitForVsync = SDL.glSwapWindow window -- XXX
     --
     next $ Prov {..}
-    (mapM_ . mapM_) SDL.freeCursor cursorResources
+    destroyCursors cursors
     SDL.destroyWindow window
     SDL.quit
 
@@ -64,96 +48,29 @@ windowConfig =
     SDL.windowInitialSize = (<§>) viewportSize
   }
 
-changeCursor' :: Platform => CursorResources -> In -> Data -> IO Data
-changeCursor' cursorResources (In {..}) d = do
-  SDL.activeCursor $= cursorResources ! g' ! f'
-  return d'
-  where
-  --
-  d' = Just (IData f' g' c')
-  g' = Cursor.number $ case intent of
-    Just Running -> Cursor.Run
-    Just Pondering -> Cursor.Question
-    Just (MeleeAttackingFrom b) -> Cursor.Sword (Cursor.To $ Bearing.opposite b)
-    Just RangeAttacking -> Cursor.Arrow
-    Just Selecting -> Cursor.Normal
-    Nothing -> Cursor.Normal
-  --
-  (c', f') = case d of
-    Nothing -> (0, 0)
-    Just (IData f g c)
-      | g /= g'   -> (0, 0)
-      | otherwise ->
-          let _15fps = c1 `mod` 4 == 0
-              c1 = c + 1
-              f1 = if | _15fps -> (f + 1) `mod` Cursor.lengths ! g
-                      | otherwise -> f
-          in (c1, f1)
-
-loadCursor :: [[Point V2 CInt]]
-           -> String
-           -> IO (V.Vector (V.Vector SDL.Cursor))
-loadCursor infos path = do
-  putStrLn $ "Loading... " <> path
-  buf <- B.readFile path
-
-  blueprint <- case Cursor.parse buf of
-                 Left str -> raise str
-                 Right b -> return b
-
-  let (V2 w h) = Cursor.bDimensions blueprint
-      colors     = Cursor.bPalette blueprint
-      pokeCombinator = Cursor.bPokeCombinator blueprint
-      count = Cursor.bCount blueprint
-      size = (§) (w * h)
-
-  let iCount = sum $ map length infos
-  when (count /= iCount) $ do
-    print (path, count, iCount)
-    raise "Cursor info & .def have unequal length"
-
-  allocations <- V.replicateM count $ MSV.replicate size 0
-
-  let poke i (V2 x y) bytes = generateM_ (B.length bytes) go
-        where
-        offset = (§) (x + y * w)
-        go :: Int -> IO ()
-        go j = MSV.write mpixels (offset + j) byte
-          where byte = B.index bytes j
-                mpixels = allocations ! i
-
-  pokeCombinator poke
-
-  -- allocations and infos should have equal length here
-  let make mpixels info = do
-        (surface, _) <- createPalettedSurface mpixels colors (V2 w h)
-        cursor11 <- SDL.createColorCursor surface info
-        SDL.freeSurface surface -- not sure if we can free the surface.
-                                -- seems to work.
-        return cursor11
-
-  let places = map length infos
-      decat = splitPlaces places
-
-  fmap V.fromList . V.fromList . decat <$>
-    zipWithM make (V.toList allocations) (concat infos)
-
-createPalettedSurface ::
-  MSV.IOVector Word8 ->
-  SV.Vector (V4 Word8) ->
-  V2 CInt ->
-  IO (SDL.Surface, SDL.Palette)
-createPalettedSurface mpixels colors (V2 w h) = do
-  surface <- SDL.createRGBSurfaceFrom mpixels (V2 w h) w SDL.Index8 -- XXX?
-  format <- SDL.surfaceFormat surface
-  m <- SDL.formatPalette format
-  --
-  let
-    palette = m
-      & presumeJust "8-bit SDL surfaces should have a palette. \
-      \ Reference: https://wiki.libsdl.org/SDL_CreateRGBSurfaceFrom"
-    eightZeroes = SV.fromList (const 0 <$> ([0..8] :: [Int]))
-  --
-  SDL.setPaletteColors palette colors 0
-  SDL.setPaletteColors palette eightZeroes 0
-  return (surface, palette)
+loadCursors :: IO Cursors
+loadCursors = do
+  m <- for (M.fromList (genum <&> \t -> (t, t))) $ \t -> do
+    let (fileName, hotspot) = cursorMeta t
+    result <- Juicy.readPng (FilePath.cursorPathOf fileName)
+    image <-
+      case result of
+        Left str -> raise str
+        Right i -> return (Juicy.convertRGBA8 i)
+    --
+    let
+      w = (§) $ Juicy.imageWidth image
+      h = (§) $ Juicy.imageHeight image
+    --
+    pixels <- SV.unsafeThaw (Juicy.imageData image)
+    surface <- SDL.createRGBSurfaceFrom pixels (V2 w h) (w * 4) SDL.RGBA8888
+    cursor <- SDL.createColorCursor surface (P hotspot)
+    SDL.freeSurface surface
+    return cursor
+  return $
+    \t -> M.lookup t m &
+      presumeJust "the map should have all cursor types \
+      \ since it was created using `genum`."
+    
+destroyCursors :: Cursors -> IO ()
+destroyCursors cs = for_ genum $ \t -> SDL.freeCursor (cs t)
