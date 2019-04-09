@@ -63,7 +63,8 @@ loadCursors = do
       h = (§) $ Juicy.imageHeight image
     --
     pixels <- SV.unsafeThaw (Juicy.imageData image)
-    surface <- SDL.createRGBSurfaceFrom pixels (V2 w h) (w * 4) SDL.RGBA8888
+    surface <- SDL.createRGBSurfaceFrom pixels (V2 w h) (w * 4) SDL.ABGR8888
+    SDL.surfaceColorKey surface $= Just (V4 0 255 255 255)
     cursor <- SDL.createColorCursor surface (P hotspot)
     SDL.freeSurface surface
     return cursor
