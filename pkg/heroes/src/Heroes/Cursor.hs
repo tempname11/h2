@@ -1,7 +1,7 @@
 module Heroes.Cursor (
   Type (..),
   Pointing (..),
-  cursorMeta,
+  metaFor,
   fromIntent
 ) where
 
@@ -40,8 +40,8 @@ instance GEnum Pointing
 instance GEnum Type
 
 -- magic "i-j" names, but whatever
-cursorMeta :: Type -> (String, V2 CInt)
-cursorMeta = \case
+metaFor :: Type -> (String, V2 CInt)
+metaFor = \case
   Normal -> ("0-0", V2 0 0)
   Question -> ("0-1", V2  6 13)
   Blocked -> ("0-2", V2 12 13)

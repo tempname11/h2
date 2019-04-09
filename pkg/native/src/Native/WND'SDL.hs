@@ -2,7 +2,6 @@
 module Native.WND'SDL () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes.Cursor                                     (cursorMeta)
 import Heroes.WND
 import Heroes.UI                                         (viewportSize)
 import Native
@@ -51,7 +50,7 @@ windowConfig =
 loadCursors :: IO Cursors
 loadCursors = do
   m <- for (M.fromList (genum <&> \t -> (t, t))) $ \t -> do
-    let (fileName, hotspot) = cursorMeta t
+    let (fileName, hotspot) = Cursor.metaFor t
     result <- Juicy.readPng (FilePath.cursorPathOf fileName)
     image <-
       case result of
@@ -64,7 +63,6 @@ loadCursors = do
     --
     pixels <- SV.unsafeThaw (Juicy.imageData image)
     surface <- SDL.createRGBSurfaceFrom pixels (V2 w h) (w * 4) SDL.ABGR8888
-    SDL.surfaceColorKey surface $= Just (V4 0 255 255 255)
     cursor <- SDL.createColorCursor surface (P hotspot)
     SDL.freeSurface surface
     return cursor

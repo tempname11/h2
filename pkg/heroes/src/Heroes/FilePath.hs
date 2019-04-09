@@ -22,20 +22,20 @@ music :: Platform => Path
 music = prod <> "silent.wav"
 
 background :: Platform => Path
-background = prod <> "bg" <> Platform.staticSpriteExtension
+background = prod <> "bg" <> ".png"
 
 cellShaded :: Platform => Path
-cellShaded = prod <> "cell-shaded" <> Platform.staticSpriteExtension
+cellShaded = prod <> "cell-shaded" <> ".png"
 
 cellOutline :: Platform => Path
-cellOutline = prod <> "cell-outline" <> Platform.staticSpriteExtension
+cellOutline = prod <> "cell-outline" <> ".png"
 
 -- XXX "stringly-typed"
 pngPathOf :: Platform => String -> String
 pngPathOf defName = prod <> defName <> ".png"
 
 staticPathOf :: Platform => String -> String
-staticPathOf defName = prod <> defName <> Platform.staticSpriteExtension
+staticPathOf defName = prod <> defName <> ".png"
 
 soundPathOf :: Platform => String -> String
 soundPathOf wavName = prod <> "Sounds/" <> wavName <> ".wav"

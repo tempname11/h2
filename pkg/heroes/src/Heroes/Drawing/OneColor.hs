@@ -12,8 +12,9 @@ import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
 import Heroes.UI (viewportSize)
 import Heroes.UI (Color)
-import qualified GLES                                      as GL
 import qualified Heroes.Drawing.Quad                       as Quad
+import qualified Heroes.GLX                                as GLX
+import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Cmd = Cmd {
@@ -24,7 +25,7 @@ data Cmd = Cmd {
 
 --------------------------------------------------------------------------------
 
-with :: (Platform, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
+with :: (Platform, GLX.GLX, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
 with ctx qBuffer = \next2 -> do
   prog <- init ctx
   next2 $ \next1 -> do
@@ -46,7 +47,7 @@ data Prog = Prog {
 
 --------------------------------------------------------------------------------
 
-init :: (Platform, GLES) => GL.Ctx -> IO Prog
+init :: (Platform, GLX.GLX, GLES) => GL.Ctx -> IO Prog
 init ctx = do
   program <- makeProgram ctx
     (prod <> "glsl/one-color.fragment.glsl")

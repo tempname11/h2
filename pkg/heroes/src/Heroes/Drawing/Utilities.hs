@@ -2,11 +2,10 @@ module Heroes.Drawing.Utilities where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Heroes.Platform                                   (Platform)
 import Heroes
 import qualified GLES                                      as GL
-import qualified Heroes.Image                                 as Image
-import qualified Heroes.Platform                           as Platform
+import qualified Heroes.GLX                                as GLX
+import qualified Heroes.Image                              as Image
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 bindTextureTo :: GLES => GL.Ctx -> GL.GLEnum -> GL.Texture -> IO ()
@@ -14,10 +13,10 @@ bindTextureTo ctx slot texture = do
   GL.glActiveTexture ctx slot
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
 
-makeProgram :: (Platform, GLES) => GL.Ctx -> String -> String -> IO GL.Program
+makeProgram :: (GLX.GLX, GLES) => GL.Ctx -> String -> String -> IO GL.Program
 makeProgram ctx fragmentFilename vertexFilename = do
-  fragmentSource <- Platform.loadGLSL fragmentFilename
-  vertexSource <- Platform.loadGLSL vertexFilename
+  fragmentSource <- GLX.loadGLSL fragmentFilename
+  vertexSource <- GLX.loadGLSL vertexFilename
   --
   fs <- makeShader ctx GL.gl_FRAGMENT_SHADER fragmentSource
   vs <- makeShader ctx GL.gl_VERTEX_SHADER vertexSource

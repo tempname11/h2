@@ -2,8 +2,9 @@
 module Native.Artifacts.Game where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Native.GLES ()
 import Native
+import Native.GLES ()
+import Native.GLX ()
 import Heroes.GFX'GLES ()
 import Native.SND'SDL ()
 import Native.WND'SDL ()

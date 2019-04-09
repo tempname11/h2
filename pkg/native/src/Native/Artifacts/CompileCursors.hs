@@ -52,7 +52,9 @@ main' = do
       poke j (V2 x y) bytes = generateM_ (B.length bytes) $ \i -> do
         let
           offset = (§) (4 * (x + y * w)) + (§) (j * byteSize)
-          V4 r g b a = (SV.!) palette byte
+          paletteColor = (SV.!) palette byte
+          -- color "de-keying"
+          V4 r g b a = if paletteColor == V4 0 255 255 255 then 0 else paletteColor
           byte = (§) $ B.index bytes i
         --
         MSV.write mpixels (offset + (4 * i) + 0) r

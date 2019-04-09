@@ -32,6 +32,8 @@ import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Image                              as Image
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.Platform                           as Platform
+import qualified Heroes.GLX                                as GLX
+import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -42,10 +44,10 @@ instance GFX'Types where
   type StaticSprite = Drawing.StaticSprite
   type ComplexSprite = Drawing.ComplexSprite
 
-instance (GLES, Platform, GFX'Types) => GFX where
+instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
   type Renderer = Renderer'GLES
   with (Deps {..}) next = do
-    ctx <- Platform.getGLContext window
+    ctx <- GLX.getGLContext window
     qBuffer <- Quad.createBuffer ctx
     background <- loadStatic ctx FilePath.background
     cellShaded <- loadStatic ctx FilePath.cellShaded
@@ -74,7 +76,7 @@ instance (GLES, Platform, GFX'Types) => GFX where
       Right image -> return image
       Left str -> raise str
     atlasTexture <- makeTexture ctx GL.gl_R8 GL.gl_RED image
-    paletteArray <- Platform.generatePaletteArray (meta ^. _palette)
+    paletteArray <- GLX.generatePaletteArray (meta ^. _palette)
     paletteTexture <- makePaletteTexture ctx paletteArray
     return $ Drawing.ComplexSprite { .. }
   --
