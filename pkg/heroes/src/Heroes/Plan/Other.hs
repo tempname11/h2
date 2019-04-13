@@ -79,7 +79,7 @@ specialEffect (sfx, f, p) = do
     actor = Actor {
       sprite,
       position =
-        actorPositionAt f p .+^
+        actorPositionAt East p .+^
           if Placing.isWide p then widthOffset <&> (`div` 2) else 0,
       height = 0,
       facing = f,

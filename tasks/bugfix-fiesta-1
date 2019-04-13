@@ -11,5 +11,4 @@
 [x] attack double landing animation bug
 [x] attack: Terminal bug
 [x] SFX centering
-[ ] Naga's extra transparency pixels
-[?] Fix non-closest pathfinding
+[x] Naga's extra transparency pixels

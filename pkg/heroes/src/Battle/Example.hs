@@ -54,7 +54,7 @@ zero = fromFighters empty
 one :: (Setup, Battle)
 one = fromFighters $ M.fromList [
     (makeFighterId H3.GreenDragon 1, f1),
-    (makeFighterId H3.Dwarf 2, f2)
+    (makeFighterId H3.NagaQueen 2, f2)
   ]
   where
   f1 = FighterAttr {
@@ -72,7 +72,7 @@ one = fromFighters $ M.fromList [
     attack = 3,
     defence = 3,
     abilities = S.fromList [Ability'Ranged],
-    placing = Narrow $ Hex 2 2,
+    placing = Wide $ Hex 2 2,
     facing = West
   }
 
