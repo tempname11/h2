@@ -11,13 +11,13 @@ Technical:
 [x] Use monorepo
 [x] Get Web up to speed
 [x] Add memoization back [debug Web]
-[ ] Bugfix fiesta #1
-[ ] Unify Web & Native [decompose!]
-[ ] Matchmaking MVP
+[x] Convert cursors to PNG on build
+[x] Web: cursors
+[ ] Bugfix fiesta #1 [extern]
+[ ] Matchmaking MVP [extern]
+[ ] Unify Web & Native [decompose]
 [ ] Refactor the Battle monad
 [ ] Refactor the Animation subsystem
-[ ] Convert cursors to PNG on build
-[ ] Web: cursors
 [ ] Migrate to GHJCS 8.6?
 [ ] Fix SpriteConverter crashes?
 [ ] Fix the cursor jump in Native?
