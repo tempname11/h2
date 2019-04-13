@@ -88,24 +88,29 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
     (guard (keyDown Input.Key'3) >> Just 2)
 
   --
+  acceptable = acceptableMovesMemo current0
   moves = do
     guard isActive0
     if not isHuman
     then ai current0'
-    else case spellIndex of
-      Just i -> do
-        let
-          isSpell = \case
-            SpellSelected {} -> True
-            _ -> False
-          spellMoves = filter isSpell (acceptableMovesMemo current0)
-        case spellMoves `atMay` i of
-          Just m -> Just [m]
-          Nothing -> Nothing
-      Nothing ->
-        if mouseDown Input.LMB
-          then view _2 <$> payload
-          else Nothing
+    else
+      if acceptable == [EOM]
+      then Just [EOM]
+      else
+        case spellIndex of
+          Just i -> do
+            let
+              isSpell = \case
+                SpellSelected {} -> True
+                _ -> False
+              spellMoves = filter isSpell acceptable
+            case spellMoves `atMay` i of
+              Just m -> Just [m]
+              Nothing -> Nothing
+          Nothing ->
+            if mouseDown Input.LMB
+              then view _2 <$> payload
+              else Nothing
   --
   intent = view _1 <$> payload
   --
