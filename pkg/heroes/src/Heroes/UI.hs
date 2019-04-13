@@ -1,23 +1,19 @@
 module Heroes.UI where
-{-
-                              ooooo     ooo ooooo
-                              `888'     `8' `888'
-                               888       8   888
-                               888       8   888
-                               888       8   888
-                               `88.    .8'   888
-                                 `YbodP'    o888o
--}
 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
+import Heroes.H3                                         (SFX(..))
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 ------------ utilities ---------------------------------------------------------
 
 creatureGroundOffset :: V2 CInt
 creatureGroundOffset = V2 192 256 -- approximate, but looks right
 
-sfxGroundOffset :: V2 CInt
-sfxGroundOffset = V2 64 96 -- approximate
+sfxGroundOffset :: SFX -> V2 CInt
+sfxGroundOffset = \case -- approximate
+  SFX'Haste -> V2 64 96
+  SFX'Slow -> V2 32 32
 
 viewportSize :: V2 Int
 viewportSize = V2 800 600

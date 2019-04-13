@@ -1356,19 +1356,19 @@ downgraded :: Creature -> Maybe Creature
 downgraded = (`Bimap.lookupR` upgradeMap)
 
 data SFX
-  = Haste
-  | Slow
-  -- | Sacrifice
+  = SFX'Haste
+  | SFX'Slow
+  -- | SFX'Sacrifice
   deriving (Eq, Ord, Enum, Bounded, Show)
 
 sSndName :: SFX -> String
 sSndName = \case
-  Haste -> "TAILWIND"
-  Slow -> "MUCKMIRE"
-  -- Sacrifice -> "SACRIF1"
+  SFX'Haste -> "TAILWIND"
+  SFX'Slow -> "MUCKMIRE"
+  -- SFX'Sacrifice -> "SACRIF1"
 
 sDefName :: SFX -> String
 sDefName = \case
-  Haste -> "C15SPA0"
-  Slow -> "C09SPE0"
-  -- Sacrifice -> "C01SPE0"
+  SFX'Haste -> "C15SPA0"
+  SFX'Slow -> "C09SPE0"
+  -- SFX'Sacrifice -> "C01SPE0"

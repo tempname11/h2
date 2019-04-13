@@ -23,7 +23,7 @@ main' = do
   let allCreatures = [minBound .. maxBound]
       allSfx = [minBound .. maxBound]
   convertedSfx <- for allSfx $
-    \s -> convert sfxGroundOffset (H3.sDefName s)
+    \s -> convert (sfxGroundOffset s) (H3.sDefName s)
   convertedCreatures <- for allCreatures $
     \c -> convert creatureGroundOffset (H3.cDefName c)
   let cs = M.fromList (zip allCreatures convertedCreatures)

@@ -9,8 +9,10 @@ import Heroes
 import Heroes.Plan.Common
 import Heroes.SFXResource                                (SFXResource(..))
 import Heroes.Sound                                      (Sound(..))
+import Heroes.UI                                         (widthOffset)
 import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Heroes.Bearing                            as Bearing
+import qualified Heroes.Placing                            as Placing
 import qualified Heroes.Plan.Animation                     as Animation
 import qualified Heroes.Plan.Sound                         as Sound
 import qualified Heroes.Sound                              as Sound
@@ -76,7 +78,9 @@ specialEffect (sfx, f, p) = do
     h = Handle'SFX sfx
     actor = Actor {
       sprite,
-      position = actorPositionAt f p,
+      position =
+        actorPositionAt f p .+^
+          if Placing.isWide p then widthOffset <&> (`div` 2) else 0,
       height = 0,
       facing = f,
       groupN = (\(GroupNumber g) -> g) sfxGroupNumber,
