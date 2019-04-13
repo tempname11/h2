@@ -14,6 +14,8 @@ Technical:
 [x] Convert cursors to PNG on build
 [x] Web: cursors
 [x] Bugfix fiesta #1 [extern]
+[ ] GHCJS — research performance
+[ ] Async (threaded) AI
 [ ] Matchmaking MVP [extern]
 [ ] Unify Web & Native [decompose]
 [ ] Refactor the Battle monad
