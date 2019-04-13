@@ -123,15 +123,19 @@ movement initialMoves (s, b0) =
         in ((M p c, A a'), if wasThere then [] else [S b' currentPlacing points stack'])
       --
       Right (b', Last (Just (PM.Attack { attackerPlacing, bearing, hit })), _) ->
-        let
-          c' = c & insertMissing
-            (Bearing.opposite bearing, hit)
-            MR {
-              moves = reverse stack',
-              battle = b',
-              destinationPlacing = attackerPlacing
-            }
-        in ((M p c', A a), [])
+        let afterEom = (s, b') #?! makeMove EOM
+        in case afterEom of
+          Nothing -> ((M p c, A a), [])
+          Just b'' ->
+            let
+              c' = c & insertMissing
+                (Bearing.opposite bearing, hit)
+                MR {
+                  moves = reverse (EOM : stack'),
+                  battle = b'',
+                  destinationPlacing = attackerPlacing
+                }
+            in ((M p c', A a), [])
     where
     --
     stack' = m : stack
