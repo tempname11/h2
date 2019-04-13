@@ -4,5 +4,7 @@
 [x] Fix shadows (!)
 [x] Fix curtain
 [x] Fix lack of EOM after attack
-[ ] Fix non-closest processedMovement
-[ ] Fix non-closest pathfinding
+[x] No EOM after human spell
+[x] AI intercepts control
+[?] Fix non-closest processedMovement
+[?] Fix non-closest pathfinding

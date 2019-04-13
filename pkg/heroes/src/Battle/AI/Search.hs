@@ -43,8 +43,14 @@ heuristic' t = do
       partition (\FighterAttr { team } -> team == t) (M.elems fighters)
   return (length ours - length theirs)
 
+cutoff :: [Move] -> [Move]
+cutoff (EOM : _) = EOM : []
+cutoff (m : ms) = m : cutoff ms
+cutoff [] = []
+
 ai :: (Setup, Battle) -> Maybe [Move]
 ai (setup, battle) =
+  fmap cutoff .
   view _bestMoves .
   deepResult setup .
   deepBranch setup $
