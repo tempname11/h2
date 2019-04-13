@@ -1358,17 +1358,17 @@ downgraded = (`Bimap.lookupR` upgradeMap)
 data SFX
   = Haste
   | Slow
-  | Sacrifice
+  -- | Sacrifice
   deriving (Eq, Ord, Enum, Bounded, Show)
 
 sSndName :: SFX -> String
 sSndName = \case
   Haste -> "TAILWIND"
   Slow -> "MUCKMIRE"
-  Sacrifice -> "SACRIF1"
+  -- Sacrifice -> "SACRIF1"
 
 sDefName :: SFX -> String
 sDefName = \case
   Haste -> "C15SPA0"
   Slow -> "C09SPE0"
-  Sacrifice -> "C01SPE0"
+  -- Sacrifice -> "C01SPE0"

@@ -57,4 +57,4 @@ groupSize gs (GroupNumber g) =
       Nothing -> 0
 
 randomizeStart :: Bool
-randomizeStart = True
+randomizeStart = False

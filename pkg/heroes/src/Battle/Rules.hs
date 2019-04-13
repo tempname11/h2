@@ -160,7 +160,7 @@ allMoves = do
             case spell of
               H3.Haste -> _fighters . by fyr . _speed %=! (+1) -- XXX max 7?
               H3.Slow  -> _fighters . by fyr . _speed %=! (+(-1)) -- XXX min 1?
-              H3.Sacrifice -> dies fyr
+              --H3.Sacrifice -> dies fyr
             _phase .= Phase'Terminal
         )
 
