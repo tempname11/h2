@@ -9,6 +9,7 @@
 [x] Fix non-closest processedMovement
 [x] no necessary eom after range attack?
 [x] attack double landing animation bug
-[ ] attack: Terminal bug
+[x] attack: Terminal bug
 [ ] Naga's extra transparency pixels
+[ ] SFX centering
 [?] Fix non-closest pathfinding

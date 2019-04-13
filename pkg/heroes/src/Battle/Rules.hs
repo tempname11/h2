@@ -98,7 +98,12 @@ allMoves = do
                 }
                 AM.meleeAttack fyr dfyr bearing
                 fyr `attacks` dfyr
-                _phase .= Phase'Terminal -- FIXME
+                _phase .= Phase'Movement {
+                  points = 0,
+                  didMove = True,
+                  fighter = fyr,
+                  plane = Ground
+                }
               --
               CanMove placing facing -> do -- We are walking.
                 enforce $ points > 0
