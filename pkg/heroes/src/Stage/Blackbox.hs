@@ -62,7 +62,7 @@ with deps@(Deps {..}) next =
   C.with (C.Deps {..}) $ \core -> do
     let
       data_ = Data {
-        updateOrPlan = Left (AM.JumpTo initialBattle),
+        updateOrPlan = Left . AM.JumpTo . Some $ initialBattle,
         frameNumber = 0,
         subframeNumber = 0
       }

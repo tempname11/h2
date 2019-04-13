@@ -11,15 +11,16 @@ data Marker
   | Death FighterId
   | SpecialEffect (SFX, Facing, Placing)
   | Path FighterId PathMarker
-  deriving (Eq, Show)
+  deriving (Generic, Eq, Show)
 
 data PathMarker
   = Move (Placing, Facing, Placing)
   | Turn (Facing, Placing, Facing)
   | Takeoff
   | Landing
-  deriving (Eq, Show)
+  deriving (Generic, Eq, Show)
 
 data Update
-  = JumpTo Battle
+  = JumpTo (Some Battle)
   | Normal [Marker]
+  deriving (Generic, Show)

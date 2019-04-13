@@ -31,7 +31,7 @@ none = V.empty
 
 make :: Loaded -> GroupSizeOf -> AM.Update -> Either (Set LoadRequest) Plan
 make loaded gso = \case
-  AM.JumpTo b -> fromBattle b loaded
+  AM.JumpTo (Some b) -> fromBattle b loaded
   AM.Normal ms -> fromMarkers ms gso loaded
 
 fromBattle ::

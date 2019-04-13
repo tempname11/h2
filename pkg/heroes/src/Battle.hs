@@ -19,7 +19,7 @@ data Failure
 -- and gives us stronger "immutability" guarantees:
 -- same id will always refer to the same creature.
 newtype FighterId = FighterId Int
-  deriving (Eq, Ord, Show)
+  deriving (Generic, Eq, Ord, Show)
 
 instance Baked FighterId where
   type Upper FighterId = Int
@@ -37,7 +37,7 @@ _creature = lower_
 --------------------------------------------------------------------------------
 
 newtype ObstacleId = ObstacleId Int
-  deriving (Eq, Ord, Show)
+  deriving (Generic, Eq, Ord, Show)
 
 instance Baked ObstacleId where
   type Upper ObstacleId = Int
@@ -67,7 +67,7 @@ data Phase
   }
   | Phase'SpellTargetSelection { spell :: Spell }
   | Phase'Terminal
-  deriving (Eq, Ord, Show)
+  deriving (Generic, Eq, Ord, Show)
 
 --------------------------------------------------------------------------------
 

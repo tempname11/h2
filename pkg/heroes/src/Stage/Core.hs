@@ -178,7 +178,7 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
     in if
       | not isActive0 -> normal
       | keyDown ControlMap.reset -> (
-          AM.JumpTo initialBattle,
+          AM.JumpTo (Some initialBattle),
           Data {
             current = Current (setup, initialBattle),
             pastBattles = [],
@@ -188,7 +188,7 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
       | keyDown ControlMap.intoPast ->
         case pastBattles0 of
           b : bs -> (
-              AM.JumpTo b,
+              AM.JumpTo (Some b),
               Data {
                 current = Current (setup, b),
                 pastBattles = bs,
@@ -199,7 +199,7 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
       | keyDown ControlMap.intoFuture ->
         case futureBattles0 of
           b : bs -> (
-              AM.JumpTo b,
+              AM.JumpTo (Some b),
               Data {
                 current = Current (setup, b),
                 futureBattles = bs,

@@ -69,7 +69,7 @@ allMoves = do
   --
   return $ M.fromList $ case phase of
       --
-      Phase'Movement { fighter = fyr, didMove, plane } -> [
+      Phase'Movement { fighter = fyr, didMove, plane, points } -> [
           EOM @@ do
             enforce didMove
             placing <- fighterPlacing fyr
@@ -90,9 +90,7 @@ allMoves = do
                   Aerial -> do
                     enforceNoObstacles Ground placing
                     AM.landing fyr
-                pointsExhaustedFromAttack
                 considerTurning fyr facing
-                -- Perform attack.
                 pMark $ PM.Attack {
                   attackerPlacing = placing,
                   bearing,
@@ -100,13 +98,20 @@ allMoves = do
                 }
                 AM.meleeAttack fyr dfyr bearing
                 fyr `attacks` dfyr
+                _phase .= Phase'Terminal -- FIXME
               --
               CanMove placing facing -> do -- We are walking.
+                enforce $ points > 0
                 enforceNoObstacles plane placing
-                pointsSpent 1
                 considerTurning fyr facing
-                -- Perform the actual movement
-                walks fyr placing
+                AM.move fyr placing
+                _fighters . by fyr . _placing .=! placing
+                _phase .= Phase'Movement {
+                  points = points - 1,
+                  didMove = True,
+                  fighter = fyr,
+                  plane
+                }
         )
       Phase'Terminal -> [
           EOM @@ proceed
@@ -206,25 +211,6 @@ spawns c attr = do
   enforceM $ placingEmpty placing
   _fighters . at f .= Just attr
 
-pointsExhaustedFromAttack :: P ()
-pointsExhaustedFromAttack = do
-  phase <- (?) $ _phase
-  case phase of
-    Phase'Movement { points = p, .. } -> do
-      enforce $ p >= 0
-      _phase .= Phase'Movement { points = -1, didMove = True, .. }
-    _ -> invalid
-
--- check and spend points
-pointsSpent :: Int -> P ()
-pointsSpent n = do
-  phase <- (?) $ _phase
-  case phase of
-    Phase'Movement { points = p, .. } -> do
-      enforce $ p > 0
-      _phase .= Phase'Movement { points = p - n, didMove = True, .. }
-    _ -> invalid
-
 -- XXX separate melee and range?
 attacks :: FighterId -> FighterId -> P0
 attacks attacker defender = do
@@ -233,11 +219,6 @@ attacks attacker defender = do
   if attack > defence
     then defender & dies
     else _fighters . by defender . _defence -=! 1
-
-walks :: FighterId -> Placing -> P0
-walks fyr placing = do
-  AM.move fyr placing
-  _fighters . by fyr . _placing .=! placing
 
 turns :: FighterId -> Facing -> P0
 turns fyr facing = do
