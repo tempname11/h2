@@ -19,6 +19,7 @@ import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data MovementResult = MR {
+  pointsLeft :: Int,
   moves :: [Move], 
   destinationPlacing :: Placing,
   battle :: Battle
@@ -96,6 +97,7 @@ movement initialMoves (s, b0) =
         Just b' ->
           let
             r = MR {
+              pointsLeft = pts,
               moves = reverse (EOM : stack),
               battle = b',
               destinationPlacing = currentPlacing
@@ -131,6 +133,7 @@ movement initialMoves (s, b0) =
               c' = c & insertMissing
                 (Bearing.opposite bearing, hit)
                 MR {
+                  pointsLeft = 0,
                   moves = reverse (EOM : stack'),
                   battle = b'',
                   destinationPlacing = attackerPlacing

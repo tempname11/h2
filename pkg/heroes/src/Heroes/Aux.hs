@@ -98,12 +98,22 @@ processedMovement (setup, battle) =
     Just (placing, battle') ->
       let
         M peaceful conflict = movement [MovementSelected] (setup, battle')
-      in case placing of
-        Wide _ -> 
-          let
-            peacefulShifted = M.mapKeys (Hex.to E) peaceful
-            peacefulUnion = M.unionWith (\_ x -> x) peaceful peacefulShifted
-          in
-            M peacefulUnion conflict
-        Narrow _ -> M peaceful conflict
+      in
+        case placing of
+          Wide _ ->
+            let
+              notInBase h _ = not $ h `elem` (Placing.visit placing)
+              peacefulShifted = M.mapKeys (Hex.to E) peaceful
+              peacefulUnion =
+                M.unionWith
+                  (\
+                    a@(MR { pointsLeft = pA })
+                    b@(MR { pointsLeft = pB }) ->
+                    if pA >= pB then a else b
+                  )
+                  peaceful
+                  peacefulShifted
+             in
+               M (M.filterWithKey notInBase peacefulUnion) conflict
+          Narrow _ -> M peaceful conflict
     Nothing -> M empty empty

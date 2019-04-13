@@ -119,6 +119,12 @@ class LikeSet a where
   elem    :: K a -> a -> Bool
   empty   :: a
 
+instance Eq v => LikeSet [v] where
+  type K [v] = v
+  notElem = P.notElem
+  elem = P.elem
+  empty = []
+
 instance LikeSet (I.IntMap v) where
   type K (I.IntMap v) = Int
   notElem = I.notMember

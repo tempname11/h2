@@ -6,5 +6,7 @@
 [x] Fix lack of EOM after attack
 [x] No EOM after human spell
 [x] AI intercepts control
-[?] Fix non-closest processedMovement
+[x] Fix non-closest processedMovement
+[x] no necessary eom after range attack?
+[ ] attack double landing animation bug
 [?] Fix non-closest pathfinding

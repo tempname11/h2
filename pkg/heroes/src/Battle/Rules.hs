@@ -139,6 +139,7 @@ allMoves = do
             considerTurningTowards fyr dfyr
             AM.rangeAttack fyr dfyr
             fyr `attacks` dfyr
+            _phase .= Phase'Terminal
         )
       --
       Phase'Initial -> (
