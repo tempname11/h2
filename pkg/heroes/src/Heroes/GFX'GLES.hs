@@ -169,7 +169,9 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
   --
   Drawing.clear ctx
   GL.glEnable ctx GL.gl_BLEND
-  GL.glBlendFunc ctx GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA
+  GL.glBlendFuncSeparate ctx
+    GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA
+    GL.gl_ONE GL.gl_ONE_MINUS_SRC_ALPHA
   --
   regular $ \draw ->
     for_ regularCmds draw

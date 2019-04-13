@@ -41,7 +41,7 @@ instance Eq TagProgram where
 instance Hashable TagProgram where
         hashWithSalt salt (TagProgram t _) = hashWithSalt salt t
 
-foreign import javascript unsafe "$r = $1.getContext(\"webgl2\");"
+foreign import javascript unsafe "$r = $1.getContext(\"webgl2\", { premultipliedAlpha: false });"
         getWebGLContext' :: Canvas -> IO JSVal
 
 getWebGLContext :: Canvas -> IO Ctx
