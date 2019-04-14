@@ -8,11 +8,6 @@ import qualified Heroes.GLX                                as GLX
 import qualified Heroes.Image                              as Image
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-bindTextureTo :: GLES => GL.Ctx -> GL.GLEnum -> GL.Texture -> IO ()
-bindTextureTo ctx slot texture = do
-  GL.glActiveTexture ctx slot
-  GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
-
 makeProgram :: (GLX.GLX, GLES) => GL.Ctx -> String -> String -> IO GL.Program
 makeProgram ctx fragmentFilename vertexFilename = do
   fragmentSource <- GLX.loadGLSL fragmentFilename
