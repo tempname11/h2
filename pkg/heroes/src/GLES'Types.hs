@@ -5,7 +5,6 @@ module GLES'Types where
 import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Bits                                         (Bits)
-import Data.Hashable                                     (Hashable)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 class
@@ -24,10 +23,7 @@ class
     Eq GLUInt,
     Eq GLInt,
     Eq GLPtrDiff,
-    Eq GLSize,
-    Eq Texture,
-    Eq Program,
-    Hashable Program
+    Eq GLSize
   ) => GLES'Types where
   type Ctx
   type GLEnum

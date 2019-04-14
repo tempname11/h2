@@ -6,18 +6,16 @@ module Web.GLES (getWebGLContext) where
 -- kudos to ziocroc
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import GLES
+import GLES'Types ()
 import Web.Image ()
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Data.Hashable
-import Data.IORef
 import Data.Int                                          (Int32)
 import Data.JSString                                     (JSString)
 import Data.JSString                                     (pack)
 import Data.JSString                                     (unpack)
 import GHCJS.Foreign                                     hiding (Object)
 import GHCJS.Types
-import GLES
-import GLES'Types ()
 import JavaScript.Object                                 hiding (create)
 import JavaScript.Object.Internal                        (Object(..))
 import JavaScript.Web.Canvas                             (Canvas)
@@ -28,30 +26,13 @@ import qualified Web.GLES.Const                            as JS
 import qualified Web.GLES.Raw                              as JS
 import qualified Web.GLES.Types                            as JS
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-data TagTexture = TagTexture Int JS.Texture
-data TagProgram = TagProgram Int JS.Program
-
-instance Eq TagTexture where
-        TagTexture t _ == TagTexture t' _ = t == t'
-
-instance Eq TagProgram where
-        TagProgram t _ == TagProgram t' _ = t == t'
         
-instance Hashable TagProgram where
-        hashWithSalt salt (TagProgram t _) = hashWithSalt salt t
-
-foreign import javascript unsafe "$r = $1.getContext(\"webgl2\", { premultipliedAlpha: false });"
-        getWebGLContext' :: Canvas -> IO JSVal
-
-getWebGLContext :: Canvas -> IO Ctx
-getWebGLContext c = do
-  ctx <- getWebGLContext' c
-  counter <- newIORef 0
-  return (counter, ctx)
+foreign import javascript unsafe
+  "$r = $1.getContext(\"webgl2\", { premultipliedAlpha: false });"
+  getWebGLContext :: Canvas -> IO JSVal
 
 instance GLES'Types where
-  type Ctx = (IORef Int, JS.Ctx)
+  type Ctx = JS.Ctx
   type GLEnum = Word
   type GLUInt = Word
   type GLInt = Int32
@@ -62,9 +43,9 @@ instance GLES'Types where
   type GLBool = Bool
   type Buffer = JS.Buffer
   type UniformLocation = JS.UniformLocation
-  type Texture = TagTexture
+  type Texture = JS.Texture
   type Shader = JS.Shader
-  type Program = TagProgram
+  type Program = JS.Program
   type FrameBuffer = JS.FrameBuffer
   type RenderBuffer = JS.RenderBuffer
   type VertexArrayObject = JS.VertexArrayObject
@@ -85,164 +66,159 @@ instance GLES where
   fromGLString = unpack
   noBuffer = JS.noBuffer
   noFramebuffer = JS.noFramebuffer
-  noTexture = TagTexture (-1) JS.noTexture
+  noTexture = JS.noTexture
   noVAO = JS.noVAO
   --
   hasVertexArrayObjects =
-          (not . isNull <$>) .  getProp "vaoExt" . Object . snd
+          (not . isNull <$>) .  getProp "vaoExt" . Object
   hasFloatTextures =
-          (not . isNull <$>) .  getProp "floatTexExt" . Object . snd
+          (not . isNull <$>) .  getProp "floatTexExt" . Object
   hasDrawBuffers =
-          (not . isNull <$>) .  getProp "drawBufs" . Object . snd
+          (not . isNull <$>) .  getProp "drawBufs" . Object
   hasStandardDerivatives =
-          (not . isNull <$>) .  getProp "derivatives" . Object . snd
+          (not . isNull <$>) .  getProp "derivatives" . Object
   --
-  glActiveTexture = JS.glActiveTexture . snd
-  glAttachShader (_, c) (TagProgram _ p) s = JS.glAttachShader c p s
-  glBindAttribLocation (_, c) (TagProgram _ p) = JS.glBindAttribLocation c p
-  glBindBuffer = JS.glBindBuffer . snd
-  glBindFramebuffer = JS.glBindFramebuffer . snd
-  glBindRenderbuffer = JS.glBindRenderbuffer . snd
-  glBindTexture (_, c) e (TagTexture _ t) = JS.glBindTexture c e t
-  glBindVertexArray = JS.glBindVertexArrayOES . snd
-  glBlendColor = JS.glBlendColor . snd
-  glBlendEquation = JS.glBlendEquation . snd
-  glBlendEquationSeparate = JS.glBlendEquationSeparate . snd
-  glBlendFunc = JS.glBlendFunc . snd
-  glBlendFuncSeparate = JS.glBlendFuncSeparate . snd
-  glBufferData = JS.glBufferData . snd
-  glBufferSubData = JS.glBufferSubData . snd
-  glCheckFramebufferStatus = JS.glCheckFramebufferStatus . snd
-  glClear = JS.glClear . snd
-  glClearColor = JS.glClearColor . snd
-  glClearDepth = JS.glClearDepth . snd
-  glClearStencil = JS.glClearStencil . snd
-  glColorMask = JS.glColorMask . snd
-  glCompileShader = JS.glCompileShader . snd
-  glCompressedTexImage2D = JS.glCompressedTexImage2D . snd
-  glCompressedTexSubImage2D = JS.glCompressedTexSubImage2D . snd
-  glCopyTexImage2D = JS.glCopyTexImage2D . snd
-  glCopyTexSubImage2D = JS.glCopyTexSubImage2D . snd
-  glCreateBuffer = JS.glCreateBuffer . snd
-  glCreateFramebuffer = JS.glCreateFramebuffer . snd
-  glCreateProgram (r, c) = do p <- JS.glCreateProgram c
-                              n <- atomicModifyIORef' r $ \n -> (n + 1, n)
-                              return $ TagProgram n p
-  glCreateRenderbuffer = JS.glCreateRenderbuffer . snd
-  glCreateShader = JS.glCreateShader . snd
-  glCreateTexture (r, c) = do t <- JS.glCreateTexture c
-                              n <- atomicModifyIORef' r $ \n -> (n + 1, n)
-                              return $ TagTexture n t
-  glCreateVertexArray = JS.glCreateVertexArrayOES . snd
-  glCullFace = JS.glCullFace . snd
-  glDeleteBuffer = JS.glDeleteBuffer . snd
-  glDeleteFramebuffer = JS.glDeleteFramebuffer . snd
-  glDeleteProgram (_, c) (TagProgram _ p) = JS.glDeleteProgram c p
-  glDeleteRenderbuffer = JS.glDeleteRenderbuffer . snd
-  glDeleteShader = JS.glDeleteShader . snd
-  glDeleteTexture (_, c) (TagTexture _ t) = JS.glDeleteTexture c t
-  glDeleteVertexArray = JS.glDeleteVertexArrayOES . snd
-  glDepthFunc = JS.glDepthFunc . snd
-  glDepthMask = JS.glDepthMask . snd
-  glDepthRange = JS.glDepthRange . snd
-  glDetachShader (_, c) (TagProgram _ p) = JS.glDetachShader c p
-  glDisable = JS.glDisable . snd
-  glDisableVertexAttribArray = JS.glDisableVertexAttribArray . snd
-  glDrawArrays = JS.glDrawArrays . snd
-  glDrawBuffers = JS.glDrawBuffersWEBGL . snd
-  glDrawElements = JS.glDrawElements . snd
-  glEnable = JS.glEnable . snd
-  glEnableVertexAttribArray = JS.glEnableVertexAttribArray . snd
-  glFinish = JS.glFinish . snd
-  glFlush = JS.glFlush . snd
-  glFramebufferRenderbuffer = JS.glFramebufferRenderbuffer . snd
-  glFramebufferTexture2D (_, ctx) a b c (TagTexture _ t) d =
-          JS.glFramebufferTexture2D ctx a b c t d
-  glFrontFace = JS.glFrontFace . snd
-  glGenerateMipmap = JS.glGenerateMipmap . snd
-  -- glGetActiveAttrib = JS.glGetActiveAttrib . snd
-  -- glGetActiveUniform = JS.glGetActiveUniform . snd
-  glGetAttribLocation (_, c) (TagProgram _ p) = JS.glGetAttribLocation c p
-  -- glGetBufferParameter = JS.glGetBufferParameter . snd
-  -- glGetParameter = JS.glGetParameter . snd
-  glGetError = JS.glGetError . snd
-  -- glGetFramebufferAttachmentParameter = JS.glGetFramebufferAttachmentParameter . snd
-  glGetProgramInfoLog (_, c) (TagProgram _ p) = JS.glGetProgramInfoLog c p
-  glGetProgramParameterBool (_, c) (TagProgram _ p) = JS.glGetProgramParameterBool c p
-  -- glGetRenderbufferParameter = JS.glGetRenderbufferParameter . snd
-  glGetShaderParameterBool = JS.glGetShaderParameterBool . snd
-  -- glGetShaderPrecisionFormat = JS.glGetShaderPrecisionFormat . snd
-  glGetShaderInfoLog = JS.glGetShaderInfoLog . snd
-  glGetShaderSource = JS.glGetShaderSource . snd
-  -- glGetTexParameter = JS.glGetTexParameter . snd
-  -- glGetUniform = JS.glGetUniform . snd
-  glGetUniformLocation (_, c) (TagProgram _ p) = JS.glGetUniformLocation c p
-  -- glGetVertexAttrib = JS.glGetVertexAttrib . snd
-  -- glGetVertexAttribOffset = JS.glGetVertexAttribOffset . snd
-  glHint = JS.glHint . snd
-  glIsBuffer = JS.glIsBuffer . snd
-  glIsEnabled = JS.glIsEnabled . snd
-  glIsFramebuffer = JS.glIsFramebuffer . snd
-  glIsProgram (_, c) (TagProgram _ p) = JS.glIsProgram c p
-  glIsRenderbuffer = JS.glIsRenderbuffer . snd
-  glIsShader = JS.glIsShader . snd
-  glIsTexture (_, c) (TagTexture _ t) = JS.glIsTexture c t
-  glIsVertexArray = JS.glIsVertexArrayOES . snd
-  glLineWidth = JS.glLineWidth . snd
-  glLinkProgram (_, c) (TagProgram _ p) = JS.glLinkProgram c p
-  glPixelStorei = JS.glPixelStorei . snd
-  glPolygonOffset = JS.glPolygonOffset . snd
-  glReadPixelsUInt8 = JS.glReadPixelsUInt8 . snd
-  glReadPixelsUInt16 = JS.glReadPixelsUInt16 . snd
-  glReadPixelsFloat = JS.glReadPixelsFloat . snd
-  glRenderbufferStorage = JS.glRenderbufferStorage . snd
-  glSampleCoverage = JS.glSampleCoverage . snd
-  glScissor = JS.glScissor . snd
-  glShaderSource = JS.glShaderSource . snd
-  glStencilFunc = JS.glStencilFunc . snd
-  glStencilFuncSeparate = JS.glStencilFuncSeparate . snd
-  glStencilMask = JS.glStencilMask . snd
-  glStencilMaskSeparate = JS.glStencilMaskSeparate . snd
-  glStencilOp = JS.glStencilOp . snd
-  glStencilOpSeparate = JS.glStencilOpSeparate . snd
-  glTexImage2DImage = JS.glTexImage2DImage . snd
-  glTexImage2DUInt = JS.glTexImage2DUInt . snd
-  glTexImage2DFloat = JS.glTexImage2DFloat . snd
-  glTexParameterf = JS.glTexParameterf . snd
-  glTexParameteri = JS.glTexParameteri . snd
-  glTexSubImage2D = JS.glTexSubImage2D . snd
-  glUniform1f = JS.glUniform1f . snd
-  glUniform1fv = JS.glUniform1fv . snd
-  glUniform1i = JS.glUniform1i . snd
-  glUniform1iv = JS.glUniform1iv . snd
-  glUniform2f = JS.glUniform2f . snd
-  glUniform2fv = JS.glUniform2fv . snd
-  glUniform2i = JS.glUniform2i . snd
-  glUniform2iv = JS.glUniform2iv . snd
-  glUniform3f = JS.glUniform3f . snd
-  glUniform3fv = JS.glUniform3fv . snd
-  glUniform3i = JS.glUniform3i . snd
-  glUniform3iv = JS.glUniform3iv . snd
-  glUniform4f = JS.glUniform4f . snd
-  glUniform4fv = JS.glUniform4fv . snd
-  glUniform4i = JS.glUniform4i . snd
-  glUniform4iv = JS.glUniform4iv . snd
+  glActiveTexture = JS.glActiveTexture
+  glAttachShader = JS.glAttachShader
+  glBindAttribLocation = JS.glBindAttribLocation
+  glBindBuffer = JS.glBindBuffer
+  glBindFramebuffer = JS.glBindFramebuffer
+  glBindRenderbuffer = JS.glBindRenderbuffer
+  glBindTexture = JS.glBindTexture
+  glBindVertexArray = JS.glBindVertexArrayOES
+  glBlendColor = JS.glBlendColor
+  glBlendEquation = JS.glBlendEquation
+  glBlendEquationSeparate = JS.glBlendEquationSeparate
+  glBlendFunc = JS.glBlendFunc
+  glBlendFuncSeparate = JS.glBlendFuncSeparate
+  glBufferData = JS.glBufferData
+  glBufferSubData = JS.glBufferSubData
+  glCheckFramebufferStatus = JS.glCheckFramebufferStatus
+  glClear = JS.glClear
+  glClearColor = JS.glClearColor
+  glClearDepth = JS.glClearDepth
+  glClearStencil = JS.glClearStencil
+  glColorMask = JS.glColorMask
+  glCompileShader = JS.glCompileShader
+  glCompressedTexImage2D = JS.glCompressedTexImage2D
+  glCompressedTexSubImage2D = JS.glCompressedTexSubImage2D
+  glCopyTexImage2D = JS.glCopyTexImage2D
+  glCopyTexSubImage2D = JS.glCopyTexSubImage2D
+  glCreateBuffer = JS.glCreateBuffer
+  glCreateFramebuffer = JS.glCreateFramebuffer
+  glCreateProgram = JS.glCreateProgram
+  glCreateRenderbuffer = JS.glCreateRenderbuffer
+  glCreateShader = JS.glCreateShader
+  glCreateTexture = JS.glCreateTexture
+  glCreateVertexArray = JS.glCreateVertexArrayOES
+  glCullFace = JS.glCullFace
+  glDeleteBuffer = JS.glDeleteBuffer
+  glDeleteFramebuffer = JS.glDeleteFramebuffer
+  glDeleteProgram = JS.glDeleteProgram
+  glDeleteRenderbuffer = JS.glDeleteRenderbuffer
+  glDeleteShader = JS.glDeleteShader
+  glDeleteTexture = JS.glDeleteTexture
+  glDeleteVertexArray = JS.glDeleteVertexArrayOES
+  glDepthFunc = JS.glDepthFunc
+  glDepthMask = JS.glDepthMask
+  glDepthRange = JS.glDepthRange
+  glDetachShader = JS.glDetachShader
+  glDisable = JS.glDisable
+  glDisableVertexAttribArray = JS.glDisableVertexAttribArray
+  glDrawArrays = JS.glDrawArrays
+  glDrawBuffers = JS.glDrawBuffersWEBGL
+  glDrawElements = JS.glDrawElements
+  glEnable = JS.glEnable
+  glEnableVertexAttribArray = JS.glEnableVertexAttribArray
+  glFinish = JS.glFinish
+  glFlush = JS.glFlush
+  glFramebufferRenderbuffer = JS.glFramebufferRenderbuffer
+  glFramebufferTexture2D = JS.glFramebufferTexture2D
+  glFrontFace = JS.glFrontFace
+  glGenerateMipmap = JS.glGenerateMipmap
+  -- glGetActiveAttrib = JS.glGetActiveAttrib
+  -- glGetActiveUniform = JS.glGetActiveUniform
+  glGetAttribLocation = JS.glGetAttribLocation
+  -- glGetBufferParameter = JS.glGetBufferParameter
+  -- glGetParameter = JS.glGetParameter
+  glGetError = JS.glGetError
+  -- glGetFramebufferAttachmentParameter = JS.glGetFramebufferAttachmentParameter
+  glGetProgramInfoLog = JS.glGetProgramInfoLog
+  glGetProgramParameterBool = JS.glGetProgramParameterBool
+  -- glGetRenderbufferParameter = JS.glGetRenderbufferParameter
+  glGetShaderParameterBool = JS.glGetShaderParameterBool
+  -- glGetShaderPrecisionFormat = JS.glGetShaderPrecisionFormat
+  glGetShaderInfoLog = JS.glGetShaderInfoLog
+  glGetShaderSource = JS.glGetShaderSource
+  -- glGetTexParameter = JS.glGetTexParameter
+  -- glGetUniform = JS.glGetUniform
+  glGetUniformLocation = JS.glGetUniformLocation
+  -- glGetVertexAttrib = JS.glGetVertexAttrib
+  -- glGetVertexAttribOffset = JS.glGetVertexAttribOffset
+  glHint = JS.glHint
+  glIsBuffer = JS.glIsBuffer
+  glIsEnabled = JS.glIsEnabled
+  glIsFramebuffer = JS.glIsFramebuffer
+  glIsProgram = JS.glIsProgram
+  glIsRenderbuffer = JS.glIsRenderbuffer
+  glIsShader = JS.glIsShader
+  glIsTexture = JS.glIsTexture
+  glIsVertexArray = JS.glIsVertexArrayOES
+  glLineWidth = JS.glLineWidth
+  glLinkProgram = JS.glLinkProgram
+  glPixelStorei = JS.glPixelStorei
+  glPolygonOffset = JS.glPolygonOffset
+  glReadPixelsUInt8 = JS.glReadPixelsUInt8
+  glReadPixelsUInt16 = JS.glReadPixelsUInt16
+  glReadPixelsFloat = JS.glReadPixelsFloat
+  glRenderbufferStorage = JS.glRenderbufferStorage
+  glSampleCoverage = JS.glSampleCoverage
+  glScissor = JS.glScissor
+  glShaderSource = JS.glShaderSource
+  glStencilFunc = JS.glStencilFunc
+  glStencilFuncSeparate = JS.glStencilFuncSeparate
+  glStencilMask = JS.glStencilMask
+  glStencilMaskSeparate = JS.glStencilMaskSeparate
+  glStencilOp = JS.glStencilOp
+  glStencilOpSeparate = JS.glStencilOpSeparate
+  glTexImage2DImage = JS.glTexImage2DImage
+  glTexImage2DUInt = JS.glTexImage2DUInt
+  glTexImage2DFloat = JS.glTexImage2DFloat
+  glTexParameterf = JS.glTexParameterf
+  glTexParameteri = JS.glTexParameteri
+  glTexSubImage2D = JS.glTexSubImage2D
+  glUniform1f = JS.glUniform1f
+  glUniform1fv = JS.glUniform1fv
+  glUniform1i = JS.glUniform1i
+  glUniform1iv = JS.glUniform1iv
+  glUniform2f = JS.glUniform2f
+  glUniform2fv = JS.glUniform2fv
+  glUniform2i = JS.glUniform2i
+  glUniform2iv = JS.glUniform2iv
+  glUniform3f = JS.glUniform3f
+  glUniform3fv = JS.glUniform3fv
+  glUniform3i = JS.glUniform3i
+  glUniform3iv = JS.glUniform3iv
+  glUniform4f = JS.glUniform4f
+  glUniform4fv = JS.glUniform4fv
+  glUniform4i = JS.glUniform4i
+  glUniform4iv = JS.glUniform4iv
   -- XXX
-  glUniformMatrix2fv (_, c) loc _ arr = JS.glUniformMatrix2fv c loc False arr
-  glUniformMatrix3fv (_, c) loc _ arr = JS.glUniformMatrix3fv c loc False arr
-  glUniformMatrix4fv (_, c) loc _ arr = JS.glUniformMatrix4fv c loc False arr
-  glUseProgram (_, c) (TagProgram _ p) = JS.glUseProgram c p
-  glValidateProgram (_, c) (TagProgram _ p) = JS.glValidateProgram c p
-  glVertexAttrib1f = JS.glVertexAttrib1f . snd
-  glVertexAttrib1fv = JS.glVertexAttrib1fv . snd
-  glVertexAttrib2f = JS.glVertexAttrib2f . snd
-  glVertexAttrib2fv = JS.glVertexAttrib2fv . snd
-  glVertexAttrib3f = JS.glVertexAttrib3f . snd
-  glVertexAttrib3fv = JS.glVertexAttrib3fv . snd
-  glVertexAttrib4f = JS.glVertexAttrib4f . snd
-  glVertexAttrib4fv = JS.glVertexAttrib4fv . snd
-  glVertexAttribPointer = JS.glVertexAttribPointer . snd
-  glViewport = JS.glViewport . snd
+  glUniformMatrix2fv c loc _ arr = JS.glUniformMatrix2fv c loc False arr
+  glUniformMatrix3fv c loc _ arr = JS.glUniformMatrix3fv c loc False arr
+  glUniformMatrix4fv c loc _ arr = JS.glUniformMatrix4fv c loc False arr
+  glUseProgram = JS.glUseProgram
+  glValidateProgram = JS.glValidateProgram
+  glVertexAttrib1f = JS.glVertexAttrib1f
+  glVertexAttrib1fv = JS.glVertexAttrib1fv
+  glVertexAttrib2f = JS.glVertexAttrib2f
+  glVertexAttrib2fv = JS.glVertexAttrib2fv
+  glVertexAttrib3f = JS.glVertexAttrib3f
+  glVertexAttrib3fv = JS.glVertexAttrib3fv
+  glVertexAttrib4f = JS.glVertexAttrib4f
+  glVertexAttrib4fv = JS.glVertexAttrib4fv
+  glVertexAttribPointer = JS.glVertexAttribPointer
+  glViewport = JS.glViewport
   --
   gl_DEPTH_BUFFER_BIT = JS.gl_DEPTH_BUFFER_BIT
   gl_STENCIL_BUFFER_BIT = JS.gl_STENCIL_BUFFER_BIT
