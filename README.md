@@ -30,27 +30,27 @@ ln -s ../pkg/heroes/glsl .production-assets/glsl
 ./hhcli run-tool compile-cursors
 ```
 
-### Running the native version
+### Native version
 You will need [SDL2](https://www.libsdl.org/), [SDL_mixer 2.0](https://www.libsdl.org/projects/SDL_mixer/) *with mp3 support*, and [SDL_image 2.0](https://www.libsdl.org/projects/SDL_image/) installed on your system.
-
 ```sh
 ./hhcli run-native
 ```
 Here's what you'll hopefully see:
 ![screenshot](https://i.imgur.com/JNxfE5Z.jpg)
 
-#### Bonus: web stuff
+### Web version
 ```sh
-./hhcli build-web
+./hhcli run-web
 ```
-This will currently produce a broken build, because of a GHCJS bug. If you're feeling brave, see [this](https://github.com/ziocroc/Ombra/blob/master/ghcjs-rts-bug.patch) and [this](https://github.com/ziocroc/Ombra/wiki/Installation) for a description of an identical problem and a hacky solution.
+Note 1: this will install and boot GHCJS, which takes a long time (1+ hours).
+Note 2: this will currently produce a broken build, because of a GHCJS bug. This problem has been described already, see a kind of hacky solution [her](https://github.com/ziocroc/Ombra/blob/master/ghcjs-rts-bug.patch) and [here](https://github.com/ziocroc/Ombra/wiki/Installation). The 8.2+ version of GHCJS seems to have this bug fixed already, but I haven't been able to make it work with `stack` yet.
 
 ```sh
 ./hhcli prepare-web
 ./hhcli run-web
 ```
 
-Finally, visit localhost:8000.
+This will run a simple HTTP server on port 8000. You can test the build at http://localhost:8000/exe
 
 ## Platform remarks
 The instructions have been written and tested on Mac OS, but should hopefully be somewhat reproducible on Windows and Linux. All of the dependencies are cross-platform.
