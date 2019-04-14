@@ -17,40 +17,27 @@ module Web.GLES.Types (
   noTexture,
   noVAO,
 ) where
+
 -- WARNING: plagiarized from:
 -- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
 -- kudos to ziocroc
 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GHCJS.Foreign
 import GHCJS.Types
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Ctx = JSVal
-
 type Program = JSVal
-
 type Shader = JSVal
-
 type Buffer = JSVal
-
 type FrameBuffer = JSVal
-
 type RenderBuffer = JSVal
-
 type VertexArrayObject = JSVal
-
 type Texture = JSVal
-
-{-
-instance Eq Texture where
-        (==) = eqRef
--}
-
 type UniformLocation = JSVal
-
 type ActiveInfo = JSVal
-
 type ShaderPrecisionFormat = JSVal
-
 -- type ArrayBufferView = JSVal
 
 noBuffer :: Buffer

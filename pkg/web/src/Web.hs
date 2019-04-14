@@ -5,7 +5,6 @@ module Web (
   JSVal,
   Platform,
   fromJSVal,
-  inspect,
   simpleXHR,
   module Heroes,
 ) where
@@ -21,11 +20,7 @@ import GHCJS.Marshal                                     (fromJSVal)
 import GHCJS.Types                                       (IsJSVal)
 import GHCJS.Types                                       (JSVal)
 import JavaScript.Web.Canvas                             (Canvas)
-import Unsafe.Coerce                                     (unsafeCoerce)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-foreign import javascript unsafe "console.log($1)"
-  consoleLog :: JSVal -> IO ()
 
 simpleXHR :: String -> XHR.Request
 simpleXHR uri = XHR.Request {
@@ -36,6 +31,3 @@ simpleXHR uri = XHR.Request {
     XHR.reqWithCredentials = False,
     XHR.reqData = XHR.NoData
   }
-
-inspect :: a -> IO ()
-inspect = consoleLog . unsafeCoerce

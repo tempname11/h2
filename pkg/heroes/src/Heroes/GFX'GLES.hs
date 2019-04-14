@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Heroes.GFX'GLES () where
@@ -32,10 +33,14 @@ import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Image                              as Image
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.Platform                           as Platform
+import qualified Heroes.Memory                             as Memory
 import qualified Heroes.GLX                                as GLX
 import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
+import qualified Data.Vector                               as V
+import qualified Data.Vector.Storable                      as SV
+import qualified Data.Vector.Generic                       as GV
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Renderer'GLES = Renderer'GLES GL.Ctx QBuffer
@@ -44,7 +49,7 @@ instance GFX'Types where
   type StaticSprite = Drawing.StaticSprite
   type ComplexSprite = Drawing.ComplexSprite
 
-instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
+instance (GLES, Platform, Memory.Memory, GLX.GLX, WND.WND, GFX'Types) => GFX where
   type Renderer = Renderer'GLES
   with (Deps {..}) next = do
     ctx <- GLX.getGLContext window
@@ -141,7 +146,7 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     actors = sortBy comparingY $ M.assocs $ scene ^. _actors
     props = M.assocs $ scene ^. _props
     StaticResources {..} = staticResources
-    bgCmd = background `fullCopyAt` [0]
+    bgCmd = background `fullCopyAt` (SV.singleton 0)
     --
     regularCmds =
       [bgCmd] <>
@@ -151,9 +156,10 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
         hexCmd cellOutline lightHexes
       ]
     --
+    hexCmd :: Drawing.StaticSprite -> V.Vector Hex -> Regular.Cmd
     hexCmd sprite hexes =
       sprite `fullCopyAt`
-        (hexes <&> \hex -> (<§>) (fieldCenter .+^ Cell.fromHex hex))
+        GV.convert ((\hex -> (<§>) (fieldCenter .+^ Cell.fromHex hex)) `GV.map` hexes)
     --
     fromProp :: (ObstacleId, Prop) -> Regular.Cmd
     fromProp (o, prop) = cmd
@@ -167,7 +173,7 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
         sprite,
         box = sprite ^. _dimensions,
         place = 0,
-        screenPlaces = [screenPlace],
+        screenPlaces = SV.singleton screenPlace,
         screenBox = (sprite ^. _dimensions) * sign
       }
     --
@@ -189,7 +195,7 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     let color = V4 0 0 0 (floor . (255 *) $ (scene ^. _curtain))
     draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
 
-fullCopyAt :: Drawing.StaticSprite -> [Point V2 Float] -> Regular.Cmd
+fullCopyAt :: Drawing.StaticSprite -> SV.Vector (Point V2 Float) -> Regular.Cmd
 fullCopyAt sprite screenPlaces =
   Regular.Cmd {
     sprite,

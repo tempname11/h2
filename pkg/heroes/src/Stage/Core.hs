@@ -15,14 +15,16 @@ import Battle.Movement
 import Heroes
 import Heroes.Aux
 import Heroes.UI
+import qualified Battle.AM                                 as AM
+import qualified Common.Hot                                as Hot
 import qualified Heroes.Cell                               as Cell
 import qualified Heroes.ControlMap                         as ControlMap
-import qualified Battle.AM                                 as AM
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Placing                            as Placing
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Set                                  as S
 import qualified Data.Map.Strict                           as M
+import qualified Data.Vector                               as V
 import Safe                                              (atMay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -37,11 +39,11 @@ data In = In {
 }
 
 data Out = Out {
-  darkHexes :: [Hex],
+  darkHexes :: V.Vector Hex,
   exit :: Bool,
   extraColor :: FighterId -> Maybe Color,
   intent :: Maybe Annotation,
-  lightHexes :: [Hex],
+  lightHexes :: V.Vector Hex,
   update :: AM.Update
 }
 
@@ -70,6 +72,13 @@ data Data = Data {
 }
 
 --------------------------------------------------------------------------------
+
+-- XXX ugly as hell :)
+battlefieldHexesMemo :: Current (Setup, a) -> V.Vector Hex
+battlefieldHexesMemo =
+  Hot.forget .
+  Hot.memo1 (V.fromList . S.toList . view _field . fst . Hot.this) .
+  Hot.currently
 
 core :: Deps -> In -> Data -> (Out, Data)
 core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
@@ -126,8 +135,9 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
         Just p -> Placing.visit p
         Nothing -> []
     else []
-  lightHexes = S.toList battleField
-  darkHexes = movementHexes <> destinationHexes
+  lightHexes = battlefieldHexesMemo current0
+  -- XXX memoize?
+  darkHexes = V.fromList (movementHexes <> destinationHexes)
   exit = quitEvent || keyUp ControlMap.exit
   --
   payload = do

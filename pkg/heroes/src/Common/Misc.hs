@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Common.Misc where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -23,6 +24,10 @@ import qualified Data.Map.Strict                           as M
 import qualified Data.Set                                  as S
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Storable                      as SV
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+#ifdef __GHCJS__
+import Unsafe.Coerce                                     (unsafeCoerce)
+#endif
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 newtype Some a = Some a
@@ -212,3 +217,12 @@ justRight = \case
 
 raise :: String -> IO a
 raise = throwIO . ErrorCall
+
+#ifdef __GHCJS__
+foreign import javascript unsafe
+  "console.log($1)"
+  consoleLog' :: Float -> IO () -- Float avoids JSVal import
+
+consoleLog :: a -> IO ()
+consoleLog = consoleLog' . unsafeCoerce
+#endif

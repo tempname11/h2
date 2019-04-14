@@ -27,6 +27,7 @@ module Common (
   module Data.Monoid,
   module Data.Ord,
   module Data.Set,
+  module Data.Vector.Storable,
   module Data.Traversable,
   module Data.Word,
   module Debug.Trace,
@@ -137,7 +138,8 @@ import Data.Maybe                                        (maybe)
 import Data.Monoid                                       ((<>))
 import Data.Monoid                                       (Last(Last))
 import Data.Ord                                          (comparing)
-import Data.Set                                           (Set)
+import Data.Set                                          (Set)
+import Data.Vector.Storable                              (Storable)
 import Data.Traversable                                  (Traversable)
 import Data.Traversable                                  (for)
 import Data.Traversable                                  (mapM)

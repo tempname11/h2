@@ -12,6 +12,7 @@ module GLES (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
 import Heroes.Image
+import qualified Heroes.Memory                             as Memory
 import GLES'Types
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -21,9 +22,12 @@ class (GLES'Types, Capability'Image) => GLES where
   false :: GLBool
   isTrue :: GLBool -> Bool
   nullGLPtr :: GLPtr
-  -- arrayGLPtr :: Array -> (GLPtr -> IO a) -> IO a
+
+  -- XXX
   toGLString :: String -> GLString
   fromGLString :: GLString -> String
+
+  -- XXX
   noBuffer :: Buffer
   noFramebuffer :: FrameBuffer
   noTexture :: Texture
@@ -54,7 +58,9 @@ class (GLES'Types, Capability'Image) => GLES where
   glBlendEquationSeparate :: Ctx -> GLEnum -> GLEnum -> IO ()
   glBlendFunc :: Ctx -> GLEnum -> GLEnum -> IO ()
   glBlendFuncSeparate :: Ctx -> GLEnum -> GLEnum -> GLEnum -> GLEnum -> IO ()
-  glBufferData :: Ctx -> GLEnum -> AnyArray -> GLEnum -> IO ()
+  -- XXX
+  glBufferDataA :: Ctx -> GLEnum -> Memory.Buffer -> GLEnum -> IO ()
+  glBufferDataN :: Ctx -> GLEnum -> GLSize -> GLEnum -> IO ()
   glBufferSubData :: Ctx -> GLEnum -> GLPtrDiff -> AnyArray -> IO ()
   glCheckFramebufferStatus :: Ctx -> GLEnum -> IO GLEnum
   glClear :: Ctx -> GLEnum -> IO ()
@@ -89,6 +95,7 @@ class (GLES'Types, Capability'Image) => GLES where
   glDisable :: Ctx -> GLEnum -> IO ()
   glDisableVertexAttribArray :: Ctx -> GLUInt -> IO ()
   glDrawArrays :: Ctx -> GLEnum -> GLInt -> GLSize -> IO ()
+  glDrawArraysInstanced :: Ctx -> GLEnum -> GLInt -> GLSize -> GLSize -> IO ()
   glDrawBuffers :: Ctx -> Int32Array -> IO ()
   glDrawElements :: Ctx -> GLEnum -> GLSize -> GLEnum -> GLPtr-> IO ()
   glEnable :: Ctx -> GLEnum -> IO ()
@@ -180,6 +187,7 @@ class (GLES'Types, Capability'Image) => GLES where
   glVertexAttrib4f :: Ctx -> GLUInt -> Float -> Float -> Float -> Float -> IO ()
   glVertexAttrib4fv :: Ctx -> GLUInt -> Float32Array -> IO ()
   glVertexAttribPointer :: Ctx -> GLUInt -> GLInt -> GLEnum -> GLBool -> GLSize -> GLPtr -> IO ()
+  glVertexAttribDivisor :: Ctx -> GLUInt -> GLUInt -> IO ()
   glViewport :: Ctx -> GLInt -> GLInt -> GLSize -> GLSize -> IO ()
 
   gl_DEPTH_BUFFER_BIT :: GLEnum

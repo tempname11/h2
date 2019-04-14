@@ -78,6 +78,7 @@ ready qBuffer ctx prog = do
   GL.glUseProgram ctx program
   GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER buffer
   GL.glEnableVertexAttribArray ctx attr_interp
+  -- XXX Disable
   GL.glVertexAttribPointer ctx attr_interp 2 GL.gl_FLOAT GL.false 0 GL.nullGLPtr
 
 draw :: GLES => GL.Ctx -> Prog -> Cmd -> IO ()

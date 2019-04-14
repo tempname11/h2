@@ -16,7 +16,8 @@ createBuffer :: (GLX.GLX, GLES) => GL.Ctx -> IO QBuffer
 createBuffer ctx = do
   array <- GLX.createQuadArray
   buffer <- GL.glCreateBuffer ctx
+  -- XXX delete it afterwards!
   GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER buffer
-  GL.glBufferData ctx GL.gl_ARRAY_BUFFER array GL.gl_STATIC_DRAW
+  GL.glBufferDataA ctx GL.gl_ARRAY_BUFFER array GL.gl_STATIC_DRAW
   GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER GL.noBuffer
   return $ QBuffer buffer

@@ -9,6 +9,7 @@ module Web.GLES (getWebGLContext) where
 import GLES
 import GLES'Types ()
 import Web.Image ()
+import Web.Memory ()
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Int                                          (Int32)
 import Data.JSString                                     (JSString)
@@ -91,7 +92,8 @@ instance GLES where
   glBlendEquationSeparate = JS.glBlendEquationSeparate
   glBlendFunc = JS.glBlendFunc
   glBlendFuncSeparate = JS.glBlendFuncSeparate
-  glBufferData = JS.glBufferData
+  glBufferDataA = JS.glBufferDataA
+  glBufferDataN = JS.glBufferDataN
   glBufferSubData = JS.glBufferSubData
   glCheckFramebufferStatus = JS.glCheckFramebufferStatus
   glClear = JS.glClear
@@ -126,6 +128,7 @@ instance GLES where
   glDisable = JS.glDisable
   glDisableVertexAttribArray = JS.glDisableVertexAttribArray
   glDrawArrays = JS.glDrawArrays
+  glDrawArraysInstanced = JS.glDrawArraysInstanced
   glDrawBuffers = JS.glDrawBuffersWEBGL
   glDrawElements = JS.glDrawElements
   glEnable = JS.glEnable
@@ -218,6 +221,7 @@ instance GLES where
   glVertexAttrib4f = JS.glVertexAttrib4f
   glVertexAttrib4fv = JS.glVertexAttrib4fv
   glVertexAttribPointer = JS.glVertexAttribPointer
+  glVertexAttribDivisor = JS.glVertexAttribDivisor
   glViewport = JS.glViewport
   --
   gl_DEPTH_BUFFER_BIT = JS.gl_DEPTH_BUFFER_BIT

@@ -86,8 +86,11 @@ instance GLES where
   glBlendEquationSeparate = const GL.glBlendEquationSeparate
   glBlendFunc = const GL.glBlendFunc
   glBlendFuncSeparate = const GL.glBlendFuncSeparate
-  glBufferData _ a (l, fp) b = withForeignPtr fp $ \p ->
-          GL.glBufferData a (fromIntegral l) (castPtr p) b
+  glDrawArraysInstanced = undefined
+  glVertexAttribDivisor = undefined
+  glBufferDataN = undefined
+  glBufferDataA = undefined {- _ a (l, fp) b withForeignPtr fp $ \p ->
+          GL.glBufferData a (fromIntegral l) (castPtr p) b -}
   glBufferSubData _ a b (l, fp) = withForeignPtr fp $ \p ->
           GL.glBufferSubData a b (fromIntegral l) (castPtr p)
   glCheckFramebufferStatus = const GL.glCheckFramebufferStatus

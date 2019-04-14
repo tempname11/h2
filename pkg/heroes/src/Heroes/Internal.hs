@@ -6,8 +6,9 @@ import Common
 
 --------------------------------------------------------------------------------
 
-data Hex = Hex Int Int
+-- XXX pack
+data Hex = Hex !Int !Int
   deriving (Eq, Ord, Show)
 
-data HexDiff = HexDiff Int Int
+data HexDiff = HexDiff !Int !Int
   deriving (Eq, Ord, Show)

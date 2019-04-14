@@ -38,7 +38,8 @@ instance GLX where
     poke (castPtr $ plusPtr ptr 40) (1 :: Float)
     poke (castPtr $ plusPtr ptr 44) (1 :: Float)
     fPtr <- newForeignPtr_ $ castPtr ptr
-    return ((§) size, fPtr)
+    -- return ((§) size, fPtr)
+    undefined fPtr
   --
   loadGLSL = readFile
   --

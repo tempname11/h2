@@ -50,7 +50,10 @@ foreign import javascript unsafe "$1.blendFuncSeparate($2, $3, $4, $5)"
         glBlendFuncSeparate :: Ctx -> Word -> Word -> Word -> Word -> IO ()
 
 foreign import javascript unsafe "$1.bufferData($2, $3, $4)"
-        glBufferData :: Ctx -> Word -> ArrayBuffer -> Word -> IO ()
+        glBufferDataA :: Ctx -> Word -> JSVal -> Word -> IO ()
+
+foreign import javascript unsafe "$1.bufferData($2, $3, $4)"
+        glBufferDataN :: Ctx -> Word -> Int32 -> Word -> IO ()
 
 foreign import javascript unsafe "$1.bufferSubData($2, $3, $4)"
         glBufferSubData :: Ctx -> Word -> Word -> ArrayBuffer -> IO ()
@@ -147,6 +150,9 @@ foreign import javascript unsafe "$1.disableVertexAttribArray($2)"
 
 foreign import javascript unsafe "$1.drawArrays($2, $3, $4)"
         glDrawArrays :: Ctx -> Word -> Int32 -> Int32 -> IO ()
+
+foreign import javascript unsafe "$1.drawArraysInstanced($2, $3, $4, $5)"
+        glDrawArraysInstanced :: Ctx -> Word -> Int32 -> Int32 -> Int32 -> IO ()
 
 foreign import javascript unsafe "$1.drawElements($2, $3, $4, $5)"
         glDrawElements :: Ctx -> Word -> Int32 -> Word -> Word -> IO ()
@@ -420,6 +426,9 @@ foreign import javascript unsafe "$1.vertexAttrib4fv($2, $3)"
 
 foreign import javascript unsafe "$1.vertexAttribPointer($2, $3, $4, $5, $6, $7)"
         glVertexAttribPointer :: Ctx -> Word -> Int32 -> Word -> Bool -> Int32 -> Word -> IO ()
+
+foreign import javascript unsafe "$1.vertexAttribDivisor($2, $3)"
+        glVertexAttribDivisor :: Ctx -> Word -> Word -> IO ()
 
 foreign import javascript unsafe "$1.viewport($2, $3, $4, $5)"
         glViewport :: Ctx -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()

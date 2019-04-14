@@ -40,11 +40,11 @@ data In = In {
 
 data Out = Out {
   animationCommands :: V.Vector Animation.Command,
-  darkHexes :: [Hex],
+  darkHexes :: V.Vector Hex,
   exit :: Bool,
   extraColor :: FighterId -> Maybe Color,
   intent :: Maybe Annotation,
-  lightHexes :: [Hex],
+  lightHexes :: V.Vector Hex,
   loadRequests :: Set LoadRequest,
   soundCommands :: V.Vector SND.Command
 }

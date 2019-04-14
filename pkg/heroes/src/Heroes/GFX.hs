@@ -13,11 +13,13 @@ import Heroes.SpriteMeta                                 (Meta)
 import Heroes.UI
 import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Vector                               as V
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data In = In {
-  darkHexes :: [Hex],
+  darkHexes :: V.Vector Hex,
   extraColor :: FighterId -> Maybe Color,
-  lightHexes :: [Hex],
+  lightHexes :: V.Vector Hex,
   scene :: Scene
 }
 

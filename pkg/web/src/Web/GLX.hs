@@ -8,7 +8,6 @@ import Web.GLES                                          (getWebGLContext)
 import Web.WND'Canvas ()
 import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import JavaScript.TypedArray.ArrayBuffer                 (ArrayBuffer)
 import qualified Data.JSString                             as JSString
 import qualified JavaScript.TypedArray                     as TypedArray
 import qualified JavaScript.TypedArray.Internal.Types      as TypedArray'
@@ -42,7 +41,7 @@ instance GLX where
 
 foreign import javascript unsafe
   "$r = new Float32Array([1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1])"
-  createQuadArray' :: IO ArrayBuffer
+  createQuadArray' :: IO JSVal
 
 foreign import javascript unsafe
   "$r = new Uint8Array($1);"

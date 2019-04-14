@@ -1,9 +1,9 @@
 attribute vec2 interp;
+attribute vec2 scrPlace;
 
 uniform vec2 texDimensions;
 uniform vec2 scrDimensions;
 uniform vec2 texPlace;
-uniform vec2 scrPlace;
 uniform vec2 texBox;
 uniform vec2 scrBox;
 

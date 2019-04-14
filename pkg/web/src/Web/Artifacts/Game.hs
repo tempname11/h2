@@ -4,6 +4,7 @@ module Web.Artifacts.Game where
 import Heroes.GFX'GLES ()
 import Web
 import Web.GLX ()
+import Web.Memory ()
 import Web.SND'Audio ()
 import Web.WND'Canvas ()
 import Web.Platform ()

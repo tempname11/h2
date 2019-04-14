@@ -13,26 +13,33 @@ import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
 import Heroes.UI (viewportSize)
 import qualified GLES                                      as GL
+import qualified Heroes.Memory                             as Memory
 import qualified Heroes.GLX                                as GLX
 import qualified Heroes.Drawing.Quad                       as Quad
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Vector.Storable                      as SV
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Cmd = Cmd {
   sprite :: StaticSprite,
-  box         :: V2 Float,
-  screenBox   :: V2 Float,
-  place       :: Point V2 Float,
-  screenPlaces :: [Point V2 Float]
+  box :: V2 Float,
+  screenBox :: V2 Float,
+  place :: Point V2 Float,
+  screenPlaces :: SV.Vector (Point V2 Float)
 }
 
 --------------------------------------------------------------------------------
 
-with :: (Platform, GLX.GLX, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
+with :: (Platform, Memory.Memory, GLX.GLX, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
 with ctx qBuffer = \next2 -> do
-  prog <- init ctx
+  (prog, screenPlaceBuffer) <- init ctx
   next2 $ \next1 -> do
-    ready qBuffer ctx prog
-    next1 $ draw ctx prog
+    ready qBuffer ctx prog screenPlaceBuffer
+    --
+    next1 $
+      draw ctx prog screenPlaceBuffer
+    --
+    unready ctx prog
   fini ctx prog
 
 --------------------------------------------------------------------------------
@@ -43,15 +50,15 @@ data Prog = Prog {
   loc_texDimensions :: GL.UniformLocation,
   loc_scrDimensions :: GL.UniformLocation,
   loc_texPlace      :: GL.UniformLocation,
-  loc_scrPlace      :: GL.UniformLocation,
   loc_texBox        :: GL.UniformLocation,
   loc_scrBox        :: GL.UniformLocation,
-  attr_interp       :: GL.GLUInt
+  attr_interp       :: GL.GLUInt,
+  attr_scrPlace     :: GL.GLUInt
 }
 
 --------------------------------------------------------------------------------
 
-init :: (Platform, GLX.GLX, GLES) => GL.Ctx -> IO Prog
+init :: (Platform, GLX.GLX, Memory.Memory, GLES) => GL.Ctx -> IO (Prog, GL.Buffer)
 init ctx = do
   program <- makeProgram ctx
     (prod <> "glsl/regular.fragment.glsl")
@@ -60,34 +67,56 @@ init ctx = do
   attr_interp <- (§) <$> -- Int32 vs Word32 for some reason
     GL.glGetAttribLocation ctx program (GL.toGLString "interp")
   --
+  attr_scrPlace <- (§) <$> -- Int32 vs Word32 for some reason
+    GL.glGetAttribLocation ctx program (GL.toGLString "scrPlace")
+  --
   let locate name = GL.glGetUniformLocation ctx program (GL.toGLString name)
   --
   loc_texDimensions <- locate "texDimensions"
   loc_scrDimensions <- locate "scrDimensions"
   loc_texPlace      <- locate "texPlace"
-  loc_scrPlace      <- locate "scrPlace"
   loc_texBox        <- locate "texBox"
   loc_scrBox        <- locate "scrBox"
   loc_texImage      <- locate "texImage"
   --
-  return $ Prog { .. }
+  screenPlaceBuffer <- GL.glCreateBuffer ctx
+  -- XXX delete it afterwards!
+  GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER screenPlaceBuffer
+  --
+  return (Prog { .. }, screenPlaceBuffer)
 
 fini :: GLES => GL.Ctx -> Prog -> IO ()
 fini ctx prog = do
   let Prog { program } = prog
   GL.glDeleteProgram ctx program
 
-ready :: GLES => Quad.QBuffer -> GL.Ctx -> Prog -> IO ()
-ready qBuffer ctx prog = do
-  let Prog { program, attr_interp } = prog
-      Quad.QBuffer buffer = qBuffer
-  GL.glUseProgram ctx program
-  GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER buffer
-  GL.glEnableVertexAttribArray ctx attr_interp
-  GL.glVertexAttribPointer ctx attr_interp 2 GL.gl_FLOAT GL.false 0 GL.nullGLPtr
+unready :: GLES => GL.Ctx -> Prog -> IO ()
+unready ctx prog = do
+  let Prog { attr_interp, attr_scrPlace } = prog
+  GL.glDisableVertexAttribArray ctx attr_interp
+  GL.glDisableVertexAttribArray ctx attr_scrPlace
+  GL.glVertexAttribDivisor ctx attr_scrPlace 0
 
-draw :: GLES => GL.Ctx -> Prog -> Cmd -> IO ()
-draw ctx prog cmd = do
+ready :: GLES => Quad.QBuffer -> GL.Ctx -> Prog -> GL.Buffer -> IO ()
+ready qBuffer ctx prog screenPlaceBuffer = do
+  let Prog { program, attr_interp, attr_scrPlace } = prog
+  GL.glUseProgram ctx program
+  --
+  do
+    let Quad.QBuffer buffer = qBuffer
+    GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER buffer
+    GL.glEnableVertexAttribArray ctx attr_interp
+    GL.glVertexAttribPointer ctx attr_interp 2 GL.gl_FLOAT GL.false 0 GL.nullGLPtr
+  --
+  GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER screenPlaceBuffer
+  GL.glEnableVertexAttribArray ctx attr_scrPlace
+  GL.glVertexAttribPointer ctx attr_scrPlace 2 GL.gl_FLOAT GL.false 0 GL.nullGLPtr
+  GL.glVertexAttribDivisor ctx attr_scrPlace 1
+  --
+  GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER GL.noBuffer
+
+draw :: (Memory.Memory, GLES) => GL.Ctx -> Prog -> GL.Buffer -> Cmd -> IO ()
+draw ctx prog screenPlaceBuffer cmd = do
   let Prog { .. } = prog
       Cmd {
         sprite = StaticSprite { texture, dimensions },
@@ -104,9 +133,13 @@ draw ctx prog cmd = do
   GL.glUniform2f ctx loc_texPlace (place ^. _x) (place ^. _y)
   GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
   GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
+  --
   GL.glActiveTexture ctx GL.gl_TEXTURE0 
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
   --
-  for_ screenPlaces $ \screenPlace -> do
-    GL.glUniform2f ctx loc_scrPlace (screenPlace ^. _x) (screenPlace ^. _y)
-    GL.glDrawArrays ctx GL.gl_TRIANGLES 0 6
+  let array = Memory.coax screenPlaces
+  --
+  GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER screenPlaceBuffer
+  GL.glBufferDataA ctx GL.gl_ARRAY_BUFFER array GL.gl_DYNAMIC_DRAW
+  GL.glDrawArraysInstanced ctx GL.gl_TRIANGLES 0 6 ((§) (SV.length screenPlaces))
+

@@ -44,6 +44,7 @@ class
   type VertexArrayObject
   -- type ActiveInfo
   -- type ShaderPrecisionFormat
+  -- XXX arrays
   type AnyArray
   type Float32Array
   type Int32Array
