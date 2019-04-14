@@ -46,6 +46,9 @@ executables:
   game:
     source-dirs: misc
     main: Main.hs
+    ghc-options:
+      - -DGHCJS_BROWSER
+      - -DGHCJS_GC_INTERVAL=60000
     cpp-options: -DMAIN_MODULE=Web.Artifacts.Game
     dependencies:
       - heroes-web

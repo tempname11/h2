@@ -14,7 +14,7 @@ flags:
     portable: true
 
 ghc-options:
-  "$targets": -dedupe -DGHCJS_BROWSER -DGHCJS_GC_INTERVAL=60000
+  "$targets": -dedupe
 
 rebuild-ghc-options: true
 
