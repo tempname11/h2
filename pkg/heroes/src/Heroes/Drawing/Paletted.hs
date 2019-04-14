@@ -120,10 +120,10 @@ draw ctx prog cmd = do
   GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
   GL.glUniform4f ctx loc_outlineColor (oc ^. _x) (oc ^. _y) (oc ^. _z) (oc ^. _w)
   GL.glUniform4f ctx loc_shadowColor 0 0 0 1
-  -- bind textures
+  --
   GL.glActiveTexture ctx GL.gl_TEXTURE0
   GL.glBindTexture ctx GL.gl_TEXTURE_2D atlas
   GL.glActiveTexture ctx GL.gl_TEXTURE1
   GL.glBindTexture ctx GL.gl_TEXTURE_2D palette
-  -- draw call!
+  --
   GL.glDrawArrays ctx GL.gl_TRIANGLES 0 6

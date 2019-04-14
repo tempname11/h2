@@ -95,5 +95,5 @@ draw ctx prog cmd = do
   --
   GL.glUniform2f ctx loc_scrBox (b ^. _x) (b ^. _y)
   GL.glUniform4f ctx loc_color (c ^. _x) (c ^. _y) (c ^. _z) (c ^. _w)
-  -- draw call!
+  --
   GL.glDrawArrays ctx GL.gl_TRIANGLES 0 6

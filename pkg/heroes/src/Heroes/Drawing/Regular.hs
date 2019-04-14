@@ -104,7 +104,6 @@ draw ctx prog cmd = do
   GL.glUniform2f ctx loc_texPlace (place ^. _x) (place ^. _y)
   GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
   GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
-  -- bind textures
   GL.glActiveTexture ctx GL.gl_TEXTURE0 
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
   --
