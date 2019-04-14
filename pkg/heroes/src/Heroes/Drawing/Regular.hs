@@ -19,7 +19,7 @@ import qualified Heroes.Drawing.Quad                       as Quad
 
 data Cmd = Cmd {
   sprite :: StaticSprite,
-  copySpec :: CopySpec
+  copySpecs :: [CopySpec]
 }
 
 --------------------------------------------------------------------------------
@@ -29,8 +29,7 @@ with ctx qBuffer = \next2 -> do
   prog <- init ctx
   next2 $ \next1 -> do
     ready qBuffer ctx prog
-    next1 $ \cmd -> do
-      draw ctx prog cmd
+    next1 $ draw ctx prog
   fini ctx prog
 
 --------------------------------------------------------------------------------
@@ -89,18 +88,19 @@ draw ctx prog cmd = do
   let Prog { .. } = prog
       Cmd {
         sprite = StaticSprite { texture, dimensions },
-        copySpec = CopySpec { place, screenPlace, box, screenBox }
+        copySpecs
       } = cmd
       vsize = viewportSize <&> (§)
   --
   GL.glUniform1i ctx loc_texImage 0
   GL.glUniform2f ctx loc_texDimensions (dimensions ^. _x) (dimensions ^. _y)
   GL.glUniform2f ctx loc_scrDimensions (vsize ^. _x) (vsize ^. _y)
-  GL.glUniform2f ctx loc_texPlace (place ^. _x) (place ^. _y)
-  GL.glUniform2f ctx loc_scrPlace (screenPlace ^. _x) (screenPlace ^. _y)
-  GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
-  GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
   -- bind textures
   bindTextureTo ctx GL.gl_TEXTURE0 texture
-  -- draw call!
-  GL.glDrawArrays ctx GL.gl_TRIANGLES 0 6
+  for_ copySpecs $ \(CopySpec { place, screenPlace, box, screenBox }) -> do
+    GL.glUniform2f ctx loc_texPlace (place ^. _x) (place ^. _y)
+    GL.glUniform2f ctx loc_scrPlace (screenPlace ^. _x) (screenPlace ^. _y)
+    GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
+    GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
+    -- draw call!
+    GL.glDrawArrays ctx GL.gl_TRIANGLES 0 6
