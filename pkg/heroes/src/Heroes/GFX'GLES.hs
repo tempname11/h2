@@ -141,30 +141,33 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     actors = sortBy comparingY $ M.assocs $ scene ^. _actors
     props = M.assocs $ scene ^. _props
     StaticResources {..} = staticResources
-    bgCmd = Regular.Cmd background [background `fullCopyAt` 0]
+    bgCmd = background `fullCopyAt` [0]
     --
     regularCmds =
       [bgCmd] <>
       (fromProp <$> props) <>
       [
-        Regular.Cmd cellShaded (hexSpec cellShaded <$> darkHexes),
-        Regular.Cmd cellOutline (hexSpec cellOutline <$> lightHexes)
+        hexCmd cellShaded darkHexes,
+        hexCmd cellOutline lightHexes
       ]
     --
-    hexSpec sprite hex = sprite `fullCopyAt` (<§>) (fieldCenter .+^ Cell.fromHex hex)
+    hexCmd sprite hexes =
+      sprite `fullCopyAt`
+        (hexes <&> \hex -> (<§>) (fieldCenter .+^ Cell.fromHex hex))
     --
     fromProp :: (ObstacleId, Prop) -> Regular.Cmd
-    fromProp (o, prop) = Regular.Cmd sprite [spec]
+    fromProp (o, prop) = cmd
       where
       sprite = obstacles (o ^. _otype)
       sign = case prop ^. _facing of
         West -> V2 (-1) 1
         East -> 1
       screenPlace = (<§>) (prop ^. _position)
-      spec = CopySpec {
+      cmd = Regular.Cmd {
+        sprite,
         box = sprite ^. _dimensions,
         place = 0,
-        screenPlace,
+        screenPlaces = [screenPlace],
         screenBox = (sprite ^. _dimensions) * sign
       }
     --
@@ -186,11 +189,12 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
     let color = V4 0 0 0 (floor . (255 *) $ (scene ^. _curtain))
     draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
 
-fullCopyAt :: Drawing.StaticSprite -> Point V2 Float -> CopySpec
-fullCopyAt sprite screenPlace =
-  CopySpec {
+fullCopyAt :: Drawing.StaticSprite -> [Point V2 Float] -> Regular.Cmd
+fullCopyAt sprite screenPlaces =
+  Regular.Cmd {
+    sprite,
     box = sprite ^. _dimensions,
     screenBox = sprite ^. _dimensions,
     place = 0,
-    screenPlace
+    screenPlaces
   }

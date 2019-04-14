@@ -19,7 +19,10 @@ import qualified Heroes.Drawing.Quad                       as Quad
 
 data Cmd = Cmd {
   sprite :: StaticSprite,
-  copySpecs :: [CopySpec]
+  box         :: V2 Float,
+  screenBox   :: V2 Float,
+  place       :: Point V2 Float,
+  screenPlaces :: [Point V2 Float]
 }
 
 --------------------------------------------------------------------------------
@@ -88,19 +91,22 @@ draw ctx prog cmd = do
   let Prog { .. } = prog
       Cmd {
         sprite = StaticSprite { texture, dimensions },
-        copySpecs
+        box,
+        screenBox,
+        place,
+        screenPlaces
       } = cmd
       vsize = viewportSize <&> (§)
   --
   GL.glUniform1i ctx loc_texImage 0
   GL.glUniform2f ctx loc_texDimensions (dimensions ^. _x) (dimensions ^. _y)
   GL.glUniform2f ctx loc_scrDimensions (vsize ^. _x) (vsize ^. _y)
+  GL.glUniform2f ctx loc_texPlace (place ^. _x) (place ^. _y)
+  GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
+  GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
   -- bind textures
   bindTextureTo ctx GL.gl_TEXTURE0 texture
-  for_ copySpecs $ \(CopySpec { place, screenPlace, box, screenBox }) -> do
-    GL.glUniform2f ctx loc_texPlace (place ^. _x) (place ^. _y)
+  --
+  for_ screenPlaces $ \screenPlace -> do
     GL.glUniform2f ctx loc_scrPlace (screenPlace ^. _x) (screenPlace ^. _y)
-    GL.glUniform2f ctx loc_texBox (box ^. _x) (box ^. _y)
-    GL.glUniform2f ctx loc_scrBox (screenBox ^. _x) (screenBox ^. _y)
-    -- draw call!
     GL.glDrawArrays ctx GL.gl_TRIANGLES 0 6

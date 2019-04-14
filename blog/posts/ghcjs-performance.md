@@ -16,4 +16,4 @@ I.
 
 I started with the third option: trying to figure out what is actually taking time in the program. Quickly, by disabling parts of code, I arrived at the conclusion that is was actually drawing the hexes that took a huge chunk of time. The solution was to do less work: between drawing any two hexes, it was only necessary to set some GL uniforms and issue a draw call.
 
-This gave a huge boost already. Getting rid of the uniforms altogether would probably save considerably more time. I also suspect that inlining the GL call wrappers (the code I copied from Ombra has "raw" and "wrapped" versions of all procedures) might lead to gains, since WebGL isn't **that** slow by itself.
+This gave a huge boost already. Getting rid of the uniforms altogether would probably save considerably more time. 
