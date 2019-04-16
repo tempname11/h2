@@ -27,12 +27,12 @@ module Common (
   module Data.Monoid,
   module Data.Ord,
   module Data.Set,
-  module Data.Vector.Storable,
   module Data.Traversable,
   module Data.Word,
   module Debug.Trace,
   module Foreign.C.Types,
   module Foreign.Ptr,
+  module Foreign.Storable,
   module Generics.Deriving.Enum,
   module GHC.Exts,
   module GHC.Generics,
@@ -139,7 +139,6 @@ import Data.Monoid                                       ((<>))
 import Data.Monoid                                       (Last(Last))
 import Data.Ord                                          (comparing)
 import Data.Set                                          (Set)
-import Data.Vector.Storable                              (Storable)
 import Data.Traversable                                  (Traversable)
 import Data.Traversable                                  (for)
 import Data.Traversable                                  (mapM)
@@ -154,6 +153,7 @@ import Debug.Trace                                       (traceShow)
 import Debug.Trace                                       (traceShowM)
 import Foreign.C.Types                                   (CInt)
 import Foreign.Ptr                                       (Ptr)
+import Foreign.Storable                                  (Storable)
 import GHC.Exts                                          (Double)
 import GHC.Generics                                      (Generic)
 import Generics.Deriving.Enum                            (GEnum)

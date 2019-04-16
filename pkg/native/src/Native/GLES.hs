@@ -1,3 +1,4 @@
+{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Native.GLES () where
@@ -7,19 +8,20 @@ module Native.GLES () where
         
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES
+import Native                                            (Buf(..))
 import Native.GLES'Types ()
 import Native.Image                                      (withImagePtr)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Foreign
-import Foreign.C.String
-import Graphics.GL.Types                                   as GL
-import Prelude
-import qualified Graphics.GL.Ext.ARB.FramebufferObject     as GL
+import GHC.Exts                                          (Int(I#))
+import GHC.Ptr                                           (Ptr(Ptr))
+import qualified Graphics.GL.Core33                        as GL
 import qualified Graphics.GL.Ext.ARB.TextureFloat          as GL
-import qualified Graphics.GL.Ext.ARB.VertexArrayObject     as GL
 import qualified Graphics.GL.Ext.EXT.BlendColor            as GL
-import qualified Graphics.GL.Core32                        as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Foreign -- XXX
+import Foreign.C.String -- XXX
+import Prelude -- XXX
+import Graphics.GL.Types -- XXX
 
 genToCreate :: Storable a => (GLsizei -> Ptr a -> IO ()) -> ctx -> IO a
 genToCreate gen _ = do ptr <- malloc
@@ -86,13 +88,10 @@ instance GLES where
   glBlendEquationSeparate = const GL.glBlendEquationSeparate
   glBlendFunc = const GL.glBlendFunc
   glBlendFuncSeparate = const GL.glBlendFuncSeparate
-  glDrawArraysInstanced = undefined
-  glVertexAttribDivisor = undefined
-  glBufferDataN = undefined
-  glBufferDataA = undefined {- _ a (l, fp) b withForeignPtr fp $ \p ->
-          GL.glBufferData a (fromIntegral l) (castPtr p) b -}
-  glBufferSubData _ a b (l, fp) = withForeignPtr fp $ \p ->
-          GL.glBufferSubData a b (fromIntegral l) (castPtr p)
+  glDrawArraysInstanced = const GL.glDrawArraysInstanced
+  glVertexAttribDivisor = const GL.glVertexAttribDivisor
+  glBufferData _ a (Buf b c) d = GL.glBufferData a (fromIntegral (I# c)) (Ptr b) d
+  glBufferSubData _ a b (Buf c d) = GL.glBufferSubData a b (fromIntegral (I# d)) (Ptr c)
   glCheckFramebufferStatus = const GL.glCheckFramebufferStatus
   glClear = const GL.glClear
   glClearColor = const GL.glClearColor
@@ -188,11 +187,8 @@ instance GLES where
   glStencilMaskSeparate = const GL.glStencilMaskSeparate
   glStencilOp = const GL.glStencilOp
   glStencilOpSeparate = const GL.glStencilOpSeparate
-  glTexImage2DUInt _ a b c d e f g h (_, fp) = withForeignPtr fp $
-          GL.glTexImage2D a b c d e f g h . castPtr
-  glTexImage2DFloat _ a b c d e f g h (_, fp) = withForeignPtr fp $
-          GL.glTexImage2D a b c d e f g h . castPtr
-  glTexImage2DImage _ a b c d e f g h i = withImagePtr i $
+  glTexImage2D_U8 _ a b c d e f g h (Buf addr _) = GL.glTexImage2D a b c d e f g h (Ptr addr)
+  glTexImage2D_Image _ a b c d e f g h i = withImagePtr i $
           GL.glTexImage2D a b c d e f g h
   glTexParameterf = const GL.glTexParameterf
   glTexParameteri = const GL.glTexParameteri

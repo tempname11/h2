@@ -1,4 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
+-- XXX remove, it's slow anyway?
 module Common.FFree (
   liftF,
   runNat,

@@ -13,7 +13,6 @@ import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
 import Heroes.UI (viewportSize)
 import qualified GLES                                      as GL
-import qualified Heroes.Memory                             as Memory
 import qualified Heroes.GLX                                as GLX
 import qualified Heroes.Drawing.Quad                       as Quad
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -30,7 +29,7 @@ data Cmd = Cmd {
 
 --------------------------------------------------------------------------------
 
-with :: (Platform, Memory.Memory, GLX.GLX, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
+with :: (Platform, GLX.GLX, GLES) => GL.Ctx -> Quad.QBuffer -> With2 (Handler Cmd)
 with ctx qBuffer = \next2 -> do
   (prog, screenPlaceBuffer) <- init ctx
   next2 $ \next1 -> do
@@ -58,7 +57,7 @@ data Prog = Prog {
 
 --------------------------------------------------------------------------------
 
-init :: (Platform, GLX.GLX, Memory.Memory, GLES) => GL.Ctx -> IO (Prog, GL.Buffer)
+init :: (Platform, GLX.GLX, GLES) => GL.Ctx -> IO (Prog, GL.Buffer)
 init ctx = do
   program <- makeProgram ctx
     (prod <> "glsl/regular.fragment.glsl")
@@ -115,7 +114,7 @@ ready qBuffer ctx prog screenPlaceBuffer = do
   --
   GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER GL.noBuffer
 
-draw :: (Memory.Memory, GLES) => GL.Ctx -> Prog -> GL.Buffer -> Cmd -> IO ()
+draw :: GLES => GL.Ctx -> Prog -> GL.Buffer -> Cmd -> IO ()
 draw ctx prog screenPlaceBuffer cmd = do
   let Prog { .. } = prog
       Cmd {
@@ -137,9 +136,7 @@ draw ctx prog screenPlaceBuffer cmd = do
   GL.glActiveTexture ctx GL.gl_TEXTURE0 
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
   --
-  let array = Memory.coax screenPlaces
-  --
   GL.glBindBuffer ctx GL.gl_ARRAY_BUFFER screenPlaceBuffer
-  GL.glBufferDataA ctx GL.gl_ARRAY_BUFFER array GL.gl_DYNAMIC_DRAW
+  GL.glBufferData ctx GL.gl_ARRAY_BUFFER (unsafeToBuf screenPlaces) GL.gl_DYNAMIC_DRAW
   GL.glDrawArraysInstanced ctx GL.gl_TRIANGLES 0 6 ((§) (SV.length screenPlaces))
 

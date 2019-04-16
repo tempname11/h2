@@ -12,7 +12,6 @@ module GLES (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
 import Heroes.Image
-import qualified Heroes.Memory                             as Memory
 import GLES'Types
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -58,10 +57,8 @@ class (GLES'Types, Capability'Image) => GLES where
   glBlendEquationSeparate :: Ctx -> GLEnum -> GLEnum -> IO ()
   glBlendFunc :: Ctx -> GLEnum -> GLEnum -> IO ()
   glBlendFuncSeparate :: Ctx -> GLEnum -> GLEnum -> GLEnum -> GLEnum -> IO ()
-  -- XXX
-  glBufferDataA :: Ctx -> GLEnum -> Memory.Buffer -> GLEnum -> IO ()
-  glBufferDataN :: Ctx -> GLEnum -> GLSize -> GLEnum -> IO ()
-  glBufferSubData :: Ctx -> GLEnum -> GLPtrDiff -> AnyArray -> IO ()
+  glBufferData :: Ctx -> GLEnum -> Buf -> GLEnum -> IO ()
+  glBufferSubData :: Ctx -> GLEnum -> GLPtrDiff -> Buf -> IO ()
   glCheckFramebufferStatus :: Ctx -> GLEnum -> IO GLEnum
   glClear :: Ctx -> GLEnum -> IO ()
   glClearColor :: Ctx -> Float -> Float -> Float -> Float -> IO ()
@@ -151,9 +148,9 @@ class (GLES'Types, Capability'Image) => GLES where
   glStencilMaskSeparate :: Ctx -> GLEnum -> GLUInt -> IO ()
   glStencilOp :: Ctx -> GLEnum -> GLEnum -> GLEnum -> IO ()
   glStencilOpSeparate :: Ctx -> GLEnum -> GLEnum -> GLEnum -> GLEnum -> IO ()
-  glTexImage2DUInt :: Ctx -> GLEnum -> GLInt -> GLInt -> GLSize -> GLSize -> GLInt -> GLEnum -> GLEnum -> UInt8Array -> IO ()
-  glTexImage2DFloat :: Ctx -> GLEnum -> GLInt -> GLInt -> GLSize -> GLSize -> GLInt -> GLEnum -> GLEnum -> Float32Array -> IO ()
-  glTexImage2DImage :: Ctx -> GLEnum -> GLInt -> GLInt -> GLSize -> GLSize -> GLInt -> GLEnum -> GLEnum -> AnyImage -> IO ()
+  -- XXX
+  glTexImage2D_U8 :: Ctx -> GLEnum -> GLInt -> GLInt -> GLSize -> GLSize -> GLInt -> GLEnum -> GLEnum -> Buf -> IO ()
+  glTexImage2D_Image :: Ctx -> GLEnum -> GLInt -> GLInt -> GLSize -> GLSize -> GLInt -> GLEnum -> GLEnum -> AnyImage -> IO ()
   glTexParameterf :: Ctx -> GLEnum -> GLEnum -> Float -> IO ()
   glTexParameteri :: Ctx -> GLEnum -> GLEnum -> GLInt -> IO ()
   glTexSubImage2D :: Ctx -> GLEnum -> GLInt -> GLInt -> GLInt -> GLSize -> GLSize -> GLEnum -> GLEnum -> UInt8Array -> IO ()

@@ -1,3 +1,5 @@
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 module Common.Misc where
 
@@ -16,8 +18,12 @@ import Data.Binary.Put                                   (Put)
 import Data.Binary.Put                                   (runPut)
 import Data.ByteString                                   (ByteString)
 import Data.ByteString.Lazy                              (toStrict)
-import Foreign.C.Types
-import Foreign.Ptr
+import Foreign.Storable                                  (sizeOf)
+import Foreign.Storable                                  (Storable)
+import GHC.Exts                                          (Addr#)
+import GHC.Exts                                          (Int(I#))
+import GHC.Prim                                          (Int#)
+import GHC.ForeignPtr                                    (ForeignPtr(..))
 import Prelude                                             as P
 import qualified Data.IntMap.Strict                        as I
 import qualified Data.Map.Strict                           as M
@@ -31,6 +37,14 @@ import Unsafe.Coerce                                     (unsafeCoerce)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 newtype Some a = Some a
+
+data Buf = Buf Addr# Int#
+
+unsafeToBuf :: forall a. Storable a => SV.Vector a -> Buf
+unsafeToBuf v = Buf a l
+  where
+  !(ForeignPtr a _, n) = SV.unsafeToForeignPtr0 v
+  !(I# l) = n * sizeOf @a undefined -- assuming tight packing: correct?
 
 _some :: Lens' (Some a) a
 _some f (Some a) = fmap Some (f a)
@@ -197,13 +211,6 @@ parseWith get buf = case decoder' of
 
 (<§>) :: (Integral a, Num b, Functor f) => f a -> f b
 (<§>) = fmap (§)
-
-foreign import ccall unsafe "string.h" memcpy
-  :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
-foreign import ccall unsafe "string.h" memmove
-  :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
-foreign import ccall unsafe "string.h" memset
-  :: Ptr a -> CInt  -> CSize -> IO (Ptr a)
 
 justLeft :: Either a b -> Maybe a
 justLeft = \case

@@ -1,17 +1,22 @@
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE UnliftedFFITypes #-}
 module Web.GLES.Raw where
+
 -- WARNING: plagiarized from:
 -- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
 -- kudos to ziocroc
 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Web.GLES.Types
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import JavaScript.Web.Canvas                             (Image)
+import GHC.Exts                                          (Addr#)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+-- XXX imports
 import Prelude
 import Data.Int
-
 import GHCJS.Types
 import JavaScript.TypedArray
-import JavaScript.TypedArray.ArrayBuffer
-import JavaScript.Web.Canvas (Image)
-
-import Web.GLES.Types
 
 foreign import javascript unsafe "$1.activeTexture($2)"
         glActiveTexture :: Ctx -> Word -> IO ()
@@ -49,14 +54,11 @@ foreign import javascript unsafe "$1.blendFunc($2, $3)"
 foreign import javascript unsafe "$1.blendFuncSeparate($2, $3, $4, $5)"
         glBlendFuncSeparate :: Ctx -> Word -> Word -> Word -> Word -> IO ()
 
-foreign import javascript unsafe "$1.bufferData($2, $3, $4)"
-        glBufferDataA :: Ctx -> Word -> JSVal -> Word -> IO ()
+foreign import javascript unsafe "$1.bufferData($2, $3.buf, $4)"
+        glBufferData :: Ctx -> Word -> Addr# -> Word -> IO ()
 
-foreign import javascript unsafe "$1.bufferData($2, $3, $4)"
-        glBufferDataN :: Ctx -> Word -> Int32 -> Word -> IO ()
-
-foreign import javascript unsafe "$1.bufferSubData($2, $3, $4)"
-        glBufferSubData :: Ctx -> Word -> Word -> ArrayBuffer -> IO ()
+foreign import javascript unsafe "$1.bufferSubData($2, $3, $4.buf)"
+        glBufferSubData :: Ctx -> Word -> Word -> Addr# -> IO ()
 
 foreign import javascript unsafe "$1.checkFramebufferStatus($2)"
         glCheckFramebufferStatus :: Ctx -> Word -> IO Word
@@ -319,13 +321,10 @@ foreign import javascript unsafe "$1.stencilOpSeparate($2, $3, $4, $5)"
         glStencilOpSeparate :: Ctx -> Word -> Word -> Word -> Word -> IO ()
 
 foreign import javascript unsafe "$1.texImage2D($2, $3, $4, $5, $6, $7, $8, $9, $10)"
-        glTexImage2DImage :: Ctx -> Word -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Word -> Word -> Image -> IO ()
+        glTexImage2D_Image :: Ctx -> Word -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Word -> Word -> Image -> IO ()
 
-foreign import javascript unsafe "$1.texImage2D($2, $3, $4, $5, $6, $7, $8, $9, $10)"
-        glTexImage2DUInt :: Ctx -> Word -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Word -> Word -> Uint8Array -> IO ()
-
-foreign import javascript unsafe "$1.texImage2D($2, $3, $4, $5, $6, $7, $8, $9, $10)"
-        glTexImage2DFloat :: Ctx -> Word -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Word -> Word -> Float32Array -> IO ()
+foreign import javascript unsafe "$1.texImage2D($2, $3, $4, $5, $6, $7, $8, $9, $10.u8)"
+        glTexImage2D_U8 :: Ctx -> Word -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Word -> Word -> Addr# -> IO ()
 
 foreign import javascript unsafe "$1.texParameterf($2, $3, $4)"
         glTexParameterf :: Ctx -> Word -> Word -> Float -> IO ()

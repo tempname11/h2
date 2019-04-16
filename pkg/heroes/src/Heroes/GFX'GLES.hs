@@ -33,7 +33,6 @@ import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Image                              as Image
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.Platform                           as Platform
-import qualified Heroes.Memory                             as Memory
 import qualified Heroes.GLX                                as GLX
 import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -49,7 +48,7 @@ instance GFX'Types where
   type StaticSprite = Drawing.StaticSprite
   type ComplexSprite = Drawing.ComplexSprite
 
-instance (GLES, Platform, Memory.Memory, GLX.GLX, WND.WND, GFX'Types) => GFX where
+instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
   type Renderer = Renderer'GLES
   with (Deps {..}) next = do
     ctx <- GLX.getGLContext window
@@ -81,8 +80,8 @@ instance (GLES, Platform, Memory.Memory, GLX.GLX, WND.WND, GFX'Types) => GFX whe
       Right image -> return image
       Left str -> raise str
     atlasTexture <- makeTexture ctx GL.gl_R8 GL.gl_RED image
-    paletteArray <- GLX.generatePaletteArray (meta ^. _palette)
-    paletteTexture <- makePaletteTexture ctx paletteArray
+    let buf = unsafeToBuf (meta ^. _palette)
+    paletteTexture <- makePaletteTexture ctx buf
     return $ Drawing.ComplexSprite { .. }
   --
   destroyComplexSprite _ = return () -- XXX
@@ -194,6 +193,8 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
   oneColor $ \draw -> do
     let color = V4 0 0 0 (floor . (255 *) $ (scene ^. _curtain))
     draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
+  -- XXX proper error logging
+  -- GL.glGetError ctx >>= print @Int . (§)
 
 fullCopyAt :: Drawing.StaticSprite -> SV.Vector (Point V2 Float) -> Regular.Cmd
 fullCopyAt sprite screenPlaces =

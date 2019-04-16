@@ -44,12 +44,12 @@ makeShader ctx type_ source = do
   --
   return shader
 
-makePaletteTexture :: GLES => GL.Ctx -> GL.UInt8Array -> IO GL.Texture
-makePaletteTexture ctx array = do
+makePaletteTexture :: GLES => GL.Ctx -> Buf -> IO GL.Texture
+makePaletteTexture ctx buf = do
   texture <- GL.glCreateTexture ctx
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture
-  GL.glTexImage2DUInt ctx GL.gl_TEXTURE_2D
-    0 ((§) GL.gl_RGBA) 256 1 0 GL.gl_RGBA GL.gl_UNSIGNED_BYTE array
+  GL.glTexImage2D_U8 ctx GL.gl_TEXTURE_2D
+    0 ((§) GL.gl_RGBA) 256 1 0 GL.gl_RGBA GL.gl_UNSIGNED_BYTE buf
   GL.glTexParameteri ctx GL.gl_TEXTURE_2D
     ((§) GL.gl_TEXTURE_MAG_FILTER) ((§) GL.gl_NEAREST)
   GL.glTexParameteri ctx GL.gl_TEXTURE_2D
@@ -64,7 +64,7 @@ makeTexture ctx ifmt fmt image = do
   w <- Image.width image
   h <- Image.height image
   --
-  GL.glTexImage2DImage ctx GL.gl_TEXTURE_2D
+  GL.glTexImage2D_Image ctx GL.gl_TEXTURE_2D
     0 ((§) ifmt) ((§) w) ((§) h) 0 fmt GL.gl_UNSIGNED_BYTE image -- XXX hardcoded format
   --
   GL.glTexParameteri ctx GL.gl_TEXTURE_2D

@@ -1,3 +1,4 @@
+{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Web.GLES (getWebGLContext) where
@@ -8,8 +9,8 @@ module Web.GLES (getWebGLContext) where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES
 import GLES'Types ()
+import Web                                               (Buf(..))
 import Web.Image ()
-import Web.Memory ()
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Int                                          (Int32)
 import Data.JSString                                     (JSString)
@@ -92,9 +93,8 @@ instance GLES where
   glBlendEquationSeparate = JS.glBlendEquationSeparate
   glBlendFunc = JS.glBlendFunc
   glBlendFuncSeparate = JS.glBlendFuncSeparate
-  glBufferDataA = JS.glBufferDataA
-  glBufferDataN = JS.glBufferDataN
-  glBufferSubData = JS.glBufferSubData
+  glBufferData a b (Buf c _) d = JS.glBufferData a b c d
+  glBufferSubData a b c (Buf d _) = JS.glBufferSubData a b c d
   glCheckFramebufferStatus = JS.glCheckFramebufferStatus
   glClear = JS.glClear
   glClearColor = JS.glClearColor
@@ -184,9 +184,8 @@ instance GLES where
   glStencilMaskSeparate = JS.glStencilMaskSeparate
   glStencilOp = JS.glStencilOp
   glStencilOpSeparate = JS.glStencilOpSeparate
-  glTexImage2DImage = JS.glTexImage2DImage
-  glTexImage2DUInt = JS.glTexImage2DUInt
-  glTexImage2DFloat = JS.glTexImage2DFloat
+  glTexImage2D_U8 a b c d e f g h i (Buf j _) = JS.glTexImage2D_U8 a b c d e f g h i j
+  glTexImage2D_Image = JS.glTexImage2D_Image
   glTexParameterf = JS.glTexParameterf
   glTexParameteri = JS.glTexParameteri
   glTexSubImage2D = JS.glTexSubImage2D

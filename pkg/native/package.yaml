@@ -15,6 +15,7 @@ dependencies:
   - ekg
   - ekg-json
   - generic-lens
+  - ghc-prim
   - gl
   - sdl2
   - sdl2-mixer

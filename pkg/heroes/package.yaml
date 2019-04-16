@@ -14,6 +14,7 @@ dependencies:
   - data-default-class
   - generic-lens
   - generic-deriving
+  - ghc-prim
   - hashable
   - hashtables
   - lens
