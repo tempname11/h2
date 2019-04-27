@@ -12,6 +12,8 @@ import Battle                                            (Battle)
 import Battle                                            (FighterId)
 import Battle.Setup                                      (Setup)
 import Heroes
+import Heroes.AAI                                        (AIQuery)
+import Heroes.AAI                                        (AIResult)
 import Heroes.Aux                                        (Annotation)
 import Heroes.Plan                                       (Plan)
 import Heroes.UI                                         (Color)
@@ -30,7 +32,9 @@ import qualified Data.Vector                               as V
 data Deps = Deps {
   groupSizeOf :: GroupSizeOf,
   initialBattle :: Battle,
-  setup :: Setup
+  setup :: Setup,
+  queryAI :: IO (Maybe AIResult),
+  askAI :: Maybe AIQuery -> IO ()
 }
 
 data In = In {

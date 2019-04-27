@@ -48,6 +48,11 @@ executables:
     main: Main.hs
     ghc-options:
       - -DGHCJS_BROWSER
+      - -DGHCJS_LOG_BUFFER
+      - -DGHCJS_TRACE_SCHEDULER
+      - -DGHCJS_SCHED_QUANTUM=1
+      - -DGHCJS_SCHED_CHECK=100
+      - -DGHCJS_BUSY_YIELD=1
       - -DGHCJS_GC_INTERVAL=60000
     cpp-options: -DMAIN_MODULE=Web.Artifacts.Game
     dependencies:

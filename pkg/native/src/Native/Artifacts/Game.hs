@@ -12,8 +12,8 @@ import Native.Platform ()
 import Native.Stage.DetermineInput ()
 import Native.Stage.Prerequisites ()
 import Native.Stage.SystemLibraries ()
-import qualified Heroes.Game
+import qualified Heroes.Game                               as Game
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 main' :: IO ()
-main' = Heroes.Game.main'
+main' = Game.main'

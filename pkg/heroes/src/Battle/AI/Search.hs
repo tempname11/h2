@@ -12,7 +12,6 @@ import Battle.Movement
 import Battle.Monad.Utils
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Fix                                          (Fix, cata, ana)
---import Data.Maybe                                        (isJust)
 import Data.List                                         (maximumBy) -- XXX partial
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -26,6 +25,7 @@ data Result = Result {
   bestMoves :: Maybe [Move]
 } deriving (Generic)
 
+-- XXX make it a parameter
 numberOfEoms :: Int
 numberOfEoms = 2
 

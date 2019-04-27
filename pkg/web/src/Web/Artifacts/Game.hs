@@ -13,6 +13,8 @@ import Web.Stage.SystemLibraries ()
 import Web.WND'Canvas ()
 import qualified Heroes.Game                               as Game
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import GHCJS.Concurrent                                  (withoutPreemption)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 main' :: IO ()
-main' = Game.main'
+main' = withoutPreemption Game.main'

@@ -7,13 +7,14 @@ module Stage.Core (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Battle
-import Battle.AI.Search
 import Battle.Monad.Utils
 import Battle.Rules
 import Battle.Setup
 import Battle.Movement
 import Heroes
 import Heroes.Aux
+import Heroes.AAI                                        (AIQuery(..))
+import Heroes.AAI                                        (AIResult(..))
 import Heroes.UI
 import qualified Battle.AM                                 as AM
 import qualified Common.Hot                                as Hot
@@ -30,7 +31,9 @@ import Safe                                              (atMay)
 
 data Deps = Deps {
   initialBattle :: Battle,
-  setup :: Setup
+  setup :: Setup,
+  queryAI :: IO (Maybe AIResult),
+  askAI :: Maybe AIQuery -> IO ()
 }
 
 data In = In {
@@ -51,7 +54,7 @@ data Out = Out {
 
 with :: Deps -> ((In -> IO Out) -> IO a) -> IO a
 with deps next = do
-  let Deps {setup, initialBattle} = deps
+  let Deps {..} = deps
   ref <- newIORef (Data {
     current = Current (setup, initialBattle),
     pastBattles = [],
@@ -59,8 +62,10 @@ with deps next = do
   })
   next $ \in_ -> do
     d0 <- readIORef ref
-    let (out, d1) = core deps in_ d0
+    aiMoves <- queryAI
+    let (out, q, d1) = core deps aiMoves in_ d0
     writeIORef ref d1
+    askAI q
     return out
 
 --------------------------------------------------------------------------------
@@ -69,7 +74,7 @@ data Data = Data {
   pastBattles :: [Battle],
   futureBattles :: [Battle],
   current :: Current (Setup, Battle)
-}
+} deriving (Generic)
 
 --------------------------------------------------------------------------------
 
@@ -80,8 +85,8 @@ battlefieldHexesMemo =
   Hot.memo1 (V.fromList . S.toList . view _field . fst . Hot.this) .
   Hot.currently
 
-core :: Deps -> In -> Data -> (Out, Data)
-core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
+core :: Deps -> Maybe AIResult -> In -> Data -> (Out, Maybe AIQuery, Data)
+core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
   where
   Input.Full {..} = fullInput
   --
@@ -97,11 +102,18 @@ core (Deps {..}) (In {..}) data0 = (Out {..}, data1)
     (guard (keyDown Input.Key'3) >> Just 2)
 
   --
+  aiQuery =
+    if not isHuman
+    then Just (AIQuery (data0 ^. _current))
+    else Nothing
   acceptable = acceptableMovesMemo current0
   moves = do
     guard isActive0
     if not isHuman
-    then ai current0'
+    then aiMoves >>= \case
+      AIResult'OK ms -> Just ms
+      AIResult'Fail -> Nothing -- XXX
+      AIResult'Pending -> Nothing
     else
       if acceptable == [EOM]
       then Just [EOM]

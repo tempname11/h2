@@ -7,6 +7,7 @@ import qualified Heroes.Requisites                         as RQ
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.SND                                as SND
 import qualified Heroes.WND                                as WND
+import qualified Heroes.AAI                                as AAI
 import qualified Stage.Animation                           as A
 import qualified Stage.Blackbox                            as B
 import qualified Stage.DetermineInput                      as I
@@ -38,6 +39,7 @@ main' = do
     WND.with $ \(WND.Prov {..}) ->
     GFX.with (GFX.Deps {..}) $ \(GFX.Prov {..}) ->
     SND.with (SND.Deps {..}) $ \(SND.Prov {..}) ->
+    AAI.with (AAI.Deps {..}) $ \(AAI.Prov {..}) ->
     PR.with (PR.Deps {..}) $ \(PR.Prov {..})    ->
     RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..})    ->
     LT.with (LT.Deps {..}) $ \(LT.Prov {..})    ->

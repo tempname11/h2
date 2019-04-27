@@ -5,6 +5,7 @@ category: Game
 
 dependencies:
   - QuickCheck
+  - async
   - base
   - bimap
   - binary
