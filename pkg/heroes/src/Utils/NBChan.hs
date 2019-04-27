@@ -7,37 +7,27 @@ module Utils.NBChan (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Prelude
-import Control.Monad                                     (replicateM)
-import Control.Concurrent                                (Chan)
-import Control.Concurrent                                (newChan)
-import Control.Concurrent                                (readChan)
-import Control.Concurrent                                (writeChan)
-import Control.Concurrent                                (writeList2Chan)
-import Control.Concurrent                                (MVar)
-import Control.Concurrent                                (newMVar)
-import Control.Concurrent                                (modifyMVar)
-import Control.Concurrent                                (modifyMVar_)
+import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data NBChan a = NBChan (Chan a) (MVar Int)
+-- XXX remove this file, it's now only a hack until
+-- LoadingThread gets properly fixed
+
+data NBChan a = XXX (IORef [a])
 
 new :: IO (NBChan a)
-new = NBChan <$> newChan <*> newMVar 0
+new = XXX <$> newIORef []
 
 drain :: NBChan a -> IO [a]
-drain (NBChan c m) = do
-  -- (0, x): 0 is the new MVar value, x is the output
-  available <- modifyMVar m (return . (0,))
-  replicateM available $
-    readChan c
+drain (XXX r) = do
+  xs <- readIORef r
+  writeIORef r []
+  return xs
 
 pour :: NBChan a -> [a] -> IO ()
-pour (NBChan c m) xs = do
-  writeList2Chan c xs
-  modifyMVar_ m (return . (+ length xs))
+pour (XXX r) xs = do
+  ys <- readIORef r
+  writeIORef r (ys <> xs)
 
 trickle :: NBChan a -> a -> IO ()
-trickle (NBChan c m) x = do
-  writeChan c x
-  modifyMVar_ m (return . (+ 1))
+trickle r x = pour r [x]

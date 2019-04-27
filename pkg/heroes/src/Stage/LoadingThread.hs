@@ -20,8 +20,6 @@ import qualified Heroes.SND                                as SND
 import qualified Heroes.SFXResource                        as SFXResource
 import qualified Utils.NBChan                              as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Control.Concurrent                                (threadDelay)
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data LoadResult
   = LoadResult'Creature Creature CreatureResource
@@ -47,15 +45,12 @@ data Prov = Prov {
   load :: IO ()
 }
 
-_THREAD_DELAY_ :: Int
-_THREAD_DELAY_ = 5000 -- microseconds!
-
 with :: (GFX.GFX, SND.SND, Platform) => Deps -> (Prov -> IO a) -> IO a
 with deps next = do
   wishChan <- NBChan.new
   loadedChan <- NBChan.new
   let loadingChannels = (wishChan, loadedChan)
-  let load = {-void $ Platform.forkPreferred-} (loadingThread deps loadingChannels)
+  let load = (loadingThread deps loadingChannels)
   next $ Prov {..}
 
 loadingThread :: (GFX.GFX, SND.SND, Platform) => Deps -> LoadingChannels -> IO ()
@@ -67,12 +62,8 @@ loadingThread (Deps {..}) (wishChan, loadedChan) = do
       LoadRequest'Creature c ->
         LoadResult'Creature c <$> CreatureResource.load renderer essentials c
   --
-  --fix $ \again -> do
-  do
-    threadDelay _THREAD_DELAY_
-    ws <- NBChan.drain wishChan
-    for_ ws $ \w -> do
-      print (w, "is wished to be loaded. So be it!" :: String)
-      r <- load w
-      NBChan.trickle loadedChan r
-    --again
+  ws <- NBChan.drain wishChan
+  for_ ws $ \w -> do
+    print (w, "is wished to be loaded. So be it!" :: String)
+    r <- load w
+    NBChan.trickle loadedChan r
