@@ -133,7 +133,10 @@ core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
               then view _2 <$> payload
               else Nothing
   --
-  intent = view _1 <$> payload
+  intent =
+    case aiMoves of
+      Just (AIResult'Pending) -> Just Annotation'Thinking
+      _ -> view _1 <$> payload
   --
   battleField = setup ^. _field
   movementHexes =

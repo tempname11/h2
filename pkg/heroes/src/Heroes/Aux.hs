@@ -31,6 +31,7 @@ data Annotation
   | Annotation'Running
   | Annotation'Pondering
   | Annotation'Selecting
+  | Annotation'Thinking -- XXX does not belong here
   deriving (Eq, Ord, Show)
 
 --------------------------------------------------------------------------------

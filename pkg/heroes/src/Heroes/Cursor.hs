@@ -72,4 +72,5 @@ fromIntent = \case
   Just (Annotation'MeleeFrom b) -> Sword (Pointing'To $ Bearing.opposite b)
   Just Annotation'Range -> Arrow
   Just Annotation'Selecting -> Normal
+  Just Annotation'Thinking -> Hourglass
   Nothing -> Normal
