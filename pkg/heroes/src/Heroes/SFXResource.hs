@@ -29,7 +29,7 @@ load r (Essentials {..}) s = do
     meta = sfxMeta s
   sprite <- GFX.loadComplexSprite r meta pngPath
   chunk <- do
-    let path = FilePath.prod <> "Sounds/" <> H3.sSndName s <> ".wav"
+    let path = FilePath.soundPathOf ("battle-sfx/" <> H3.sSndName s)
     putStrLn $ "Loading sound... " <> path
     SND.loadChunk path
   --

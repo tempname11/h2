@@ -41,7 +41,8 @@ load r (Essentials {..}) c = do
           else filter (/= Sound.Shot)
   --
   sounds <- fmap M.fromList $ for soundTypes $ \t -> do
-    let path = FilePath.soundPathOf (prefix <> suffix)
+    let path = FilePath.soundPathOf (dir <> prefix <> suffix)
+        dir = "battle-creatures/"
         prefix = H3.cSndName c
         suffix = Sound.suffix t
     putStrLn $ "Loading sound... " <> path
