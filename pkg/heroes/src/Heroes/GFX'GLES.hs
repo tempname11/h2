@@ -119,7 +119,7 @@ loadFontAtlas (Essentials { fontMeta }) ctx font = do
   image <- Platform.loadImage (FilePath.fontAtlasPathOf font) >>= \case
     Right image -> return image
     Left str -> raise str
-  texture <- makeTexture ctx GL.gl_RGBA GL.gl_RGBA image
+  texture <- makeTexture ctx GL.gl_R8 GL.gl_RED image
   return $ FontAtlas { texture, meta = fontMeta font }
 
 fromActor ::
@@ -173,9 +173,22 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
       (fromProp <$> props) <>
       [
         hexCmd cellShaded darkHexes,
-        hexCmd cellOutline lightHexes
+        hexCmd cellOutline lightHexes,
+        fontTestCmd
       ]
     --
+    fontTestCmd = 
+      let
+        fontAtlas = fonts ! Font'FutilePro24
+        dimensions = (<§>) (fontAtlas ^. _meta . _dimensions)
+      in Regular.Cmd {
+        texture = fontAtlas ^. _texture,
+        dimensions,
+        box = dimensions,
+        screenBox = dimensions,
+        place = 0,
+        screenPlaces = SV.fromList [0]
+      }
     hexCmd :: Drawing.StaticSprite -> V.Vector Hex -> Regular.Cmd
     hexCmd sprite hexes =
       sprite `fullCopyAt`
@@ -190,7 +203,8 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
         East -> 1
       screenPlace = (<§>) (prop ^. _position)
       cmd = Regular.Cmd {
-        sprite,
+        texture = sprite ^. _texture,
+        dimensions = sprite ^. _dimensions,
         box = sprite ^. _dimensions,
         place = 0,
         screenPlaces = SV.singleton screenPlace,
@@ -220,7 +234,8 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
 fullCopyAt :: Drawing.StaticSprite -> SV.Vector (Point V2 Float) -> Regular.Cmd
 fullCopyAt sprite screenPlaces =
   Regular.Cmd {
-    sprite,
+    texture = sprite ^. _texture,
+    dimensions = sprite ^. _dimensions,
     box = sprite ^. _dimensions,
     screenBox = sprite ^. _dimensions,
     place = 0,

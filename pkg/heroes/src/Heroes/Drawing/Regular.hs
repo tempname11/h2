@@ -7,7 +7,6 @@ module Heroes.Drawing.Regular (
 import Common.With
 import GLES                                              (GLES)
 import Heroes
-import Heroes.Drawing
 import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
@@ -19,13 +18,15 @@ import qualified Heroes.Drawing.Quad                       as Quad
 import qualified Data.Vector.Storable                      as SV
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Cmd = Cmd {
-  sprite :: StaticSprite,
-  box :: V2 Float,
-  screenBox :: V2 Float,
-  place :: Point V2 Float,
-  screenPlaces :: SV.Vector (Point V2 Float)
-}
+data Cmd
+  = Cmd {
+    texture :: GL.Texture,
+    dimensions :: V2 Float,
+    box :: V2 Float,
+    screenBox :: V2 Float,
+    place :: Point V2 Float,
+    screenPlaces :: SV.Vector (Point V2 Float)
+  }
 
 --------------------------------------------------------------------------------
 
@@ -118,7 +119,8 @@ draw :: GLES => GL.Ctx -> Prog -> GL.Buffer -> Cmd -> IO ()
 draw ctx prog screenPlaceBuffer cmd = do
   let Prog { .. } = prog
       Cmd {
-        sprite = StaticSprite { texture, dimensions },
+        texture,
+        dimensions,
         box,
         screenBox,
         place,
