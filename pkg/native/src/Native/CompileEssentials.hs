@@ -1,7 +1,10 @@
-module Native.Artifacts.CompileEssentials where
+module Native.CompileEssentials where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.Essentials
+import Heroes.Font                                       (fontNameOf)
+import Heroes.Font                                       (fontSizeOf)
+import Heroes.SpriteMeta                                 (SpriteMeta(..))
 import Heroes.UI
 import Native
 import Native.Platform ()
@@ -9,7 +12,7 @@ import Native.WND'SDL () -- XXX
 import qualified Heroes.Atlas                              as Atlas
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.H3                                 as H3
-import qualified Heroes.SpriteMeta                         as Meta
+import qualified Native.CompileEssentials.Fonts            as Fonts
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Codec.Picture                             as Juicy
 import qualified Data.ByteString                           as B
@@ -18,28 +21,48 @@ import qualified Data.Vector.Storable                      as SV
 import qualified Data.Vector.Storable.Mutable              as MSV
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
+assetsPath :: String
+assetsPath = "h3-assets/"
+
 main' :: IO ()
 main' = do
-  let allCreatures = [minBound .. maxBound]
-      allSfx = [minBound .. maxBound]
-  convertedSfx <- for allSfx $
+  convertedFonts <- do
+    lib <- Fonts.init
+    result <- for genum $ \f -> do
+      let
+        name = fontNameOf f
+        size = fontSizeOf f
+        ttfPath = assetsPath <> "fonts/" <> name <> ".ttf"
+        pngPath = FilePath.fontAtlasPathOf name
+      --
+      Fonts.convert lib ttfPath size pngPath
+    Fonts.fini lib
+    return result
+  --
+  convertedSfx <- for genum $
     \s -> convert (sfxGroundOffset s) (H3.sDefName s)
-  convertedCreatures <- for allCreatures $
+  --
+  convertedCreatures <- for genum $
     \c -> convert creatureGroundOffset (H3.cDefName c)
-  let cs = M.fromList (zip allCreatures convertedCreatures)
-      ss = M.fromList (zip allSfx convertedSfx)
-  let essentials = Essentials {
-    creatureMeta = \c -> cs ! c,
-    sfxMeta = \s -> ss ! s
-  }
-      output = serializeWith putIt essentials
+  --
+  let
+    cs = M.fromList (zip genum convertedCreatures)
+    ss = M.fromList (zip genum convertedSfx)
+    fs = M.fromList (zip genum convertedFonts)
+    essentials = Essentials {
+      creatureMeta = \c -> cs ! c,
+      sfxMeta = \s -> ss ! s,
+      fontMeta = \f -> fs ! f
+    }
+    output = serializeWith put essentials
+  --
   B.writeFile FilePath.essentialsBin1 output
 
 --------------------------------------------------------------------------------
 
-convert :: V2 CInt -> String -> IO Meta.Meta
+convert :: V2 CInt -> String -> IO SpriteMeta
 convert groundOffset defName = do
-  let defPath = FilePath.h3 <> "Defs/" <> defName <> ".def"
+  let defPath = assetsPath <> "Defs/" <> defName <> ".def"
   let pngPath = FilePath.pngPathOf defName
   putStrLn $ "Converting... " <> defPath <> " to " <> pngPath
   buf <- B.readFile defPath
@@ -66,14 +89,14 @@ convert groundOffset defName = do
   --
   pixels <- SV.unsafeFreeze mpixels
   --
-  let image = Juicy.Image ((§) w) ((§) h) pixels
-      image :: Juicy.Image Juicy.Pixel8
-
-  let meta = Meta.Meta {
-    Meta.dimensions = V2 w h,
-    Meta.palette = palette,
-    Meta.groups = groups
-  }
+  let
+    image = Juicy.Image ((§) w) ((§) h) pixels
+    image :: Juicy.Image Juicy.Pixel8
+    meta = SpriteMeta {
+      dimensions = V2 w h,
+      palette = palette,
+      groups = groups
+    }
   --
   Juicy.writePng pngPath image
   return meta

@@ -157,7 +157,7 @@ data Creature
   | MagicElemental
   | Firebird
   | Phoenix
-  deriving (Eq, Ord, Enum, Bounded, Show)
+  deriving (Eq, Ord, Show, Enum, Bounded, Generic)
 
 --------------------------------------------------------------------------------
 
@@ -1359,7 +1359,7 @@ data SFX
   = SFX'Haste
   | SFX'Slow
   -- | SFX'Sacrifice
-  deriving (Eq, Ord, Enum, Bounded, Show)
+  deriving (Eq, Ord, Show, Generic)
 
 sSndName :: SFX -> String
 sSndName = \case
@@ -1372,3 +1372,7 @@ sDefName = \case
   SFX'Haste -> "C15SPA0"
   SFX'Slow -> "C09SPE0"
   -- SFX'Sacrifice -> "C01SPE0"
+  --
+-- XXX DeriveAnyClass
+instance GEnum Creature
+instance GEnum SFX

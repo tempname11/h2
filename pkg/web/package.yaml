@@ -53,6 +53,6 @@ executables:
       - -DGHCJS_SCHED_CHECK=256
       - -DGHCJS_BUSY_YIELD=1
       - -DGHCJS_GC_INTERVAL=60000
-    cpp-options: -DMAIN_MODULE=Web.Artifacts.Game
+    cpp-options: -DMAIN_MODULE=Web.Game
     dependencies:
       - heroes-web

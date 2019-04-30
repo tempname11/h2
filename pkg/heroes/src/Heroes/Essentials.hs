@@ -1,40 +1,52 @@
 module Heroes.Essentials (
-  getIt,
-  putIt,
+  get,
+  put,
   Essentials(..),
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import qualified Heroes.SpriteMeta                         as Meta
-import Heroes.SpriteMeta                                 (Meta)
+import Heroes.FontMeta                                   (FontMeta)
+import Heroes.SpriteMeta                                 (SpriteMeta)
+import qualified Heroes.FontMeta                           as FontMeta
+import qualified Heroes.SpriteMeta                         as SpriteMeta
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.Vector                               as V
-import Prelude                                           (fromEnum)
-import Data.Binary.Put                                   (Put)
 import Data.Binary.Get                                   (Get)
+import Data.Binary.Put                                   (Put)
+import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+
+data Font
+  = Font'FutilePro24
+  | Font'CompassPro24
+  | Font'EquipmentPro24
+  | Font'ExpressionPro24
+  | Font'MatchupPro24
+  deriving (Eq, Ord, Generic)
+
+-- XXX DeriveAnyClass
+instance GEnum Font
 
 data Essentials = Essentials {
-  creatureMeta :: Creature -> Meta,
-  sfxMeta :: SFX -> Meta
+  fontMeta :: Font -> FontMeta,
+  creatureMeta :: Creature -> SpriteMeta,
+  sfxMeta :: SFX -> SpriteMeta
 }
 
-putIt :: Essentials -> Put
-putIt (Essentials {..}) = do
-  for_ allCreatures (Meta.putIt . creatureMeta)
-  for_ allSfx (Meta.putIt . sfxMeta)
+put :: Essentials -> Put
+put (Essentials {..}) = do
+  for_ genum (SpriteMeta.put . creatureMeta)
+  for_ genum (SpriteMeta.put . sfxMeta)
+  for_ genum (FontMeta.put . fontMeta)
 
-getIt :: Get Essentials
-getIt = do
-  creatureMetas <- for allCreatures (const Meta.getIt)
-  sfxMetas <- for allSfx (const Meta.getIt)
-  let creatureMeta creature = creatureMetas ! fromEnum creature
-  let sfxMeta sfx = sfxMetas ! fromEnum sfx
+get :: Get Essentials
+get = do
+  cs <- M.fromList <$> (for genum $ \c -> (c,) <$> SpriteMeta.get)
+  ss <- M.fromList <$> (for genum $ \s -> (s,) <$> SpriteMeta.get)
+  fs <- M.fromList <$> (for genum $ \f -> (f,) <$> FontMeta.get)
+  let
+    creatureMeta = (cs !)
+    sfxMeta = (ss !)
+    fontMeta = (fs !)
+  --
   return $ Essentials {..}
-
-allCreatures :: V.Vector Creature
-allCreatures = V.fromList [minBound .. maxBound]
-
-allSfx :: V.Vector SFX
-allSfx = V.fromList [minBound .. maxBound]

@@ -1,4 +1,4 @@
-module Native.Artifacts.CompileCursors where
+module Native.CompileCursors where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Native
@@ -17,6 +17,9 @@ import qualified Data.Vector.Storable.Mutable              as MSV
 
 -- XXX this shares a good deal of code with Atlas, but who cares?
 
+assetsPath :: String
+assetsPath = "h3-assets/"
+
 type Poke m = Int -> V2 CInt -> ByteString -> m ()
 
 data Blueprint m = Blueprint {
@@ -31,9 +34,9 @@ main' = do
   let
     files =
       [
-        (0, FilePath.h3 <> "Defs/CRCOMBAT.def"),
-        (1, FilePath.h3 <> "Defs/crdeflt.def"),
-        (2, FilePath.h3 <> "Defs/Crspell.def")
+        (0, assetsPath <> "Defs/CRCOMBAT.def"),
+        (1, assetsPath <> "Defs/crdeflt.def"),
+        (2, assetsPath <> "Defs/Crspell.def")
       ]
   
   for_ files $ \(fileNumber :: Int, fileName) -> do

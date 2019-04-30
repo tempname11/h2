@@ -13,6 +13,7 @@ import Battle.Monad.Utils
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Fix                                          (Fix, cata, ana)
 import Data.List                                         (maximumBy) -- XXX partial
+import Control.Monad.State                               (get)
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 

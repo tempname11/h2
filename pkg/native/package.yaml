@@ -14,6 +14,7 @@ dependencies:
   - directory
   - ekg
   - ekg-json
+  - freetype2
   - generic-lens
   - ghc-prim
   - gl
@@ -53,7 +54,7 @@ executables:
   game:
     source-dirs: misc
     main: Main.hs
-    cpp-options: -DMAIN_MODULE=Native.Artifacts.Game
+    cpp-options: -DMAIN_MODULE=Native.Game
     ghc-options:
       - -threaded
       - -with-rtsopts=-N
@@ -64,13 +65,13 @@ executables:
   compile-essentials:
     source-dirs: misc
     main: Main.hs
-    cpp-options: -DMAIN_MODULE=Native.Artifacts.CompileEssentials
+    cpp-options: -DMAIN_MODULE=Native.CompileEssentials
     dependencies:
       - heroes-native
 
   compile-cursors:
     source-dirs: misc
     main: Main.hs
-    cpp-options: -DMAIN_MODULE=Native.Artifacts.CompileCursors
+    cpp-options: -DMAIN_MODULE=Native.CompileCursors
     dependencies:
       - heroes-native

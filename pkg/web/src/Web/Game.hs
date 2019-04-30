@@ -1,4 +1,4 @@
-module Web.Artifacts.Game where
+module Web.Game where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes.GFX'GLES ()

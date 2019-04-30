@@ -65,7 +65,6 @@ allMoves = do
   --
   let
     allFighters = M.keys fighters
-    allSpells = [minBound .. maxBound]
   --
   return $ M.fromList $ case phase of
       --
@@ -159,7 +158,7 @@ allMoves = do
             --
             _phase .= Phase'FighterActionSelection { fighter = fyr }
         ) <> (
-          allSpells <&> \spell -> SpellSelected spell @@ do
+          genum <&> \spell -> SpellSelected spell @@ do
             _phase .= Phase'SpellTargetSelection spell
         )
       --

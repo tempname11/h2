@@ -12,6 +12,9 @@ import qualified Heroes.Sound                              as Sound
 import Battle                                            (FighterId)
 import Heroes.Sound                                      (Sound(..))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Monad.State                               (get)
+import Control.Monad.State                               (put)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 path :: FighterId -> [AM.PathMarker] -> M0
 path fyr ps = do

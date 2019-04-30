@@ -15,7 +15,7 @@ instance Prerequisites where
     putStrLn $ "Loading essentials..."
     buf <- B.readFile FilePath.essentialsBin1
     --
-    essentials <- case parseWith Essentials.getIt buf of
+    essentials <- case parseWith Essentials.get buf of
       Left str -> raise ("Meta.parse failure: " <> str)
       Right m -> return m
     --

@@ -8,10 +8,6 @@ import Heroes.Platform                                   (Platform)
 
 type Path = String
 
--- XXX rename, remove?
-h3 :: String
-h3 = "h3-assets/"
-
 prod :: Platform => String
 prod = Platform.productionPrefix
 
@@ -29,6 +25,9 @@ cellShaded = prod <> "cell-shaded" <> ".png"
 
 cellOutline :: Platform => Path
 cellOutline = prod <> "cell-outline" <> ".png"
+
+fontAtlasPathOf :: Platform => String -> String
+fontAtlasPathOf name = prod <> name <> ".png"
 
 -- XXX "stringly-typed"
 pngPathOf :: Platform => String -> String

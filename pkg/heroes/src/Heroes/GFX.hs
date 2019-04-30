@@ -9,7 +9,7 @@ import Battle
 import Heroes
 import Heroes.GFX'Types
 import Heroes.H3.Misc                                    (ObstacleType)
-import Heroes.SpriteMeta                                 (Meta)
+import Heroes.SpriteMeta                                 (SpriteMeta)
 import Heroes.UI
 import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -42,7 +42,7 @@ data StaticResources = StaticResources {
 
 class GFX'Types => GFX where
   type Renderer
-  loadComplexSprite :: Renderer -> Meta -> String -> IO ComplexSprite
+  loadComplexSprite :: Renderer -> SpriteMeta -> String -> IO ComplexSprite
   destroyComplexSprite :: ComplexSprite -> IO ()
   --
   with :: Deps -> With Prov

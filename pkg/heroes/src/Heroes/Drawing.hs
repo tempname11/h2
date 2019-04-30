@@ -3,7 +3,7 @@ module Heroes.Drawing where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
 import Heroes
-import Heroes.SpriteMeta                                 (Meta)
+import Heroes.SpriteMeta                                 (SpriteMeta)
 import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -22,7 +22,7 @@ data StaticSprite = StaticSprite {
 data ComplexSprite = ComplexSprite {
   atlasTexture :: GL.Texture,
   paletteTexture :: GL.Texture,
-  meta :: Meta
+  meta :: SpriteMeta
 } deriving (Generic)
 
 clear :: GLES => GL.Ctx -> IO ()

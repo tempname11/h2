@@ -1,8 +1,8 @@
 module Heroes.SpriteMeta (
   Palette,
-  Meta(..),
-  getIt,
-  putIt,
+  SpriteMeta(..),
+  get,
+  put,
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -21,7 +21,7 @@ import Data.Binary.Put                                   (putWord8)
 
 type Palette = SV.Vector (V4 Word8)
 
-data Meta = Meta {
+data SpriteMeta = SpriteMeta {
   dimensions :: V2 CInt,
   palette    :: Palette,
   groups     :: V.Vector Atlas.Group
@@ -32,8 +32,8 @@ magic = 32768
 
 --------------------------------------------------------------------------------
 
-putIt :: Meta -> Put
-putIt meta = do
+put :: SpriteMeta -> Put
+put meta = do
   put16 w
   put16 h
   put16 $ SV.length palette
@@ -63,7 +63,7 @@ putIt meta = do
 put16 :: Integral a => a -> Put
 put16 n = do
   let n' = n + magic
-  when (n' < 0 || n' > 65535) $ fail "ComplexSprite/Meta: number out of range."
+  when (n' < 0 || n' > 65535) $ fail "SpriteMeta: number out of range."
   let n'' = (§) n'
   putWord16le n''
 
@@ -72,8 +72,8 @@ put16 n = do
 get16 :: Integral a => Get a
 get16 = (subtract magic) . (§) <$> getWord16le
 
-getIt :: Get Meta
-getIt = do
+get :: Get SpriteMeta
+get = do
   dimensions <- v2 get16
 
   pLength <- get16
@@ -97,7 +97,7 @@ getIt = do
         Atlas.offset = offset
       }
 
-  return $ Meta {
+  return $ SpriteMeta {
     dimensions = dimensions,
     palette = palette,
     groups = groups

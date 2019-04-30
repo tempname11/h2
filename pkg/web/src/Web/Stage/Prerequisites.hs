@@ -28,7 +28,7 @@ loadEssentials = do
   -- hack: without this line it seems to break (horrible lazy IO underneath?)
   traceShowM (B.length <$> result)
   --
-  case parseWith Essentials.getIt <$> result of
+  case parseWith Essentials.get <$> result of
     Nothing -> raise "Couldn't load the Essentials."
     Just (Left str) -> raise ("Meta.parse failure: " <> str)
     Just (Right x) -> return x

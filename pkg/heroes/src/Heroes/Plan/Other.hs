@@ -17,6 +17,9 @@ import qualified Heroes.Plan.Animation                     as Animation
 import qualified Heroes.Plan.Sound                         as Sound
 import qualified Heroes.Sound                              as Sound
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Monad.State                               (get)
+import Control.Monad.State                               (put)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 -- XXX share with as meleeAttack?
 rangeAttack :: (FighterId, FighterId) -> M0

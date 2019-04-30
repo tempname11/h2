@@ -4,14 +4,14 @@ module Baked where
 import Data.Proxy
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
-import Data.Proxy                                        (Proxy)
-import Data.Bits                                         (shiftL)
-import Data.Bits                                         (complement)
-import Data.Bits                                         ((.|.))
+import Control.Lens                                      (Lens')
 import Data.Bits                                         ((.&.))
+import Data.Bits                                         ((.|.))
+import Data.Bits                                         (complement)
+import Data.Bits                                         (shiftL)
+import Data.Proxy                                        (Proxy)
 import Prelude                                           (fromEnum)
 import Prelude                                           (toEnum)
-import Control.Lens                                      (Lens')
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 class Baked b where
