@@ -6,6 +6,7 @@ module Heroes.Essentials (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
+import Heroes.Font                                       (Font)
 import Heroes.FontMeta                                   (FontMeta)
 import Heroes.SpriteMeta                                 (SpriteMeta)
 import qualified Heroes.FontMeta                           as FontMeta
@@ -15,17 +16,6 @@ import Data.Binary.Get                                   (Get)
 import Data.Binary.Put                                   (Put)
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-data Font
-  = Font'FutilePro24
-  | Font'CompassPro24
-  | Font'EquipmentPro24
-  | Font'ExpressionPro24
-  | Font'MatchupPro24
-  deriving (Eq, Ord, Generic)
-
--- XXX DeriveAnyClass
-instance GEnum Font
 
 data Essentials = Essentials {
   fontMeta :: Font -> FontMeta,

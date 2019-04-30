@@ -14,9 +14,12 @@ import GLES                                              (GLES)
 import Heroes
 import Heroes.Drawing                                    (CopySpec(..))
 import Heroes.Drawing                                    (StaticSprite(..))
+import Heroes.Drawing                                    (FontAtlas(..))
 import Heroes.Drawing.Utilities                          (makeTexture)
 import Heroes.Drawing.Utilities                          (makePaletteTexture)
 import Heroes.Drawing.Quad                               (QBuffer)
+import Heroes.Essentials                                 (Essentials(..))
+import Heroes.Font                                       (Font(..))
 import Heroes.GFX
 import Heroes.H3.Misc                                    (oImgName)
 import Heroes.Platform                                   (Platform)
@@ -56,6 +59,11 @@ instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
     background <- loadStatic ctx FilePath.background
     cellShaded <- loadStatic ctx FilePath.cellShaded
     cellOutline <- loadStatic ctx FilePath.cellOutline
+    fonts <-
+      (M.fromList <$>) $
+        for genum $
+          \f -> (f,) <$>
+            loadFontAtlas essentials ctx f
     --
     let
       allObstacles = [minBound .. maxBound]
@@ -100,6 +108,19 @@ loadStatic ctx path = do
   texture <- makeTexture ctx GL.gl_RGBA GL.gl_RGBA image
   let dimensions = (<§>) $ V2 w h
   return $ StaticSprite { texture, dimensions }
+
+loadFontAtlas ::
+  (Platform, GL.GLES) =>
+  Essentials ->
+  GL.Ctx ->
+  Font ->
+  IO Drawing.FontAtlas
+loadFontAtlas (Essentials { fontMeta }) ctx font = do
+  image <- Platform.loadImage (FilePath.fontAtlasPathOf font) >>= \case
+    Right image -> return image
+    Left str -> raise str
+  texture <- makeTexture ctx GL.gl_RGBA GL.gl_RGBA image
+  return $ FontAtlas { texture, meta = fontMeta font }
 
 fromActor ::
   (FighterId -> Maybe Color) ->

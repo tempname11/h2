@@ -2,6 +2,8 @@ module Heroes.FilePath where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
+import Heroes.Font                                       (Font)
+import Heroes.Font                                       (fontNameOf)
 import qualified Heroes.Platform                           as Platform
 import Heroes.Platform                                   (Platform)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -26,8 +28,8 @@ cellShaded = prod <> "cell-shaded" <> ".png"
 cellOutline :: Platform => Path
 cellOutline = prod <> "cell-outline" <> ".png"
 
-fontAtlasPathOf :: Platform => String -> String
-fontAtlasPathOf name = prod <> name <> ".png"
+fontAtlasPathOf :: Platform => Font -> String
+fontAtlasPathOf font = prod <> fontNameOf font <> ".png"
 
 -- XXX "stringly-typed"
 pngPathOf :: Platform => String -> String

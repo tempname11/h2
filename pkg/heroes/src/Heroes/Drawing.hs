@@ -3,6 +3,7 @@ module Heroes.Drawing where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
 import Heroes
+import Heroes.FontMeta                                   (FontMeta)
 import Heroes.SpriteMeta                                 (SpriteMeta)
 import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -23,6 +24,11 @@ data ComplexSprite = ComplexSprite {
   atlasTexture :: GL.Texture,
   paletteTexture :: GL.Texture,
   meta :: SpriteMeta
+} deriving (Generic)
+
+data FontAtlas = FontAtlas {
+  texture :: GL.Texture,
+  meta :: FontMeta
 } deriving (Generic)
 
 clear :: GLES => GL.Ctx -> IO ()

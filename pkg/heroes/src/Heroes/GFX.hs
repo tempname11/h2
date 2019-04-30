@@ -7,6 +7,9 @@ module Heroes.GFX (
 import Animation.Scene                                   (Scene)
 import Battle
 import Heroes
+import Heroes.Drawing                                    (FontAtlas)
+import Heroes.Essentials                                 (Essentials)
+import Heroes.Font                                       (Font)
 import Heroes.GFX'Types
 import Heroes.H3.Misc                                    (ObstacleType)
 import Heroes.SpriteMeta                                 (SpriteMeta)
@@ -24,6 +27,7 @@ data In = In {
 }
 
 data Deps = Deps {
+  essentials :: Essentials,
   window :: WND.Window
 }
 
@@ -37,7 +41,8 @@ data StaticResources = StaticResources {
   cellShaded :: StaticSprite,
   cellOutline :: StaticSprite,
   background :: StaticSprite,
-  obstacles :: ObstacleType -> StaticSprite
+  obstacles :: ObstacleType -> StaticSprite,
+  fonts :: Map Font FontAtlas
 } deriving (Generic)
 
 class GFX'Types => GFX where

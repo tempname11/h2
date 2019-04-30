@@ -37,10 +37,10 @@ main' = do
   id $
     SL.with $ \(SL.Prov {..}) ->
     WND.with $ \(WND.Prov {..}) ->
+    PR.with (PR.Deps {..}) $ \(PR.Prov {..})    ->
     GFX.with (GFX.Deps {..}) $ \(GFX.Prov {..}) ->
     SND.with (SND.Deps {..}) $ \(SND.Prov {..}) ->
     AAI.with (AAI.Deps {..}) $ \(AAI.Prov {..}) ->
-    PR.with (PR.Deps {..}) $ \(PR.Prov {..})    ->
     RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..})    ->
     LT.with (LT.Deps {..}) $ \(LT.Prov {..})    ->
     -------------------------------------------------

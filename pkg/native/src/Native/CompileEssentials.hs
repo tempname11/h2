@@ -33,7 +33,7 @@ main' = do
         name = fontNameOf f
         size = fontSizeOf f
         ttfPath = assetsPath <> "fonts/" <> name <> ".ttf"
-        pngPath = FilePath.fontAtlasPathOf name
+        pngPath = FilePath.fontAtlasPathOf f
       --
       Fonts.convert lib ttfPath size pngPath
     Fonts.fini lib
