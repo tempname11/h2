@@ -6,9 +6,11 @@ import Common
 
 --------------------------------------------------------------------------------
 
--- XXX pack
 data Hex = Hex !Int !Int
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
 
 data HexDiff = HexDiff !Int !Int
   deriving (Eq, Ord, Show)
+
+instance Show Hex where
+  show (Hex d q) = "{" <> show d <> "^" <> show q <> "}"
