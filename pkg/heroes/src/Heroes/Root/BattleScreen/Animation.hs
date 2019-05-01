@@ -1,8 +1,7 @@
-module Stage.Animation (
-  with,
-  Deps (..),
-  In (..),
-  Out(..),
+module Heroes.Root.BattleScreen.Animation (
+  run,
+  Data,
+  In (..)
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -15,40 +14,15 @@ import qualified Data.Map.Strict                           as M
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps {
-  groupSizeOf :: GroupSizeOf
-}
+type Data = Scene
 
 data In = In {
+  groupSizeOf :: GroupSizeOf,
   animationCommands :: V.Vector Command
 }
 
-data Out = Out {
-  scene :: Scene
-}
-
---------------------------------------------------------------------------------
-
-with :: Deps -> ((In -> IO Out) -> IO a) -> IO a
-with (Deps {..}) next = do
-  ref <- newIORef $
-    Scene {
-      actors = empty,
-      props = empty,
-      curtain = 1.0
-    }
-  next $ \in_ -> do
-    d <- readIORef ref
-    let (d', out) = run groupSizeOf d in_
-    writeIORef ref d'
-    return out
-
---------------------------------------------------------------------------------
-
-run :: GroupSizeOf -> Scene -> In -> (Scene, Out)
-run gso scene (In {..}) = (scene', Out { scene = scene' })
-  where
-  scene' = increment gso >>> applyAll animationCommands $ scene
+run :: In -> Scene -> Scene
+run (In {..}) = increment groupSizeOf >>> applyAll animationCommands
 
 increment :: GroupSizeOf -> Scene -> Scene
 increment groupSizeOf = over #actors $ M.mapWithKey $ \h -> execState $ do

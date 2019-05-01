@@ -2,6 +2,7 @@ module Heroes.CreatureResource where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
+import Heroes.Drawing                                    (ComplexSprite)
 import Heroes.Essentials                                 (Essentials(..))
 import Heroes.Platform                                   (Platform)
 import qualified Heroes.FilePath                           as FilePath
@@ -14,7 +15,7 @@ import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data CreatureResource = CreatureResource {
-  sprite :: GFX.ComplexSprite,
+  sprite :: ComplexSprite,
   sounds :: Map Sound.CType SND.Chunk
 } deriving (Generic)
 

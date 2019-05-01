@@ -36,6 +36,7 @@ default-extensions:
   - NamedFieldPuns
   - NoImplicitPrelude
   - OverloadedLabels
+  - OverloadedStrings
   - RecordWildCards
   - ScopedTypeVariables
   - StandaloneDeriving

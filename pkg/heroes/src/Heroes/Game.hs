@@ -3,13 +3,16 @@ module Heroes.Game where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
 import Heroes.Platform                                   (Platform)
-import qualified Heroes.Requisites                         as RQ
+import Heroes.Root                                       (Root(..))
+import Heroes.Root                                       (ScreenOut(..))
+import qualified Heroes.AAI                                as AAI
 import qualified Heroes.GFX                                as GFX
+import qualified Heroes.Requisites                         as RQ
+import qualified Heroes.Root                               as Root
+import qualified Heroes.Root.BattleScreen                  as BattleScreen
+import qualified Heroes.Root.TitleScreen                   as TitleScreen
 import qualified Heroes.SND                                as SND
 import qualified Heroes.WND                                as WND
-import qualified Heroes.AAI                                as AAI
-import qualified Stage.Animation                           as A
-import qualified Stage.Blackbox                            as B
 import qualified Stage.DetermineInput                      as I
 import qualified Stage.Loading                             as L
 import qualified Stage.LoadingThread                       as LT
@@ -29,45 +32,37 @@ main' ::
   ) => IO ()
 main' = do
   let noDeps = ()
-  do
-    putStrLn "--------------------"
-    putStrLn "-- Starting up... --"
-    putStrLn "--------------------"
   --
   id $
     SL.with $ \(SL.Prov {..}) ->
     WND.with $ \(WND.Prov {..}) ->
-    PR.with (PR.Deps {..}) $ \(PR.Prov {..})    ->
+    PR.with (PR.Deps {..}) $ \(PR.Prov {..}) ->
     GFX.with (GFX.Deps {..}) $ \(GFX.Prov {..}) ->
     SND.with (SND.Deps {..}) $ \(SND.Prov {..}) ->
     AAI.with (AAI.Deps {..}) $ \(AAI.Prov {..}) ->
-    RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..})    ->
-    LT.with (LT.Deps {..}) $ \(LT.Prov {..})    ->
-    -------------------------------------------------
+    RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..}) ->
+    LT.with (LT.Deps {..}) $ \(LT.Prov {..}) ->
     L.with (L.Deps {..}) $ \queryLoaded wishLoaded ->
-    I.with (I.Deps {..}) $ \determineInput         ->
-    B.with (B.Deps {..}) $ \blackbox               ->
-    A.with (A.Deps {..}) $ \animation              ->
-    -------------------------------------------------
-    fix $ \again -> do
-      load
-      L.QueryOut {..}  <- queryLoaded
-      I.Out {..}       <- determineInput
-      B.Out {exit, ..} <- blackbox (B.In {..})
-      ----------------------------------------
-      unless exit $ do
-        -----------------------------------
-        A.Out {..} <- animation (A.In {..})
-        -----------------------------------
-        wishLoaded   (L.WishIn {..})
-        playSounds   (SND.In {..})
-        changeCursor (WND.In {..})
-        draw         (GFX.In {..})
-        waitForVsync
-        ------------
-        again
-  --
-  do
-    putStrLn "----------------"
-    putStrLn "-- exiting... --"
-    putStrLn "----------------"
+    I.with (I.Deps {..}) $ \determineInput ->
+    do
+      rootRef <- do
+        initial <- Root.init (Root.Deps {..})
+        newIORef (Just initial)
+      --
+      fix $ \again -> do
+        readIORef rootRef >>= \case
+          Nothing -> return ()
+          Just root -> do
+            load
+            L.QueryOut {..} <- queryLoaded
+            I.Out {..} <- determineInput
+            ScreenOut {..} <- case root of
+              Root'TitleScreen s -> TitleScreen.run s
+              Root'BattleScreen s -> BattleScreen.run (BattleScreen.In {..}) s
+            --
+            wishLoaded (L.WishIn {..})
+            playSounds (SND.In {..})
+            changeCursor (WND.In {..})
+            draw drawCallback
+            waitForVsync
+            again

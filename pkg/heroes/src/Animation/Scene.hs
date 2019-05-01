@@ -11,7 +11,7 @@ module Animation.Scene (
 import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
 import Heroes
-import Heroes.GFX'Types                                  (ComplexSprite)
+import Heroes.Drawing                                    (ComplexSprite)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Position = Point V2 CInt
@@ -26,7 +26,7 @@ data Actor = Actor {
   position :: Position,
   height :: CInt,
   facing :: Facing,
-  groupN :: Int, -- XXX GroupNumber
+  groupN :: Int,
   frameN :: Int,
   subframeN :: Int,
   animated :: Bool

@@ -1,8 +1,8 @@
 {-# LANGUAGE RankNTypes #-}
-module Stage.Blackbox (
-  with,
-  Deps (..),
-  In (..),
+module Heroes.Root.BattleScreen.Blackbox (
+  run,
+  Data(..),
+  In(..),
   Out(..),
 ) where
 
@@ -12,8 +12,8 @@ import Battle                                            (Battle)
 import Battle                                            (FighterId)
 import Battle.Setup                                      (Setup)
 import Heroes
-import Heroes.AAI                                        (AIQuery)
-import Heroes.AAI                                        (AIResult)
+import Heroes.AAI                                        (AIQuery(..))
+import Heroes.AAI                                        (AIResult(..))
 import Heroes.Aux                                        (Annotation)
 import Heroes.Plan                                       (Plan)
 import Heroes.UI                                         (Color)
@@ -23,21 +23,18 @@ import qualified Animation.Command                         as Animation
 import qualified Battle.AM                                 as AM
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Plan                               as Plan
+import qualified Heroes.Root.BattleScreen.Core             as C
 import qualified Heroes.SND                                as SND
-import qualified Stage.Core                                as C
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps {
-  groupSizeOf :: GroupSizeOf,
+data In = In {
   initialBattle :: Battle,
   setup :: Setup,
   queryAI :: IO (Maybe AIResult),
-  askAI :: Maybe AIQuery -> IO ()
-}
-
-data In = In {
+  askAI :: Maybe AIQuery -> IO (),
+  groupSizeOf :: GroupSizeOf,
   fullInput :: Input.Full,
   loaded :: Loaded
 }
@@ -59,31 +56,12 @@ data Data = Data {
   subframeNumber :: Int
 }
 
---------------------------------------------------------------------------------
-
-with :: Deps -> ((In -> IO Out) -> IO a) -> IO a
-with deps@(Deps {..}) next =
-  C.with (C.Deps {..}) $ \core -> do
-    let
-      data_ = Data {
-        updateOrPlan = Left . AM.JumpTo . Some $ initialBattle,
-        frameNumber = 0,
-        subframeNumber = 0
-      }
-    ref <- newIORef data_
-    next $ \in_ -> do
-      d0 <- readIORef ref
-      (d1, out) <- run core d0 deps in_
-      writeIORef ref d1
-      return out
-
---------------------------------------------------------------------------------
-
 slowdown :: Int -- XXX move to Config
 slowdown = 1
 
-run :: (C.In -> IO C.Out) -> Data -> Deps -> In -> IO (Data, Out)
-run core (Data {..}) (Deps {..}) (In {..}) = do
+run :: (C.In -> IO C.Out) -> IORef Data -> In -> IO Out
+run core ref (In {..}) = do
+  Data {..} <- readIORef ref
   let
     cmds = do
       p <-
@@ -129,12 +107,11 @@ run core (Data {..}) (Deps {..}) (In {..}) = do
               Left l -> (Left realUpdate, l)
               Right p -> (Right p, empty)
   --
-  return 
-    (
-      Data {
-        updateOrPlan = updateOrPlan',
-        frameNumber = frameNumber',
-        subframeNumber = subframeNumber'
-      },
-      Out {..}
-    )
+  writeIORef ref $
+    Data {
+      updateOrPlan = updateOrPlan',
+      frameNumber = frameNumber',
+      subframeNumber = subframeNumber'
+    }
+  --
+  return (Out {..})

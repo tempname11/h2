@@ -11,7 +11,9 @@ import qualified Data.Set                                  as S
 --
 data ObstacleType
   = Obstacle'0
-  deriving (Eq, Ord, Enum, Bounded, Show)
+  deriving (Generic, Eq, Enum, Ord, Show)
+
+instance GEnum ObstacleType
 
 oImgName :: ObstacleType -> String
 oImgName = \case

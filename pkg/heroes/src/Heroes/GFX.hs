@@ -1,30 +1,28 @@
-module Heroes.GFX (
-  module Heroes.GFX,
-  module Heroes.GFX'Types,
-) where
+module Heroes.GFX where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation.Scene                                   (Scene)
-import Battle
 import Heroes
+import Heroes.Drawing                                    (ComplexSprite)
 import Heroes.Drawing                                    (FontAtlas)
 import Heroes.Essentials                                 (Essentials)
+import Heroes.Drawing                                    (StaticSprite)
 import Heroes.Font                                       (Font)
-import Heroes.GFX'Types
 import Heroes.H3.Misc                                    (ObstacleType)
 import Heroes.SpriteMeta                                 (SpriteMeta)
-import Heroes.UI
+import qualified Heroes.Drawing.OneColor                   as OneColor
+import qualified Heroes.Drawing.Paletted                   as Paletted
+import qualified Heroes.Drawing.Text                       as Text
+import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.Vector                               as V
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data In = In {
-  darkHexes :: V.Vector Hex,
-  extraColor :: FighterId -> Maybe Color,
-  lightHexes :: V.Vector Hex,
-  scene :: Scene
-}
+type DrawCallback =
+  With (Handler Regular.Cmd) ->
+  With (Handler Paletted.Cmd) ->
+  With (Handler Text.Cmd) ->
+  With (Handler OneColor.Cmd) ->
+  StaticResources ->
+  IO ()
 
 data Deps = Deps {
   essentials :: Essentials,
@@ -34,7 +32,7 @@ data Deps = Deps {
 data Prov = Prov {
   staticResources :: StaticResources,
   renderer :: Renderer,
-  draw :: Handler In
+  draw :: Handler DrawCallback
 }
 
 data StaticResources = StaticResources {
@@ -45,7 +43,7 @@ data StaticResources = StaticResources {
   fonts :: Map Font FontAtlas
 } deriving (Generic)
 
-class GFX'Types => GFX where
+class GFX where
   type Renderer
   loadComplexSprite :: Renderer -> SpriteMeta -> String -> IO ComplexSprite
   destroyComplexSprite :: ComplexSprite -> IO ()

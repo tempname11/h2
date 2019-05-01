@@ -1,6 +1,6 @@
-module Stage.Core (
-  with,
-  Deps (..),
+module Heroes.Root.BattleScreen.Core (
+  run,
+  Data (..),
   In (..),
   Out(..),
 ) where
@@ -29,14 +29,11 @@ import qualified Data.Vector                               as V
 import Safe                                              (atMay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data Deps = Deps {
+data In = In {
   initialBattle :: Battle,
   setup :: Setup,
   queryAI :: IO (Maybe AIResult),
-  askAI :: Maybe AIQuery -> IO ()
-}
-
-data In = In {
+  askAI :: Maybe AIQuery -> IO (),
   isActive0 :: Bool,
   fullInput :: Input.Full
 }
@@ -52,21 +49,14 @@ data Out = Out {
 
 --------------------------------------------------------------------------------
 
-with :: Deps -> ((In -> IO Out) -> IO a) -> IO a
-with deps next = do
-  let Deps {..} = deps
-  ref <- newIORef (Data {
-    current = Current (setup, initialBattle),
-    pastBattles = [],
-    futureBattles = []
-  })
-  next $ \in_ -> do
-    d0 <- readIORef ref
-    aiMoves <- queryAI
-    let (out, q, d1) = core deps aiMoves in_ d0
-    writeIORef ref d1
-    askAI q
-    return out
+run :: IORef Data -> In -> IO Out
+run ref (in_@In {..}) = do
+  d0 <- readIORef ref
+  aiMoves <- queryAI
+  let (out, q, d1) = core aiMoves in_ d0
+  writeIORef ref d1
+  askAI q
+  return out
 
 --------------------------------------------------------------------------------
 
@@ -85,8 +75,8 @@ battlefieldHexesMemo =
   Hot.memo1 (V.fromList . S.toList . view #field . fst . Hot.this) .
   Hot.currently
 
-core :: Deps -> Maybe AIResult -> In -> Data -> (Out, Maybe AIQuery, Data)
-core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
+core :: Maybe AIResult -> In -> Data -> (Out, Maybe AIQuery, Data)
+core aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
   where
   Input.Full {..} = fullInput
   --

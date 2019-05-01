@@ -1,19 +1,11 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Heroes.GFX'GLES () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation.Scene                                   (Actor)
-import Animation.Scene                                   (Handle(..))
-import Animation.Scene                                   (Prop)
-import Battle                                            (FighterId)
-import Battle                                            (ObstacleId)
-import Battle                                            (_otype)
 import GLES                                              (GLES)
 import Heroes
-import Heroes.Drawing                                    (CopySpec(..))
 import Heroes.Drawing                                    (StaticSprite(..))
 import Heroes.Drawing                                    (FontAtlas(..))
 import Heroes.Drawing.Utilities                          (makeTexture)
@@ -24,11 +16,7 @@ import Heroes.Font                                       (Font(..))
 import Heroes.GFX
 import Heroes.H3.Misc                                    (oImgName)
 import Heroes.Platform                                   (Platform)
-import Heroes.UI                                         (fieldCenter)
-import Heroes.UI                                         (Color)
-import Heroes.UI                                         (transparent)
 import qualified GLES                                      as GL
-import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Drawing                            as Drawing
 import qualified Heroes.Drawing.OneColor                   as OneColor
 import qualified Heroes.Drawing.Paletted                   as Paletted
@@ -42,35 +30,25 @@ import qualified Heroes.GLX                                as GLX
 import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
-import qualified Data.Vector                               as V
-import qualified Data.Vector.Storable                      as SV
-import qualified Data.Vector.Generic                       as GV
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Renderer'GLES = Renderer'GLES GL.Ctx QBuffer
 
-instance GFX'Types where
-  type StaticSprite = Drawing.StaticSprite
-  type ComplexSprite = Drawing.ComplexSprite
-
-instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
+instance (GLES, Platform, GLX.GLX, WND.WND) => GFX where
   type Renderer = Renderer'GLES
   with (Deps {..}) next = do
     ctx <- GLX.getGLContext window
     qBuffer <- Quad.createBuffer ctx
-    background <- loadStatic ctx FilePath.background
-    cellShaded <- loadStatic ctx FilePath.cellShaded
-    cellOutline <- loadStatic ctx FilePath.cellOutline
     fonts <-
       (M.fromList <$>) $
         for genum $
           \f -> (f,) <$>
             loadFontAtlas essentials ctx f
     --
-    let
-      allObstacles = [minBound .. maxBound]
-    --
-    obstacleResourceMap <- (M.fromList <$>) $ for allObstacles $ \k -> do
+    background <- loadStatic ctx FilePath.background
+    cellShaded <- loadStatic ctx FilePath.cellShaded
+    cellOutline <- loadStatic ctx FilePath.cellOutline
+    obstacleResourceMap <- (M.fromList <$>) $ for genum $ \k -> do
       v <- loadStatic ctx $ FilePath.staticPathOf (oImgName k)
       return (k, v)
     --
@@ -79,13 +57,30 @@ instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
       renderer = Renderer'GLES ctx qBuffer
       staticResources = StaticResources {..}
     --
+    GL.glEnable ctx GL.gl_BLEND
+    GL.glBlendFuncSeparate ctx
+      GL.gl_SRC_ALPHA
+      GL.gl_ONE_MINUS_SRC_ALPHA
+      GL.gl_ONE
+      GL.gl_ONE_MINUS_SRC_ALPHA
+    --
     id $ 
       Regular.with ctx qBuffer $ \regular ->
       Paletted.with ctx qBuffer $ \paletted ->
-      OneColor.with ctx qBuffer $ \oneColor -> do
-      Text.with ctx qBuffer $ \text -> do
-        let draw = run regular paletted text oneColor ctx staticResources
-        next $ Prov {..}
+      OneColor.with ctx qBuffer $ \oneColor ->
+      Text.with ctx qBuffer $ \text ->
+        let
+          draw callback = do
+            Drawing.clear ctx
+            callback
+              regular
+              paletted
+              text
+              oneColor
+              staticResources
+            -- XXX proper error logging
+            -- GL.glGetError ctx >>= print @Int . (§)
+        in next $ Prov {..}
   --
   loadComplexSprite (Renderer'GLES ctx _) meta path = do
     image <- Platform.loadImage path >>= \case
@@ -125,121 +120,3 @@ loadFontAtlas (Essentials { fontMeta }) ctx font = do
     Left str -> raise str
   texture <- makeTexture ctx GL.gl_R8 GL.gl_RED image
   return $ FontAtlas { texture, meta = fontMeta font }
-
-fromActor ::
-  (FighterId -> Maybe Color) ->
-  (Handle, Actor) ->
-  Paletted.Cmd
-fromActor extraColor (h, actor) = Paletted.Cmd sprite spec outlineColor
-  where
-  outlineColor =
-    case h of
-      Handle'Fighter fyr -> maybe transparent id (extraColor fyr)
-      _ -> transparent
-    
-  sprite = actor ^. #sprite . _some
-  frame = (sprite ^. #meta . #groups) & (! g) & (! f) -- XXX partial...
-  f = actor ^. #frameN
-  g = actor ^. #groupN
-  -- @copypaste from Native.Stage.Prepare.toCopy
-  facing = actor ^. #facing
-  screenPlace = (<§>) ((actor ^. #position) .+^ offset .-^ (V2 0 (actor ^. #height)))
-  offset = (frame ^. #offset) * sign
-  sign = case facing of
-    West -> V2 (-1) 1
-    East -> 1
-  spec = CopySpec {
-    box = (<§>) (frame ^. #box),
-    place = (<§>) (frame ^. #place),
-    screenPlace,
-    screenBox = (<§>) ((frame ^. #box) * sign)
-  }
-
-run ::
-  (GL.GLES) =>
-  With (Handler Regular.Cmd) ->
-  With (Handler Paletted.Cmd) ->
-  With (Handler Text.Cmd) ->
-  With (Handler OneColor.Cmd) ->
-  GL.Ctx ->
-  StaticResources ->
-  In ->
-  IO ()
-run regular paletted text oneColor ctx staticResources (In {..}) = do
-  let
-    comparingY = comparing (view $ _2 . #position . _y)
-    actors = sortBy comparingY $ M.assocs $ scene ^. #actors
-    props = M.assocs $ scene ^. #props
-    StaticResources {..} = staticResources
-    bgCmd = background `fullCopyAt` (SV.singleton 0)
-    --
-    regularCmds =
-      [bgCmd] <>
-      (fromProp <$> props) <>
-      [
-        hexCmd cellShaded darkHexes,
-        hexCmd cellOutline lightHexes
-      ]
-    --
-    fontTestCmd = 
-      let
-      in Text.Cmd {
-        fontAtlas = fonts ! Font'FutilePro24,
-        screenPlace = 0,
-        string = "aloha"
-      }
-    hexCmd :: Drawing.StaticSprite -> V.Vector Hex -> Regular.Cmd
-    hexCmd sprite hexes =
-      sprite `fullCopyAt`
-        GV.convert ((\hex -> (<§>) (fieldCenter .+^ Cell.fromHex hex)) `GV.map` hexes)
-    --
-    fromProp :: (ObstacleId, Prop) -> Regular.Cmd
-    fromProp (o, prop) = cmd
-      where
-      sprite = obstacles (o ^. _otype)
-      sign = case prop ^. #facing of
-        West -> V2 (-1) 1
-        East -> 1
-      screenPlace = (<§>) (prop ^. #position)
-      cmd = Regular.Cmd {
-        texture = sprite ^. #texture,
-        dimensions = sprite ^. #dimensions,
-        box = sprite ^. #dimensions,
-        place = 0,
-        screenPlaces = SV.singleton screenPlace,
-        screenBox = (sprite ^. #dimensions) * sign
-      }
-    --
-    palettedCmds = fromActor extraColor <$> actors
-  --
-  Drawing.clear ctx
-  GL.glEnable ctx GL.gl_BLEND
-  GL.glBlendFuncSeparate ctx
-    GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA
-    GL.gl_ONE GL.gl_ONE_MINUS_SRC_ALPHA
-  --
-  regular $ \draw ->
-    for_ regularCmds draw
-  --
-  paletted $ \draw ->
-    for_ palettedCmds draw
-  --
-  text $ \draw ->
-    draw fontTestCmd
-  --
-  oneColor $ \draw -> do
-    let color = V4 0 0 0 (floor . (255 *) $ (scene ^. #curtain))
-    draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
-  -- XXX proper error logging
-  -- GL.glGetError ctx >>= print @Int . (§)
-
-fullCopyAt :: Drawing.StaticSprite -> SV.Vector (Point V2 Float) -> Regular.Cmd
-fullCopyAt sprite screenPlaces =
-  Regular.Cmd {
-    texture = sprite ^. #texture,
-    dimensions = sprite ^. #dimensions,
-    box = sprite ^. #dimensions,
-    screenBox = sprite ^. #dimensions,
-    place = 0,
-    screenPlaces
-  }

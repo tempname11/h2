@@ -1,11 +1,11 @@
 module Heroes.AAI where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Battle                                     (Battle)
-import Battle                                     (Move)
-import Battle.AI.Search                           (ai)
-import Battle.Setup                               (Setup)
-import Common.Hot                                 (Current(..))
+import Battle                                            (Battle)
+import Battle                                            (Move)
+import Battle.AI.Search                                  (ai)
+import Battle.Setup                                      (Setup)
+import Common.Hot                                        (Current(..))
 import Heroes
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified System.Mem.StableName                     as S

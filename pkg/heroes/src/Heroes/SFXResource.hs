@@ -2,6 +2,7 @@ module Heroes.SFXResource where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
+import Heroes.Drawing                                    (ComplexSprite)
 import Heroes.Essentials                                 (Essentials(..))
 import Heroes.Platform                                   (Platform)
 import qualified Heroes.FilePath                           as FilePath
@@ -11,7 +12,7 @@ import qualified Heroes.SND                                as SND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data SFXResource = SFXResource {
-  sprite :: GFX.ComplexSprite,
+  sprite :: ComplexSprite,
   chunk :: SND.Chunk
 } deriving (Generic)
 
