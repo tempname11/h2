@@ -52,5 +52,5 @@ load r (Essentials {..}) c = do
 
 destroy :: (GFX.GFX, SND.SND) => CreatureResource -> IO ()
 destroy c = do
-  GFX.destroyComplexSprite (c ^. _sprite)
-  mapM_ SND.freeChunk (c ^. _sounds)
+  GFX.destroyComplexSprite (c ^. #sprite)
+  mapM_ SND.freeChunk (c ^. #sounds)

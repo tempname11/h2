@@ -38,7 +38,7 @@ heuristic t s b =
 
 heuristic' :: Team -> P Int
 heuristic' t = do
-  fighters <- (?) _fighters
+  fighters <- (?) #fighters
   let
     (ours, theirs) =
       partition (\FighterAttr { team } -> team == t) (M.elems fighters)
@@ -52,7 +52,7 @@ cutoff [] = []
 ai :: (Setup, Battle) -> Maybe [Move]
 ai (setup, battle) =
   fmap cutoff .
-  view _bestMoves .
+  view #bestMoves .
   deepResult setup .
   deepBranch setup $
     (battle, numberOfEoms)
@@ -69,7 +69,7 @@ result s (Branching b bs) = case bs of
   _ -> convert (maximumBy (comparing (heu . prediction . snd)) bs)
   where
   heu = heuristic team s
-  team = (fst . currentS) (b ^. _order)
+  team = (fst . currentS) (b ^. #order)
   convert (moves, Result { bestMoves = futureMoves, prediction = p }) =
     Result {
       prediction = p,
@@ -86,7 +86,7 @@ branch :: Setup -> (Battle, Int) -> Branching (Battle, Int)
 branch s (b, eomsLeft) =
   if eomsLeft <= 0
   then Branching b []
-  else case b ^. _phase of
+  else case b ^. #phase of
     Phase'Movement {} ->
       Branching b $
         let M p c = movement [] (s, b)

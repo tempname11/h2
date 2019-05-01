@@ -37,5 +37,5 @@ load r (Essentials {..}) s = do
 
 destroy :: (GFX.GFX, SND.SND) => SFXResource -> IO ()
 destroy c = do
-  GFX.destroyComplexSprite (c ^. _sprite)
-  SND.freeChunk (c ^. _chunk)
+  GFX.destroyComplexSprite (c ^. #sprite)
+  SND.freeChunk (c ^. #chunk)

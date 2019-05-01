@@ -92,7 +92,7 @@ instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
       Right image -> return image
       Left str -> raise str
     atlasTexture <- makeTexture ctx GL.gl_R8 GL.gl_RED image
-    let buf = unsafeToBuf (meta ^. _palette)
+    let buf = unsafeToBuf (meta ^. #palette)
     paletteTexture <- makePaletteTexture ctx buf
     return $ Drawing.ComplexSprite { .. }
   --
@@ -137,22 +137,22 @@ fromActor extraColor (h, actor) = Paletted.Cmd sprite spec outlineColor
       Handle'Fighter fyr -> maybe transparent id (extraColor fyr)
       _ -> transparent
     
-  sprite = actor ^. _sprite . _some
-  frame = (sprite ^. _meta . _groups) & (! g) & (! f) -- XXX partial...
-  f = actor ^. _frameN
-  g = actor ^. _groupN
+  sprite = actor ^. #sprite . _some
+  frame = (sprite ^. #meta . #groups) & (! g) & (! f) -- XXX partial...
+  f = actor ^. #frameN
+  g = actor ^. #groupN
   -- @copypaste from Native.Stage.Prepare.toCopy
-  facing = actor ^. _facing
-  screenPlace = (<§>) ((actor ^. _position) .+^ offset .-^ (V2 0 (actor ^. _height)))
-  offset = (frame ^. _offset) * sign
+  facing = actor ^. #facing
+  screenPlace = (<§>) ((actor ^. #position) .+^ offset .-^ (V2 0 (actor ^. #height)))
+  offset = (frame ^. #offset) * sign
   sign = case facing of
     West -> V2 (-1) 1
     East -> 1
   spec = CopySpec {
-    box = (<§>) (frame ^. _box),
-    place = (<§>) (frame ^. _place),
+    box = (<§>) (frame ^. #box),
+    place = (<§>) (frame ^. #place),
     screenPlace,
-    screenBox = (<§>) ((frame ^. _box) * sign)
+    screenBox = (<§>) ((frame ^. #box) * sign)
   }
 
 run ::
@@ -167,9 +167,9 @@ run ::
   IO ()
 run regular paletted text oneColor ctx staticResources (In {..}) = do
   let
-    comparingY = comparing (view $ _2 . _position . _y)
-    actors = sortBy comparingY $ M.assocs $ scene ^. _actors
-    props = M.assocs $ scene ^. _props
+    comparingY = comparing (view $ _2 . #position . _y)
+    actors = sortBy comparingY $ M.assocs $ scene ^. #actors
+    props = M.assocs $ scene ^. #props
     StaticResources {..} = staticResources
     bgCmd = background `fullCopyAt` (SV.singleton 0)
     --
@@ -197,17 +197,17 @@ run regular paletted text oneColor ctx staticResources (In {..}) = do
     fromProp (o, prop) = cmd
       where
       sprite = obstacles (o ^. _otype)
-      sign = case prop ^. _facing of
+      sign = case prop ^. #facing of
         West -> V2 (-1) 1
         East -> 1
-      screenPlace = (<§>) (prop ^. _position)
+      screenPlace = (<§>) (prop ^. #position)
       cmd = Regular.Cmd {
-        texture = sprite ^. _texture,
-        dimensions = sprite ^. _dimensions,
-        box = sprite ^. _dimensions,
+        texture = sprite ^. #texture,
+        dimensions = sprite ^. #dimensions,
+        box = sprite ^. #dimensions,
         place = 0,
         screenPlaces = SV.singleton screenPlace,
-        screenBox = (sprite ^. _dimensions) * sign
+        screenBox = (sprite ^. #dimensions) * sign
       }
     --
     palettedCmds = fromActor extraColor <$> actors
@@ -228,7 +228,7 @@ run regular paletted text oneColor ctx staticResources (In {..}) = do
     draw fontTestCmd
   --
   oneColor $ \draw -> do
-    let color = V4 0 0 0 (floor . (255 *) $ (scene ^. _curtain))
+    let color = V4 0 0 0 (floor . (255 *) $ (scene ^. #curtain))
     draw $ OneColor.Cmd { color, box = Nothing, place = 0 }
   -- XXX proper error logging
   -- GL.glGetError ctx >>= print @Int . (§)
@@ -236,10 +236,10 @@ run regular paletted text oneColor ctx staticResources (In {..}) = do
 fullCopyAt :: Drawing.StaticSprite -> SV.Vector (Point V2 Float) -> Regular.Cmd
 fullCopyAt sprite screenPlaces =
   Regular.Cmd {
-    texture = sprite ^. _texture,
-    dimensions = sprite ^. _dimensions,
-    box = sprite ^. _dimensions,
-    screenBox = sprite ^. _dimensions,
+    texture = sprite ^. #texture,
+    dimensions = sprite ^. #dimensions,
+    box = sprite ^. #dimensions,
+    screenBox = sprite ^. #dimensions,
     place = 0,
     screenPlaces
   }

@@ -82,7 +82,7 @@ data Data = Data {
 battlefieldHexesMemo :: Current (Setup, a) -> V.Vector Hex
 battlefieldHexesMemo =
   Hot.forget .
-  Hot.memo1 (V.fromList . S.toList . view _field . fst . Hot.this) .
+  Hot.memo1 (V.fromList . S.toList . view #field . fst . Hot.this) .
   Hot.currently
 
 core :: Deps -> Maybe AIResult -> In -> Data -> (Out, Maybe AIQuery, Data)
@@ -104,7 +104,7 @@ core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
   --
   aiQuery =
     if not isHuman
-    then Just (AIQuery (data0 ^. _current))
+    then Just (AIQuery (data0 ^. #current))
     else Nothing
   acceptable = acceptableMovesMemo current0
   moves = do
@@ -138,10 +138,10 @@ core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
       Just (AIResult'Pending) -> Just Annotation'Thinking
       _ -> view _1 <$> payload
   --
-  battleField = setup ^. _field
+  battleField = setup ^. #field
   movementHexes =
     if isActive0 && isHuman
-    then (M.keys . \(M p _) -> p) (aux (current data1) ^. _movementHexes)
+    then (M.keys . \(M p _) -> p) (aux (current data1) ^. #movementHexes)
     else []
   destinationHexes =
     if isActive0 && isHuman
@@ -174,7 +174,7 @@ core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
     Nothing -> Nothing
     Just nbc' -> do
       let segment = Cell.toSegment ((<§>) nbc' .-. fieldCenter)
-          hex     = segment ^. _hex
+          hex     = segment ^. #hex
           inField = hex `elem` battleField
       guard inField
       return segment
@@ -195,7 +195,7 @@ core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
           Data {
             current = Current (setup, battle1),
             pastBattles =
-              case (battle0 ^. _phase, isHuman) of
+              case (battle0 ^. #phase, isHuman) of
                 (Phase'Initial {}, True) -> battle0 : pastBattles0
                 _ -> pastBattles0,
             futureBattles = []
@@ -236,12 +236,12 @@ core (Deps {..}) aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
   --
   hoveredFighter = do
     guard isActive0
-    hex <- view _hex <$> hoveredSegment
+    hex <- view #hex <$> hoveredSegment
     join $ current0' #?. whoIsOn hex
 
   extraColor fyr =
     if isActive0 && isHuman
-    then if fyr `elem` (aux0 ^. _selectableFighters)
+    then if fyr `elem` (aux0 ^. #selectableFighters)
          then Just $
            if (hoveredFighter == Just fyr)
            then cyan

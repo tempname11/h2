@@ -60,8 +60,8 @@ fromBattle b loaded =
       (Offset 10, Left (Animation.SetCurtainOpacity 0.0))
     ]
   --
-  addObstacles = fmap (atFrame0 . convertO) . M.toList $ b ^. _obstacles
-  addActors' = fmap2 atFrame0 . pipe . fmap convertF . M.toList $ b ^. _fighters
+  addObstacles = fmap (atFrame0 . convertO) . M.toList $ b ^. #obstacles
+  addActors' = fmap2 atFrame0 . pipe . fmap convertF . M.toList $ b ^. #fighters
   atFrame0 x = (Offset 0, Left x)
   --
   pipe :: -- XXX better naming?
@@ -81,7 +81,7 @@ fromBattle b loaded =
   convertO (ob, attr) = Animation.PC ob (Animation.PAdd prop)
     where
     prop = Prop {
-      position = obstaclePositionAt (ob ^. _otype) East (attr ^. _multiplacing),
+      position = obstaclePositionAt (ob ^. _otype) East (attr ^. #multiplacing),
       facing = East
     }
   --
@@ -93,13 +93,13 @@ fromBattle b loaded =
     where
       GroupNumber g = is Idling
       c = fyr ^. _creature
-      actor' = case (loaded ^. _creatures) c of
+      actor' = case (loaded ^. #creatures) c of
         Just (CreatureResource { sprite }) ->
           Right $ Actor {
             sprite = Some sprite,
-            position = actorPositionAt (attr ^. _facing) (attr ^. _placing),
+            position = actorPositionAt (attr ^. #facing) (attr ^. #placing),
             height = 0,
-            facing = attr ^. _facing,
+            facing = attr ^. #facing,
             groupN = g,
             frameN = 0,
             subframeN = 0,

@@ -60,8 +60,8 @@ makeMove m = do
 
 allMoves :: P (Map Move P0)
 allMoves = do
-  phase <- (?) _phase
-  fighters <- (?) _fighters
+  phase <- (?) #phase
+  fighters <- (?) #fighters
   --
   let
     allFighters = M.keys fighters
@@ -97,7 +97,7 @@ allMoves = do
                 }
                 AM.meleeAttack fyr dfyr bearing
                 fyr `attacks` dfyr
-                _phase .= Phase'Movement {
+                #phase .= Phase'Movement {
                   points = 0,
                   didMove = True,
                   fighter = fyr,
@@ -109,8 +109,8 @@ allMoves = do
                 enforceNoObstacles plane placing
                 considerTurning fyr facing
                 AM.move fyr placing
-                _fighters . by fyr . _placing .=! placing
-                _phase .= Phase'Movement {
+                #fighters . by fyr . #placing .=! placing
+                #phase .= Phase'Movement {
                   points = points - 1,
                   didMove = True,
                   fighter = fyr,
@@ -124,11 +124,11 @@ allMoves = do
       Phase'FighterActionSelection { fighter = fyr } ->
         [
           MovementSelected @@ do
-            speed <- (?!) $ _fighters . by fyr . _speed
+            speed <- (?!) $ #fighters . by fyr . #speed
             canFly <-
-              (?!) $ _fighters . by fyr . _abilities . contains Ability'Flight
+              (?!) $ #fighters . by fyr . #abilities . contains Ability'Flight
             when (canFly) $ AM.takeoff fyr
-            _phase .= Phase'Movement {
+            #phase .= Phase'Movement {
                 plane = if canFly then Aerial else Ground,
                 fighter = fyr,
                 points = speed,
@@ -136,73 +136,73 @@ allMoves = do
               }
         ] <> (
           (
-            case fighters ^.? by fyr . _abilities . contains Ability'Ranged of
+            case fighters ^.? by fyr . #abilities . contains Ability'Ranged of
               Just True -> filter (/= fyr) allFighters
               _ -> []
           ) <&> \dfyr -> RangeAttackSelected dfyr @@ do
-            p0 <- (?!) $ _fighters . by fyr . _placing
-            p1 <- (?!) $ _fighters . by dfyr . _placing
+            p0 <- (?!) $ #fighters . by fyr . #placing
+            p1 <- (?!) $ #fighters . by dfyr . #placing
             let rangeAttackRadius = 4 -- XXX
             enforce $
               Placing.distance p0 p1 <= rangeAttackRadius
             considerTurningTowards fyr dfyr
             AM.rangeAttack fyr dfyr
             fyr `attacks` dfyr
-            _phase .= Phase'Terminal
+            #phase .= Phase'Terminal
         )
       --
       Phase'Initial -> (
           allFighters <&> \fyr -> FighterSelected fyr @@ do
-            fighterTeam <- (?!) $ _fighters . by fyr . _team
+            fighterTeam <- (?!) $ #fighters . by fyr . #team
             enforceM $ (== fighterTeam) <$> currentTeam
             --
-            _phase .= Phase'FighterActionSelection { fighter = fyr }
+            #phase .= Phase'FighterActionSelection { fighter = fyr }
         ) <> (
           genum <&> \spell -> SpellSelected spell @@ do
-            _phase .= Phase'SpellTargetSelection spell
+            #phase .= Phase'SpellTargetSelection spell
         )
       --
       Phase'SpellTargetSelection { spell } -> (
           allFighters <&> \fyr -> FighterSelected fyr @@ do
-            f <- (?!) $ _fighters . by fyr . _facing
-            p <- (?!) $ _fighters . by fyr . _placing
+            f <- (?!) $ #fighters . by fyr . #facing
+            p <- (?!) $ #fighters . by fyr . #placing
             AM.specialEffect spell f p 
             case spell of
-              H3.SFX'Haste -> _fighters . by fyr . _speed %=! (+1) -- XXX max 7?
-              H3.SFX'Slow  -> _fighters . by fyr . _speed %=! (+(-1)) -- XXX min 1?
+              H3.SFX'Haste -> #fighters . by fyr . #speed %=! (+1) -- XXX max 7?
+              H3.SFX'Slow  -> #fighters . by fyr . #speed %=! (+(-1)) -- XXX min 1?
               --H3.Sacrifice -> dies fyr
-            _phase .= Phase'Terminal
+            #phase .= Phase'Terminal
         )
 
 proceed :: P0
 proceed = do
-  _order %= nextS
-  _phase .= Phase'Initial
+  #order %= nextS
+  #phase .= Phase'Initial
 
 -- XXX copy-pasted from placingEmpty
 whoIsOn :: Hex -> P (Maybe FighterId)
 whoIsOn h = do
-  fighters <- (?) $ _fighters
+  fighters <- (?) $ #fighters
   return $ loop $ M.toList fighters
   where loop :: [(FighterId, FighterAttr)] -> Maybe FighterId
         loop [] = Nothing
-        loop ((fyr, u) : us) = if (u ^. _placing) `Placing.has` h
+        loop ((fyr, u) : us) = if (u ^. #placing) `Placing.has` h
                       then Just fyr
                       else loop us
 
 placingEmpty :: Placing -> P Bool
 placingEmpty p = do
-  fighters <- (?) $ _fighters
+  fighters <- (?) $ #fighters
   return $ loop $ M.toList fighters
   where loop :: [(FighterId, FighterAttr)] -> Bool
         loop [] = True
-        loop ((_, u) : us) = if (u ^. _placing) `Placing.intersects` p
+        loop ((_, u) : us) = if (u ^. #placing) `Placing.intersects` p
                       then False
                       else loop us
 
 spawns :: Creature -> FighterAttr -> P0
 spawns c attr = do
-  fighters <- (?) $ _fighters
+  fighters <- (?) $ #fighters
   let f = makeFighterId c
           . (+1)
           . maximum
@@ -210,43 +210,43 @@ spawns c attr = do
           . fmap (\(FighterId i) -> i)
           . M.keys
           $ fighters
-      placing = attr ^. _placing
+      placing = attr ^. #placing
   enforceNoObstacles Ground placing
   enforceM $ placingEmpty placing
-  _fighters . at f .= Just attr
+  #fighters . at f .= Just attr
 
 -- XXX separate melee and range?
 attacks :: FighterId -> FighterId -> P0
 attacks attacker defender = do
-  attack  <- (?!) $ _fighters . by attacker . _attack
-  defence <- (?!) $ _fighters . by defender . _defence
+  attack  <- (?!) $ #fighters . by attacker . #attack
+  defence <- (?!) $ #fighters . by defender . #defence
   if attack > defence
     then defender & dies
-    else _fighters . by defender . _defence -=! 1
+    else #fighters . by defender . #defence -=! 1
 
 turns :: FighterId -> Facing -> P0
 turns fyr facing = do
   AM.turn fyr facing
-  _fighters . by fyr . _facing .=! facing
+  #fighters . by fyr . #facing .=! facing
 
 dies :: FighterId -> P0
 dies fyr = do
   AM.death fyr
-  FighterAttr {..} <- (?!) $ _fighters . by fyr
-  _bodies . at fyr .= Just BodyAttr {..}
-  _fighters . at fyr  .= Nothing
+  FighterAttr {..} <- (?!) $ #fighters . by fyr
+  #bodies . at fyr .= Just BodyAttr {..}
+  #fighters . at fyr  .= Nothing
 
 enforceNoObstacles :: Plane -> Placing -> P ()
 enforceNoObstacles plane p = do
-  field <- (?-) $ _field
+  field <- (?-) $ #field
   case plane of
     Aerial -> return ()
     Ground -> do
-      obstacles <- (?) $ _obstacles
+      obstacles <- (?) $ #obstacles
       let
         blocked =
           S.unions $
-          Hex.fromMulti . view _multiplacing <$> M.elems obstacles
+          Hex.fromMulti . view #multiplacing <$> M.elems obstacles
         free = field `S.difference` blocked
       for_ (Placing.visit p) $ \hex -> do
         enforce $ hex `elem` free
@@ -255,18 +255,18 @@ enforceNoObstacles plane p = do
 tryWalking :: Bearing -> FighterId -> P WalkingResult
 tryWalking bearing fyr = do
   --
-  placing <- (?!) $ _fighters . by fyr . _placing
+  placing <- (?!) $ #fighters . by fyr . #placing
   let facing' = Bearing.toFacing bearing
       placing' = Placing.walk bearing placing
       headHex  = Placing.head placing' facing'
       -- where the 'head' will be after the walk.
-  fighters <- (?) $ _fighters
+  fighters <- (?) $ #fighters
   --
   let loopF :: [(FighterId, FighterAttr)] -> Maybe WalkingResult
       loopF [] = Just $ CanMove placing' facing'
       loopF ((ofyr, other) : us) =
         if | ofyr /= fyr ->
-             let otherPlacing = other ^. _placing
+             let otherPlacing = other ^. #placing
                  overlap = Placing.overlap placing' otherPlacing
              in case overlap of
                Placing.NoOverlap -> continue
@@ -287,21 +287,21 @@ tryWalking bearing fyr = do
 
 fighterPlacing :: FighterId -> P Placing
 fighterPlacing fyr =
-  (?!) $ _fighters . by fyr . _placing
+  (?!) $ #fighters . by fyr . #placing
 
 currentFighterPlacing :: P Placing
 currentFighterPlacing = do
-  phase <- (?) $ _phase
+  phase <- (?) $ #phase
   case phase of
     Phase'FighterActionSelection { fighter = fyr } -> do
-      (?!) $ _fighters . by fyr . _placing
+      (?!) $ #fighters . by fyr . #placing
     Phase'Movement { fighter = fyr } -> do
-      (?!) $ _fighters . by fyr . _placing
+      (?!) $ #fighters . by fyr . #placing
     _ -> invalid
 
 pNode :: P PM.Node
 pNode = do
-  phase <- (?) $ _phase
+  phase <- (?) $ #phase
   (fyr, points) <-
     case phase of
       Phase'Movement { fighter = f, points = p } -> return (f, p)
@@ -312,24 +312,24 @@ pNode = do
 
 considerTurning :: FighterId -> Facing -> P0
 considerTurning fyr facing' = do
-  facing <- (?!) $ _fighters . by fyr . _facing
+  facing <- (?!) $ #fighters . by fyr . #facing
   when (facing /= facing') $ turns fyr facing'
 
 considerTurningTowards :: FighterId -> FighterId -> P0
 considerTurningTowards fyr dfyr = do
-  a <- (?!) $ _fighters . by fyr . _placing
-  d <- (?!) $ _fighters . by dfyr . _placing
+  a <- (?!) $ #fighters . by fyr . #placing
+  d <- (?!) $ #fighters . by dfyr . #placing
   case Placing.preferredFacing a d of
     Just facing -> considerTurning fyr facing
     Nothing -> return ()
 
 currentTeam :: P Team
 currentTeam = (fst . currentS) <$> do
-  (?) $ _order
+  (?) $ #order
 
 currentPlayerType :: P PlayerType
 currentPlayerType = do
   t <- currentTeam
-  TeamAttr { playerType } <- (?!-) $ _participants . by t
+  TeamAttr { playerType } <- (?!-) $ #participants . by t
   return playerType
 

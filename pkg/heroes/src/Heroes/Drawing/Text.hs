@@ -122,12 +122,12 @@ draw :: GLES => GL.Ctx -> Self -> Cmd -> IO ()
 draw ctx (Self {..}) (Cmd {..}) = do
   let
     FontAtlas { meta, texture } = fontAtlas
-    dimensions = (<§>) (meta ^. _dimensions)
-    ascender = (§) (meta ^. _ascender)
-    glyphs = meta ^. _glyphs
+    dimensions = (<§>) (meta ^. #dimensions)
+    ascender = (§) (meta ^. #ascender)
+    glyphs = meta ^. #glyphs
     gs = B.unpack string <&> (glyphs !)
     boxes :: SV.Vector (V2 Float)
-    boxes = SV.fromList (gs <&> (<§>) . view _box)
+    boxes = SV.fromList (gs <&> (<§>) . view #box)
     scrPlaces :: SV.Vector (Point V2 Float)
     scrPlaces = SV.fromList $ reverse $ fst $ -- XXX looks pretty horrible
       foldl'
@@ -138,7 +138,7 @@ draw ctx (Self {..}) (Cmd {..}) = do
         ([], screenPlace .+^ V2 0 ascender)
         gs
     texPlaces :: SV.Vector (V2 Float)
-    texPlaces = SV.fromList (gs <&> (<§>) . view _place)
+    texPlaces = SV.fromList (gs <&> (<§>) . view #place)
     count = (§) (B.length string)
   --
   GL.glUniform2f ctx uniform_texDimensions (dimensions ^. _x) (dimensions ^. _y)

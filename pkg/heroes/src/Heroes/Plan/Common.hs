@@ -42,15 +42,15 @@ getChunk sound = do
   (_, loaded) <- ask
   case sound of
     Sound'Creature c t ->
-      case (loaded ^. _creatures) c of
+      case (loaded ^. #creatures) c of
         Just r -> 
-          case r ^. _sounds . at t of
+          case r ^. #sounds . at t of
             Just x -> return x
             Nothing -> singleRequest (LoadRequest'Creature c)
         Nothing -> singleRequest (LoadRequest'Creature c)
     Sound'SFX s ->
-      case (loaded ^. _sfxes) s of
-        Just x -> return (x ^. _chunk)
+      case (loaded ^. #sfxes) s of
+        Just x -> return (x ^. #chunk)
         Nothing -> singleRequest (LoadRequest'SFX s)
 
 (+!) :: Offset -> GroupSize -> Offset

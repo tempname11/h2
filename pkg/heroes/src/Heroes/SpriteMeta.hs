@@ -48,15 +48,15 @@ put meta = do
   for_ groups $ \group -> do
     put16 $ V.length group
     for_ group $ \frame -> do
-     v2 put16 $ frame ^. _box
-     let P place = frame ^. _place
+     v2 put16 $ frame ^. #box
+     let P place = frame ^. #place
      v2 put16 place
-     v2 put16 $ frame ^. _offset
+     v2 put16 $ frame ^. #offset
 
   where
-  (V2 w h) = meta ^. _dimensions
-  palette  = meta ^. _palette
-  groups   = meta ^. _groups
+  (V2 w h) = meta ^. #dimensions
+  palette  = meta ^. #palette
+  groups   = meta ^. #groups
   v2 :: (a -> Put) -> V2 a -> Put
   v2 p (V2 x y) = p x >> p y
 

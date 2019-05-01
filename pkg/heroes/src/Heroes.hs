@@ -1,6 +1,5 @@
 module Heroes (
   module Heroes.Internal,
-  module Fields,
   module Common,
   module Common.Optics,
   Creature,
@@ -17,8 +16,8 @@ module Heroes (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
+import Common.Fields ()
 import Common.Optics
-import Fields
 import Heroes.Internal                                   (Hex, HexDiff)
 import qualified Heroes.H3                                 as H3
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
