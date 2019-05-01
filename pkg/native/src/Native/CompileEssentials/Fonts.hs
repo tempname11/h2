@@ -27,6 +27,8 @@ import qualified Data.Vector.Storable.Mutable              as MSV
 import qualified Graphics.Rendering.FreeType.Internal.Bitmap as Bitmap
 import qualified Graphics.Rendering.FreeType.Internal.Face as Face
 import qualified Graphics.Rendering.FreeType.Internal.GlyphSlot as GlyphSlot
+import qualified Graphics.Rendering.FreeType.Internal.Size as Size
+import qualified Graphics.Rendering.FreeType.Internal.SizeMetrics as SizeMetrics
 import qualified Graphics.Rendering.FreeType.Internal.Vector as Vector
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -58,6 +60,12 @@ convert lib inPath size outPath = do
     e <- ft_Set_Char_Size face 0 (shiftL ((§) size) 6) dpi dpi
     when (e /= 0) $ raise "Error in ft_Set_Char_Size"
   --
+  faceSize <- peek $ Face.size face
+  sizeMetrics <- peek $ Size.metrics faceSize
+  let
+    ascender = (§) (SizeMetrics.ascender sizeMetrics `div` 64)
+    descender = (§) (SizeMetrics.descender sizeMetrics `div` 64)
+  --
   boxes <- for charSet $ \char -> do
     let code = fromEnum char
     e <- ft_Load_Char face ((§) code) ft_LOAD_RENDER
@@ -70,7 +78,6 @@ convert lib inPath size outPath = do
     --
     return $ Box width height
   --
-  print boxes -- FIXME
   let (Container dimX dimY, places) = fitBest boxes
   mpixels <- MSV.replicate (dimX * dimY) 0
   --
@@ -81,13 +88,12 @@ convert lib inPath size outPath = do
     glyph <- peek $ Face.glyph face
     bitmap <- peek $ GlyphSlot.bitmap glyph
     left <- peek $ GlyphSlot.bitmap_left glyph
-    top' <- peek $ GlyphSlot.bitmap_top glyph
-    advanceV <- peek $ GlyphSlot.advance glyph
+    top <- peek $ GlyphSlot.bitmap_top glyph
+    advance26p6 <- peek $ GlyphSlot.advance glyph
     let
       width = Bitmap.pitch bitmap
       height = Bitmap.rows bitmap
       buffer = Bitmap.buffer bitmap
-      top = height - top'
     --
     for_ [0..width - 1] $ \i ->
       for_ [0..height - 1] $ \j -> do
@@ -98,8 +104,8 @@ convert lib inPath size outPath = do
     --
     return $
       ((§) code, GlyphMeta {
-        advanceX = (§) (Vector.x advanceV `div` 64),
-        renderOffset = (<§>) (V2 left top),
+        advanceX = (§) (Vector.x advance26p6 `div` 64),
+        renderOffset = (<§>) (V2 left (-top)),
         box = (<§>) (V2 width height),
         place = V2 placeX placeY
       })
@@ -114,8 +120,11 @@ convert lib inPath size outPath = do
     e <- ft_Done_Face face
     when (e /= 0) $ raise "Error in ft_Done_Face"
   --
+  print (ascender, descender)
   return $
     FontMeta {
       dimensions = V2 dimX dimY,
+      ascender,
+      descender,
       glyphs = M.fromList gs
     }

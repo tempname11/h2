@@ -20,17 +20,21 @@ data GlyphMeta = GlyphMeta {
   place :: V2 Int,
   box :: V2 Int,
   renderOffset :: V2 Int
-} deriving (Generic)
+} deriving (Show, Generic)
 
 data FontMeta = FontMeta {
   dimensions :: V2 Int,
+  ascender :: Int,
+  descender :: Int,
   glyphs :: M.Map Word8 GlyphMeta
-} deriving (Generic)
+} deriving (Show, Generic)
 
 put :: FontMeta -> Put
 put (FontMeta {..}) = do
   put16 (dimensions ^. _x)
   put16 (dimensions ^. _y)
+  put16 ascender
+  put16 descender
   put16 (M.size glyphs)
   for_ (M.assocs glyphs) $ \(code, GlyphMeta {..}) -> do
     put16 code
@@ -64,6 +68,8 @@ v2 g = V2 <$> g <*> g
 get :: Get FontMeta
 get = do
   dimensions <- v2 get16
+  ascender <- get16
+  descender <- get16
   gLength <- get16
   gs <- replicateM gLength $ do
     code <- get16
@@ -76,6 +82,8 @@ get = do
   return $
     FontMeta {
       dimensions,
+      ascender,
+      descender,
       glyphs = M.fromList gs
     }
     

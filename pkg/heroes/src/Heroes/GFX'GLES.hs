@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
@@ -32,6 +33,7 @@ import qualified Heroes.Drawing                            as Drawing
 import qualified Heroes.Drawing.OneColor                   as OneColor
 import qualified Heroes.Drawing.Paletted                   as Paletted
 import qualified Heroes.Drawing.Quad                       as Quad
+import qualified Heroes.Drawing.Text                       as Text
 import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Image                              as Image
 import qualified Heroes.FilePath                           as FilePath
@@ -77,10 +79,12 @@ instance (GLES, Platform, GLX.GLX, WND.WND, GFX'Types) => GFX where
       renderer = Renderer'GLES ctx qBuffer
       staticResources = StaticResources {..}
     --
-    Regular.with ctx qBuffer $ \regular ->
+    id $ 
+      Regular.with ctx qBuffer $ \regular ->
       Paletted.with ctx qBuffer $ \paletted ->
       OneColor.with ctx qBuffer $ \oneColor -> do
-        let draw = run regular paletted oneColor ctx staticResources
+      Text.with ctx qBuffer $ \text -> do
+        let draw = run regular paletted text oneColor ctx staticResources
         next $ Prov {..}
   --
   loadComplexSprite (Renderer'GLES ctx _) meta path = do
@@ -155,12 +159,13 @@ run ::
   (GL.GLES) =>
   With (Handler Regular.Cmd) ->
   With (Handler Paletted.Cmd) ->
+  With (Handler Text.Cmd) ->
   With (Handler OneColor.Cmd) ->
   GL.Ctx ->
   StaticResources ->
   In ->
   IO ()
-run regular paletted oneColor ctx staticResources (In {..}) = do
+run regular paletted text oneColor ctx staticResources (In {..}) = do
   let
     comparingY = comparing (view $ _2 . _position . _y)
     actors = sortBy comparingY $ M.assocs $ scene ^. _actors
@@ -173,21 +178,15 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
       (fromProp <$> props) <>
       [
         hexCmd cellShaded darkHexes,
-        hexCmd cellOutline lightHexes,
-        fontTestCmd
+        hexCmd cellOutline lightHexes
       ]
     --
     fontTestCmd = 
       let
-        fontAtlas = fonts ! Font'FutilePro24
-        dimensions = (<§>) (fontAtlas ^. _meta . _dimensions)
-      in Regular.Cmd {
-        texture = fontAtlas ^. _texture,
-        dimensions,
-        box = dimensions,
-        screenBox = dimensions,
-        place = 0,
-        screenPlaces = SV.fromList [0]
+      in Text.Cmd {
+        fontAtlas = fonts ! Font'FutilePro24,
+        screenPlace = 0,
+        string = "aloha"
       }
     hexCmd :: Drawing.StaticSprite -> V.Vector Hex -> Regular.Cmd
     hexCmd sprite hexes =
@@ -224,6 +223,9 @@ run regular paletted oneColor ctx staticResources (In {..}) = do
   --
   paletted $ \draw ->
     for_ palettedCmds draw
+  --
+  text $ \draw ->
+    draw fontTestCmd
   --
   oneColor $ \draw -> do
     let color = V4 0 0 0 (floor . (255 *) $ (scene ^. _curtain))
