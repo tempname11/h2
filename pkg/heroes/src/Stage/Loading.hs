@@ -55,7 +55,7 @@ with (Deps {..}) next = do
 
 queryLoaded :: IORef Maps -> NBChan LoadResult -> IO QueryOut
 queryLoaded ref loadedChan = do
-  rs <- NBChan.drain loadedChan
+  rs <- NBChan.take loadedChan
   maps <- readIORef ref
   --
   let
@@ -74,5 +74,5 @@ wishLoaded :: IORef (Set LoadRequest) -> NBChan LoadRequest -> WishIn -> IO ()
 wishLoaded ref wishChan (WishIn {..}) = do
   prevRequests <- readIORef ref
   let notThere = S.filter (not . flip elem prevRequests) loadRequests
-  NBChan.pour wishChan (S.toList notThere)
+  NBChan.put wishChan (S.toList notThere)
   writeIORef ref (S.union loadRequests prevRequests)

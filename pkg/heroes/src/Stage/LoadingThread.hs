@@ -62,8 +62,8 @@ loadingThread (Deps {..}) (wishChan, loadedChan) = do
       LoadRequest'Creature c ->
         LoadResult'Creature c <$> CreatureResource.load renderer essentials c
   --
-  ws <- NBChan.drain wishChan
+  ws <- NBChan.take wishChan
   for_ ws $ \w -> do
     print (w, "is wished to be loaded. So be it!" :: String)
     r <- load w
-    NBChan.trickle loadedChan r
+    NBChan.put1 loadedChan r

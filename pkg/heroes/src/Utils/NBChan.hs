@@ -1,33 +1,51 @@
 module Utils.NBChan (
-  NBChan,
   new,
-  drain,
-  pour,
-  trickle,
+  put,
+  put1,
+  take,
+  take1,
+  NBChan
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Concurrent                                (MVar)
+import Control.Concurrent                                (newMVar)
+import Control.Concurrent                                (putMVar)
+import Control.Concurrent                                (takeMVar)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
--- XXX remove this file, it's now only a hack until
--- LoadingThread gets properly fixed
-
-data NBChan a = XXX (IORef [a])
+data NBChan a = NBChan {
+  mvar :: MVar [a]
+}
 
 new :: IO (NBChan a)
-new = XXX <$> newIORef []
+new = do
+  mvar <- newMVar []
+  return (NBChan {..})
 
-drain :: NBChan a -> IO [a]
-drain (XXX r) = do
-  xs <- readIORef r
-  writeIORef r []
+put :: NBChan a -> [a] -> IO ()
+put (NBChan {..}) xs = do
+  ys <- takeMVar mvar
+  putMVar mvar (ys <> xs)
+  
+put1 :: NBChan a -> a -> IO ()
+put1 n = put n . (: [])
+
+take1 :: NBChan a -> IO (Maybe a)
+take1 (NBChan {..}) = do
+  xs <- takeMVar mvar
+  case xs of
+    x : xs' -> do
+      putMVar mvar xs'
+      return (Just x)
+    [] -> do
+      putMVar mvar []
+      return Nothing
+
+take :: NBChan a -> IO [a]
+take (NBChan {..}) = do
+  xs <- takeMVar mvar
+  putMVar mvar []
   return xs
-
-pour :: NBChan a -> [a] -> IO ()
-pour (XXX r) xs = do
-  ys <- readIORef r
-  writeIORef r (ys <> xs)
-
-trickle :: NBChan a -> a -> IO ()
-trickle r x = pour r [x]
