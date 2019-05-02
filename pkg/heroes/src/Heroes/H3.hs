@@ -1357,22 +1357,22 @@ downgraded = (`Bimap.lookupR` upgradeMap)
 
 data SFX
   = SFX'Haste
-  | SFX'Slow
   -- | SFX'Sacrifice
+  | SFX'Slow
   deriving (Eq, Ord, Show, Generic)
 
 sSndName :: SFX -> String
 sSndName = \case
   SFX'Haste -> "TAILWIND"
-  SFX'Slow -> "MUCKMIRE"
   -- SFX'Sacrifice -> "SACRIF1"
+  SFX'Slow -> "MUCKMIRE"
 
 sDefName :: SFX -> String
 sDefName = \case
   SFX'Haste -> "C15SPA0"
-  SFX'Slow -> "C09SPE0"
   -- SFX'Sacrifice -> "C01SPE0"
-  --
+  SFX'Slow -> "C09SPE0"
+
 -- XXX DeriveAnyClass
 instance GEnum Creature
 instance GEnum SFX
