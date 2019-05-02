@@ -16,7 +16,6 @@ import Heroes.AAI                                        (AIQuery)
 import Heroes.AAI                                        (AIResult)
 import Heroes.Drawing                                    (CopySpec(..))
 import Heroes.Font                                       (Font(..))
-import Heroes.Root.Common                                (ScreenOut(..))
 import Heroes.UI                                         (Color)
 import Heroes.UI                                         (fieldCenter)
 import Heroes.UI                                         (transparent)
@@ -29,6 +28,7 @@ import qualified Heroes.Drawing.Text                       as Text
 import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Input                              as Input
 import qualified Heroes.GFX                                as GFX
+import qualified Heroes.Root.Common                        as Root
 import qualified Heroes.Root.BattleScreen.Animation        as Animation
 import qualified Heroes.Root.BattleScreen.Blackbox         as Blackbox 
 import qualified Heroes.Root.BattleScreen.Core             as Core 
@@ -40,6 +40,7 @@ import qualified Data.Vector.Storable                      as SV
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data In = In {
+  dispatch :: Root.Action -> IO (),
   fullInput :: Input.Full,
   loaded :: Loaded
 } deriving (Generic)
@@ -55,15 +56,16 @@ data Data = Data {
   askAI :: Maybe AIQuery -> IO ()
 } deriving (Generic)
 
-run :: In -> Data -> IO ScreenOut
+run :: In -> Data -> IO Root.ScreenOut
 run (In {..}) (Data {..}) = do
   Blackbox.Out {..} <- Blackbox.run (Core.run core) blackbox (Blackbox.In {..})
+  when exit $ dispatch Root.Action'ExitScreen
   scene0 <- readIORef animation
   let
     scene1 = Animation.run (Animation.In {..}) scene0
     drawCallback = mkDrawCallback (DrawIn { scene = scene1, .. })
   writeIORef animation scene1
-  return (ScreenOut {..})
+  return (Root.ScreenOut {..})
   
 data DrawIn = DrawIn {
   darkHexes :: V.Vector Hex,

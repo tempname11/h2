@@ -5,6 +5,7 @@ import Heroes
 import Heroes.Platform                                   (Platform)
 import Heroes.Root                                       (Root(..))
 import Heroes.Root                                       (ScreenOut(..))
+import qualified Heroes.ActionQueue                        as ActionQueue         
 import qualified Heroes.AAI                                as AAI
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Requisites                         as RQ
@@ -48,16 +49,28 @@ main' = do
       rootRef <- do
         initial <- Root.init (Root.Deps {..})
         newIORef (Just initial)
+      actionQ <- ActionQueue.new
       --
       fix $ \again -> do
-        readIORef rootRef >>= \case
+        dispatch <- ActionQueue.useDispatch actionQ
+        mroot <- readIORef rootRef >>= \case
+          Nothing -> return Nothing
+          Just root -> do
+            ActionQueue.take1 actionQ >>= \case
+              Nothing -> return (Just root)
+              Just action -> case action of
+                Root.Action'ExitScreen -> return Nothing
+                Root.Action'StartBattle -> return (Just root) -- TODO
+        --
+        writeIORef rootRef mroot
+        case mroot of
           Nothing -> return ()
           Just root -> do
             load
             L.QueryOut {..} <- queryLoaded
             I.Out {..} <- determineInput
             ScreenOut {..} <- case root of
-              Root'TitleScreen s -> TitleScreen.run s
+              Root'TitleScreen s -> TitleScreen.run (TitleScreen.In {..}) s
               Root'BattleScreen s -> BattleScreen.run (BattleScreen.In {..}) s
             --
             wishLoaded (L.WishIn {..})

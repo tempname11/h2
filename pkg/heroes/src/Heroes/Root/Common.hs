@@ -16,3 +16,8 @@ data ScreenOut = ScreenOut {
   intent :: Maybe Annotation,
   loadRequests :: Set LoadRequest
 } deriving (Generic)
+
+data Action
+  = Action'ExitScreen
+  | Action'StartBattle
+  deriving (Generic, Show)
