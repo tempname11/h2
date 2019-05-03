@@ -7,17 +7,17 @@ module Web.GLES.Raw where
 -- kudos to ziocroc
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Web
 import Web.GLES.Types
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Data.Word                                         (Word32)
 import GHC.Exts                                          (Addr#)
+import JavaScript.TypedArray                             (Int32Array)
+import JavaScript.TypedArray                             (Float32Array)
+import JavaScript.TypedArray                             (Uint8Array)
+import JavaScript.TypedArray                             (Uint16Array)
 import JavaScript.Web.Canvas                             (Image)
+import Prelude                                           (Word)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
--- XXX imports
-import Prelude
-import Data.Int
-import GHCJS.Types
-import JavaScript.TypedArray
 
 foreign import javascript unsafe "$1.activeTexture($2)"
         glActiveTexture :: Ctx -> Word32 -> IO ()
@@ -383,16 +383,6 @@ foreign import javascript unsafe "$1.uniform4i($2, $3, $4, $5, $6)"
 
 foreign import javascript unsafe "$1.uniform4iv($2, $3)"
         glUniform4iv :: Ctx -> UniformLocation -> Int32Array -> IO ()
-
-foreign import javascript unsafe "$1.uniformMatrix2fv($2, $3, $4)"
-        glUniformMatrix2fv :: Ctx -> UniformLocation -> Bool -> Float32Array -> IO ()
-
-foreign import javascript unsafe "$1.uniformMatrix3fv($2, $3, $4)"
-        glUniformMatrix3fv :: Ctx -> UniformLocation -> Bool -> Float32Array -> IO ()
-
-
-foreign import javascript unsafe "$1.uniformMatrix4fv($2, $3, $4)"
-        glUniformMatrix4fv :: Ctx -> UniformLocation -> Bool -> Float32Array -> IO ()
 
 foreign import javascript unsafe "$1.useProgram($2)"
         glUseProgram :: Ctx -> Program -> IO ()

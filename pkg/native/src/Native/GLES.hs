@@ -2,33 +2,47 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Native.GLES () where
+
 -- WARNING: plagiarized from:
 -- https://github.com/ziocroc/Ombra/blob/master/Graphics/Rendering/Ombra
 -- kudos to ziocroc
         
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES
-import Native                                            (Buf(..))
+import Native
 import Native.Image                                      (withImagePtr)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Foreign                                           (Storable)
+import Foreign                                           (castPtr)
+import Foreign                                           (free)
+import Foreign                                           (malloc)
+import Foreign                                           (mallocArray)
+import Foreign                                           (nullPtr)
+import Foreign                                           (peek)
+import Foreign                                           (sizeOf)
+import Foreign                                           (with)
+import Foreign                                           (withForeignPtr)
+import Foreign.C.String                                  (peekCString)
+import Foreign.C.String                                  (withCString)
 import Foreign.ForeignPtr                                (ForeignPtr)
 import GHC.Exts                                          (Int(I#))
 import GHC.Ptr                                           (Ptr(Ptr))
 import Graphics.GL.Types                                 (GLboolean)
+import Graphics.GL.Types                                 (GLchar)
 import Graphics.GL.Types                                 (GLfloat)
 import Graphics.GL.Types                                 (GLint)
 import Graphics.GL.Types                                 (GLintptr)
+import Graphics.GL.Types                                 (GLsizei)
 import Graphics.GL.Types                                 (GLubyte)
 import Graphics.GL.Types                                 (GLuint)
 import Graphics.GL.Types                                 (GLushort)
+import Prelude                                           (fromIntegral)
+import Prelude                                           (quot)
+import Prelude                                           (realToFrac)
 import qualified Graphics.GL.Core33                        as GL
 import qualified Graphics.GL.Ext.ARB.TextureFloat          as GL
 import qualified Graphics.GL.Ext.EXT.BlendColor            as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Foreign -- XXX
-import Foreign.C.String -- XXX
-import Prelude -- XXX
-import Graphics.GL.Types -- XXX
 
 genToCreate :: Storable a => (GLsizei -> Ptr a -> IO ()) -> ctx -> IO a
 genToCreate gen _ = do ptr <- malloc
@@ -55,11 +69,6 @@ uniform :: forall a b ctx. Storable b
         -> ctx -> a -> (GLsizei, ForeignPtr b) -> IO ()
 uniform mul f _ a (len, fp) = withForeignPtr fp $ f a (quot len sz)
         where sz = mul * fromIntegral (sizeOf (undefined :: b))
-
-uniformMatrix :: (a -> GLsizei -> GLboolean -> Ptr b -> IO ()) -> GLsizei
-              -> ctx -> a -> GLboolean -> (GLsizei, ForeignPtr b) -> IO ()
-uniformMatrix f _ _ a b (_, fp) =
-        withForeignPtr fp $ f a 1 {- (quot len dv) -} b
 
 vertexAttrib :: (a -> Ptr b -> IO ())
              -> ctx -> a -> (GLsizei, ForeignPtr b) -> IO ()
@@ -237,9 +246,6 @@ instance GLES where
   glUniform4fv = uniform 4 GL.glUniform4fv
   glUniform4i = const GL.glUniform4i
   glUniform4iv = uniform 4 GL.glUniform4iv
-  glUniformMatrix2fv = uniformMatrix GL.glUniformMatrix2fv 4
-  glUniformMatrix3fv = uniformMatrix GL.glUniformMatrix3fv 9
-  glUniformMatrix4fv = uniformMatrix GL.glUniformMatrix4fv 16
   glUseProgram = const GL.glUseProgram
   glValidateProgram = const GL.glValidateProgram
   glVertexAttrib1f = const GL.glVertexAttrib1f
