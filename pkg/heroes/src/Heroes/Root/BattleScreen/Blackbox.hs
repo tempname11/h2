@@ -16,7 +16,7 @@ import Heroes.AAI                                        (AIQuery(..))
 import Heroes.AAI                                        (AIResult(..))
 import Heroes.Aux                                        (Annotation)
 import Heroes.Plan                                       (Plan)
-import Heroes.UI                                         (Color)
+import Heroes.Color                                      (Color)
 import Stage.Loading                                     (Loaded)
 import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Animation.Command                         as Animation

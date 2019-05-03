@@ -3,18 +3,15 @@ module Heroes.Drawing.Paletted (
   Cmd (..),
 ) where
 
--- XXX: this file is very similar to Regular.hs
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common.With
 import GLES                                              (GLES)
 import Heroes
+import Heroes.Color                                      (Color)
 import Heroes.Drawing
 import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
-import Heroes.UI (Color)
-import Heroes.UI (viewportSize)
+import Heroes.UI                                         (viewportSize)
 import qualified GLES                                      as GL
 import qualified Heroes.GLX                                as GLX
 import qualified Heroes.Drawing.Quad                       as Quad

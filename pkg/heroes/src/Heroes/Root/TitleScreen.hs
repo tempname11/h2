@@ -4,6 +4,7 @@ module Heroes.Root.TitleScreen where
 import Heroes
 import Heroes.Font                                       (Font(..))
 import Heroes.UI                                         (viewportSize)
+import qualified Heroes.Color                              as Color
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Drawing.Text                       as Text
 import qualified Heroes.GFX                                as GFX
@@ -24,25 +25,38 @@ init :: IO Data
 init = do
   return $ Data {}
 
-mkDrawCallback :: () -> GFX.DrawCallback
-mkDrawCallback _ _ _ text _ (GFX.StaticResources {..}) = do
+inBounds :: (Ord a, Num a) => Point V2 a -> V2 a -> Maybe (Point V2 a) -> Bool
+inBounds (P (V2 pX pY)) (V2 bX bY) = \case
+  Nothing -> False
+  Just (P (V2 x y)) ->
+    (x >= pX && x < pX + bX) &&
+    (y >= pY && y < pY + bY)
+
+mkDrawCallback :: Maybe (Point V2 Int) -> GFX.DrawCallback
+mkDrawCallback mouseAt _ _ text _ (GFX.StaticResources {..}) = do
   let
-    (measurements, prepared) =
+    viewportCenter = P $ (<§>) viewportSize * 0.5
+    place = viewportCenter .-^ box * 0.5
+    (box, prepared) =
       Text.prepare
         (fonts ! Font'CompassPro24)
         "Welcome, traveler!"
     --
     fontTestCmd = Text.Cmd {
       prepared,
-      screenPlace = P $ ((<§>) viewportSize - measurements) * 0.5
+      color = (
+        if inBounds place box (fmap2 (§) mouseAt)
+        then Color.yellow
+        else Color.white
+      ),
+      screenPlace = place
     }
-  text $ \draw ->
-    draw fontTestCmd
+  text ($ fontTestCmd)
 
 run :: In -> Data -> IO Root.ScreenOut
 run (In {..}) (Data {}) = do
   let
-    drawCallback = mkDrawCallback ()
+    drawCallback = mkDrawCallback (fullInput ^. #mouseAt)
     soundCommands = V.empty
     intent = Nothing
     loadRequests = empty

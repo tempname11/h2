@@ -8,6 +8,7 @@ module Heroes.Drawing.Text (
 import Common.With
 import GLES                                              (GLES)
 import Heroes
+import Heroes.Color                                      (Color)
 import Heroes.Drawing                                    (FontAtlas(..))
 import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)
@@ -24,6 +25,7 @@ import qualified Data.Vector.Storable                      as SV
 
 data Cmd = Cmd {
   screenPlace :: Point V2 Float,
+  color :: Color,
   prepared :: Prepared
 }
 
@@ -41,6 +43,7 @@ data Self = Self {
   uniform_texDimensions :: GL.UniformLocation,
   uniform_scrDimensions :: GL.UniformLocation,
   uniform_scrPlace :: GL.UniformLocation,
+  uniform_color :: GL.UniformLocation,
   attribute_interp :: GL.GLUInt,
   attribute_texPlace :: GL.GLUInt,
   attribute_offset :: GL.GLUInt,
@@ -80,6 +83,7 @@ init ctx = do
   uniform_scrDimensions <- locateUniform "scrDimensions"
   uniform_scrPlace <- locateUniform "scrPlace"
   uniform_texImage <- locateUniform "texImage"
+  uniform_color <- locateUniform "color"
   --
   buffer_offsets <- GL.glCreateBuffer ctx
   buffer_texPlaces <- GL.glCreateBuffer ctx
@@ -159,6 +163,11 @@ draw ctx (Self {..}) (Cmd {..}) = do
   --
   GL.glUniform2f ctx uniform_texDimensions (dimensions ^. _x) (dimensions ^. _y)
   GL.glUniform2f ctx uniform_scrPlace (screenPlace ^. _x) (screenPlace ^. _y)
+  GL.glUniform4f ctx uniform_color
+    ((§) (color ^. _x))
+    ((§) (color ^. _y))
+    ((§) (color ^. _z))
+    ((§) (color ^. _w))
   --
   GL.glActiveTexture ctx GL.gl_TEXTURE0 
   GL.glBindTexture ctx GL.gl_TEXTURE_2D texture

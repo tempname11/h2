@@ -26,20 +26,20 @@ data MouseButton
   | RMB
 
 data Snapshot = Snapshot {
-  mouseXY      :: Maybe (Point V2 Int),
+  mouseAt :: Maybe (Point V2 Int),
   mouseButtons :: MouseButton -> Bool,
-  keys         :: Key -> Bool
+  keys :: Key -> Bool
 } deriving (Generic)
 
 data Full = Full {
-  mouseXY      :: Maybe (Point V2 Int),
+  mouseAt :: Maybe (Point V2 Int),
   mousePressed :: MouseButton -> Bool,
-  mouseUp      :: MouseButton -> Bool,
-  mouseDown    :: MouseButton -> Bool,
-  keyPressed   :: Key -> Bool,
-  keyUp        :: Key -> Bool,
-  keyDown      :: Key -> Bool,
-  quitEvent    :: Bool
+  mouseUp :: MouseButton -> Bool,
+  mouseDown :: MouseButton -> Bool,
+  keyPressed :: Key -> Bool,
+  keyUp :: Key -> Bool,
+  keyDown :: Key -> Bool,
+  quitEvent :: Bool
 } deriving (Generic)
 
 --------------------------------------------------------------------------------
@@ -48,22 +48,22 @@ zero :: Snapshot
 zero = Snapshot Nothing (const False) (const False)
 
 toFull :: Snapshot -> Snapshot -> Bool -> Full
-toFull (Snapshot _  m1 k1)
-       (Snapshot p2 m2 k2)
-       quitEvent
-
+toFull
+  (Snapshot _  m1 k1)
+  (Snapshot p2 m2 k2)
+  quitEvent
   = Full {
       quitEvent,
-      mouseXY      = p2,
+      mouseAt = p2,
       mousePressed = m2,
-      mouseUp      = mUp,
-      mouseDown    = mDown,
-      keyPressed   = k2,
-      keyUp        = kUp,
-      keyDown      = kDown
+      mouseUp = mUp,
+      mouseDown = mDw,
+      keyPressed = k2,
+      keyUp = kUp,
+      keyDown = kDw
     }
   where
-  mUp   = \b -> m1 b && not (m2 b)
-  mDown = \b -> m2 b && not (m1 b)
-  kUp   = \b -> k1 b && not (k2 b)
-  kDown = \b -> k2 b && not (k1 b)
+  mUp = \b -> m1 b && not (m2 b)
+  mDw = \b -> m2 b && not (m1 b)
+  kUp = \b -> k1 b && not (k2 b)
+  kDw = \b -> k2 b && not (k1 b)

@@ -15,6 +15,7 @@ import Heroes
 import Heroes.Aux
 import Heroes.AAI                                        (AIQuery(..))
 import Heroes.AAI                                        (AIResult(..))
+import Heroes.Color
 import Heroes.UI
 import qualified Battle.AM                                 as AM
 import qualified Common.Hot                                as Hot
@@ -160,7 +161,7 @@ core aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
   (Current current0') = current0
   battle0 = snd current0'
   --
-  hoveredSegment = case mouseXY of
+  hoveredSegment = case mouseAt of
     Nothing -> Nothing
     Just nbc' -> do
       let segment = Cell.toSegment ((<§>) nbc' .-. fieldCenter)

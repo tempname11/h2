@@ -4,14 +4,13 @@ module Heroes.Drawing.OneColor (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common.With
 import GLES                                              (GLES)
 import Heroes
+import Heroes.Color                                      (Color)
 import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)
-import Heroes.UI (viewportSize)
-import Heroes.UI (Color)
+import Heroes.UI                                         (viewportSize)
 import qualified Heroes.Drawing.Quad                       as Quad
 import qualified Heroes.GLX                                as GLX
 import qualified GLES                                      as GL

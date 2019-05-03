@@ -16,9 +16,9 @@ import Heroes
 import Heroes.AAI                                        (AIQuery)
 import Heroes.AAI                                        (AIResult)
 import Heroes.Drawing                                    (CopySpec(..))
-import Heroes.UI                                         (Color)
+import Heroes.Color                                      (Color)
+import Heroes.Color                                      (transparent)
 import Heroes.UI                                         (fieldCenter)
-import Heroes.UI                                         (transparent)
 import Stage.Loading                                     (Loaded)
 import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Drawing                            as Drawing
