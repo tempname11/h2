@@ -9,11 +9,18 @@ module Native.GLES () where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES
 import Native                                            (Buf(..))
-import Native.GLES'Types ()
 import Native.Image                                      (withImagePtr)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Foreign.ForeignPtr                                (ForeignPtr)
 import GHC.Exts                                          (Int(I#))
 import GHC.Ptr                                           (Ptr(Ptr))
+import Graphics.GL.Types                                 (GLboolean)
+import Graphics.GL.Types                                 (GLfloat)
+import Graphics.GL.Types                                 (GLint)
+import Graphics.GL.Types                                 (GLintptr)
+import Graphics.GL.Types                                 (GLubyte)
+import Graphics.GL.Types                                 (GLuint)
+import Graphics.GL.Types                                 (GLushort)
 import qualified Graphics.GL.Core33                        as GL
 import qualified Graphics.GL.Ext.ARB.TextureFloat          as GL
 import qualified Graphics.GL.Ext.EXT.BlendColor            as GL
@@ -57,6 +64,26 @@ uniformMatrix f _ _ a b (_, fp) =
 vertexAttrib :: (a -> Ptr b -> IO ())
              -> ctx -> a -> (GLsizei, ForeignPtr b) -> IO ()
 vertexAttrib f _ a (_, fp) = withForeignPtr fp $ f a
+
+instance GLES'Types where
+  type Ctx = [String]
+  type GLPtr = Ptr ()
+  type GLPtrDiff = GLintptr
+  type GLString = String
+  type GLBool = GLboolean
+  type Buffer = GLuint
+  type UniformLocation = GLint
+  type Texture = GLuint
+  type Shader = GLuint
+  type Program = GLuint
+  type FrameBuffer = GLuint
+  type RenderBuffer = GLuint
+  type VertexArrayObject = GLuint
+  type AnyArray = (GLSize, ForeignPtr ())
+  type Float32Array = (GLSize, ForeignPtr GLfloat)
+  type Int32Array = (GLSize, ForeignPtr GLint)
+  type UInt16Array = (GLSize, ForeignPtr GLushort)
+  type UInt8Array = (GLSize, ForeignPtr GLubyte)
 
 instance GLES where
   true = 1

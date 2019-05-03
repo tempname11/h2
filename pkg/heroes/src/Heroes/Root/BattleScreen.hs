@@ -5,17 +5,17 @@ import Animation                                         (GroupSizeOf)
 import Animation.Scene                                   (Actor)
 import Animation.Scene                                   (Handle(..))
 import Animation.Scene                                   (Prop)
-import Animation.Scene                                   (Scene)
+import Animation.Scene                                   (Scene(..))
 import Battle                                            (Battle)
 import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
 import Battle                                            (_otype)
+import qualified Battle.AM                                 as AM
 import Battle.Setup                                      (Setup)
 import Heroes
 import Heroes.AAI                                        (AIQuery)
 import Heroes.AAI                                        (AIResult)
 import Heroes.Drawing                                    (CopySpec(..))
-import Heroes.Font                                       (Font(..))
 import Heroes.UI                                         (Color)
 import Heroes.UI                                         (fieldCenter)
 import Heroes.UI                                         (transparent)
@@ -24,7 +24,6 @@ import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Drawing                            as Drawing
 import qualified Heroes.Drawing.OneColor                   as OneColor
 import qualified Heroes.Drawing.Paletted                   as Paletted
-import qualified Heroes.Drawing.Text                       as Text
 import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Input                              as Input
 import qualified Heroes.GFX                                as GFX
@@ -45,6 +44,14 @@ data In = In {
   loaded :: Loaded
 } deriving (Generic)
 
+data Deps = Deps {
+  queryAI :: IO (Maybe AIResult),
+  askAI :: Maybe AIQuery -> IO (),
+  groupSizeOf :: GroupSizeOf,
+  setup :: Setup,
+  initialBattle :: Battle
+} deriving (Generic)
+
 data Data = Data {
   core :: IORef Core.Data,
   blackbox :: IORef Blackbox.Data,
@@ -55,6 +62,25 @@ data Data = Data {
   queryAI :: IO (Maybe AIResult),
   askAI :: Maybe AIQuery -> IO ()
 } deriving (Generic)
+
+init :: Deps -> IO Data
+init (Deps {..}) = do
+  core <- newIORef (Core.Data {
+    current = Current (setup, initialBattle),
+    pastBattles = [],
+    futureBattles = []
+  })
+  animation <- newIORef (Scene {
+    actors = empty,
+    props = empty,
+    curtain = 1.0
+  })
+  blackbox <- newIORef (Blackbox.Data {
+    updateOrPlan = Left . AM.JumpTo . Some $ initialBattle,
+    frameNumber = 0,
+    subframeNumber = 0
+  })
+  return (Data {..})
 
 run :: In -> Data -> IO Root.ScreenOut
 run (In {..}) (Data {..}) = do
@@ -75,7 +101,7 @@ data DrawIn = DrawIn {
 } deriving (Generic)
 
 mkDrawCallback :: DrawIn -> GFX.DrawCallback
-mkDrawCallback (DrawIn {..}) regular paletted text oneColor staticResources = do
+mkDrawCallback (DrawIn {..}) regular paletted _ oneColor staticResources = do
   let
     comparingY = comparing (view $ _2 . #position . _y)
     actors = sortBy comparingY $ M.assocs $ scene ^. #actors
@@ -91,13 +117,6 @@ mkDrawCallback (DrawIn {..}) regular paletted text oneColor staticResources = do
         hexCmd cellOutline lightHexes
       ]
     --
-    fontTestCmd = 
-      let
-      in Text.Cmd {
-        fontAtlas = fonts ! Font'FutilePro24,
-        screenPlace = 0,
-        string = "aloha"
-      }
     hexCmd :: Drawing.StaticSprite -> V.Vector Hex -> Regular.Cmd
     hexCmd sprite hexes =
       sprite `fullCopyAt`
@@ -127,9 +146,6 @@ mkDrawCallback (DrawIn {..}) regular paletted text oneColor staticResources = do
   --
   paletted $ \draw ->
     for_ palettedCmds draw
-  --
-  text $ \draw ->
-    draw fontTestCmd
   --
   oneColor $ \draw -> do
     let color = V4 0 0 0 (floor . (255 *) $ (scene ^. #curtain))

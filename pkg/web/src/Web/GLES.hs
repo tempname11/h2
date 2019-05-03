@@ -11,7 +11,6 @@ import GLES'Types ()
 import Web                                               (Buf(..))
 import Web.Image ()
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Data.Int                                          (Int32)
 import Data.JSString                                     (JSString)
 import Data.JSString                                     (pack)
 import Data.JSString                                     (unpack)
@@ -34,12 +33,8 @@ foreign import javascript unsafe
 
 instance GLES'Types where
   type Ctx = JS.Ctx
-  type GLEnum = Word
-  type GLUInt = Word
-  type GLInt = Int32
   type GLPtr = Word
   type GLPtrDiff = Word
-  type GLSize = Int32
   type GLString = JSString
   type GLBool = Bool
   type Buffer = JS.Buffer
@@ -50,8 +45,6 @@ instance GLES'Types where
   type FrameBuffer = JS.FrameBuffer
   type RenderBuffer = JS.RenderBuffer
   type VertexArrayObject = JS.VertexArrayObject
-  -- type ActiveInfo = JS.ActiveInfo
-  -- type ShaderPrecisionFormat = JS.ShaderPrecisionFormat
   type AnyArray = JS.ArrayBuffer
   type Float32Array = JS.Float32Array
   type Int32Array = JS.Int32Array

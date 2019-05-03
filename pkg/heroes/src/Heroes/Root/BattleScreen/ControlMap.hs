@@ -1,8 +1,11 @@
-module Heroes.ControlMap where
+module Heroes.Root.BattleScreen.ControlMap where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Heroes.Input                              as Input
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+
+start :: Input.Key
+start = Input.Key'Enter
 
 exit :: Input.Key
 exit = Input.Key'Escape

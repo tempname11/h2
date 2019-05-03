@@ -13,6 +13,7 @@ import Heroes
 
 data Key
   = Key'Escape
+  | Key'Enter
   | Key'R
   | Key'Left
   | Key'Right

@@ -2,11 +2,14 @@ module Heroes.Font (
   Font(..),
   fontNameOf,
   fontSizeOf,
-  charSet
+  chars
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Set                                  as S
+import Prelude                                           (fromEnum)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Font
@@ -31,8 +34,8 @@ fontNameOf = \case
   Font'ExpressionPro24 -> "ExpressionPro"
   Font'MatchupPro24 -> "MatchupPro"
 
-charSet :: String
-charSet =
+chars :: Set Word8
+chars = S.fromList $ fmap ((§) . fromEnum) $
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ" <>
   "abcdefghijklmnopqrstuvwxyz" <>
   "0123456789.,;:?!-_~#\"'&()[]{}^|`/\\@°+=*%€$£¢<>©®" <>

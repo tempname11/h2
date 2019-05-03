@@ -48,6 +48,7 @@ external rw0 = do
 scancode :: Input.Key -> SDL.Scancode
 scancode = \case
   Input.Key'Escape -> SDL.ScancodeEscape
+  Input.Key'Enter -> SDL.ScancodeReturn
   Input.Key'Left -> SDL.ScancodeLeft
   Input.Key'Right -> SDL.ScancodeRight
   Input.Key'R -> SDL.ScancodeR

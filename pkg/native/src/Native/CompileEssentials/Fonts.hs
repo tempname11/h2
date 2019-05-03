@@ -5,7 +5,7 @@ import Heroes.Boxes                                      (Box(..))
 import Heroes.Boxes                                      (Container(..))
 import Heroes.Boxes                                      (Place(..))
 import Heroes.Boxes                                      (fitBest)
-import Heroes.Font                                       (charSet)
+import Heroes.Font                                       (chars)
 import Heroes.FontMeta                                   (FontMeta(..))
 import Heroes.FontMeta                                   (GlyphMeta(..))
 import Native
@@ -19,9 +19,10 @@ import Foreign.Storable                                  (peek)
 import Graphics.Rendering.FreeType.Internal
 import Graphics.Rendering.FreeType.Internal.Library
 import Graphics.Rendering.FreeType.Internal.PrimitiveTypes
-import Prelude                                           (fromEnum)
 import qualified Codec.Picture                             as Juicy
 import qualified Data.Map.Strict                           as M
+import qualified Data.Set                                  as S
+import qualified Data.Vector                               as V
 import qualified Data.Vector.Storable                      as SV
 import qualified Data.Vector.Storable.Mutable              as MSV
 import qualified Graphics.Rendering.FreeType.Internal.Bitmap as Bitmap
@@ -63,11 +64,17 @@ convert lib inPath size outPath = do
   faceSize <- peek $ Face.size face
   sizeMetrics <- peek $ Size.metrics faceSize
   let
+    emptyGlyph = GlyphMeta {
+      advanceX = (§) (SizeMetrics.x_ppem sizeMetrics `div` 2),
+      place = 0,
+      box = 0,
+      renderOffset = 0
+    }
     ascender = (§) (SizeMetrics.ascender sizeMetrics `div` 64)
     descender = (§) (SizeMetrics.descender sizeMetrics `div` 64)
+    cs = S.toList chars
   --
-  boxes <- for charSet $ \char -> do
-    let code = fromEnum char
+  boxes <- for cs $ \code -> do
     e <- ft_Load_Char face ((§) code) ft_LOAD_RENDER
     when (e /= 0) $ raise "Error in ft_Load_Char"
     glyph <- peek $ Face.glyph face
@@ -81,8 +88,7 @@ convert lib inPath size outPath = do
   let (Container dimX dimY, places) = fitBest boxes
   mpixels <- MSV.replicate (dimX * dimY) 0
   --
-  gs <- for (zip charSet places) $ \(char, Place placeX placeY) -> do
-    let code = fromEnum char
+  glyphMap <- (M.fromList <$>) $ for (zip cs places) $ \(code, Place placeX placeY) -> do
     e <- ft_Load_Char face ((§) code) ft_LOAD_RENDER
     when (e /= 0) $ raise "Error in ft_Load_Char"
     glyph <- peek $ Face.glyph face
@@ -102,13 +108,12 @@ convert lib inPath size outPath = do
         --
         MSV.write mpixels offset byte
     --
-    return $
-      ((§) code, GlyphMeta {
-        advanceX = (§) (Vector.x advance26p6 `div` 64),
-        renderOffset = (<§>) (V2 left (-top)),
-        box = (<§>) (V2 width height),
-        place = V2 placeX placeY
-      })
+    return $ ((§) code, GlyphMeta {
+      advanceX = (§) (Vector.x advance26p6 `div` 64),
+      renderOffset = (<§>) (V2 left (-top)),
+      box = (<§>) (V2 width height),
+      place = V2 placeX placeY
+    })
   --
   pixels <- SV.unsafeFreeze mpixels
   let
@@ -120,11 +125,14 @@ convert lib inPath size outPath = do
     e <- ft_Done_Face face
     when (e /= 0) $ raise "Error in ft_Done_Face"
   --
-  print (ascender, descender)
   return $
     FontMeta {
       dimensions = V2 dimX dimY,
       ascender,
       descender,
-      glyphs = M.fromList gs
+      glyphs = V.generate 128 $ \code -> 
+        case code `M.lookup` glyphMap of
+          Just g -> g
+          Nothing -> emptyGlyph
+          
     }

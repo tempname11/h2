@@ -53,16 +53,18 @@ main' = do
       --
       fix $ \again -> do
         dispatch <- ActionQueue.useDispatch actionQ
-        mroot <- readIORef rootRef >>= \case
-          Nothing -> return Nothing
-          Just root -> do
-            ActionQueue.take1 actionQ >>= \case
-              Nothing -> return (Just root)
-              Just action -> case action of
-                Root.Action'ExitScreen -> return Nothing
-                Root.Action'StartBattle -> return (Just root) -- TODO
+        mroot <- do
+          x <- readIORef rootRef >>= \case
+            Nothing -> return Nothing
+            Just root ->
+              ActionQueue.take1 actionQ >>= \case
+                Nothing -> return (Just root)
+                Just action ->
+                  Root.action (Root.Deps {..}) action root
+          --
+          writeIORef rootRef x
+          return x
         --
-        writeIORef rootRef mroot
         case mroot of
           Nothing -> return ()
           Just root -> do

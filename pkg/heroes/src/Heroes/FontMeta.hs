@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 module Heroes.FontMeta (
   FontMeta(..),
   GlyphMeta(..),
@@ -12,7 +13,7 @@ import Data.Binary.Get                                   (Get)
 import Data.Binary.Get                                   (getWord16le)
 import Data.Binary.Put                                   (Put)
 import Data.Binary.Put                                   (putWord16le)
-import qualified Data.Map.Strict                           as M
+import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data GlyphMeta = GlyphMeta {
@@ -26,7 +27,7 @@ data FontMeta = FontMeta {
   dimensions :: V2 Int,
   ascender :: Int,
   descender :: Int,
-  glyphs :: M.Map Word8 GlyphMeta
+  glyphs :: V.Vector GlyphMeta
 } deriving (Show, Generic)
 
 put :: FontMeta -> Put
@@ -35,9 +36,8 @@ put (FontMeta {..}) = do
   put16 (dimensions ^. _y)
   put16 ascender
   put16 descender
-  put16 (M.size glyphs)
-  for_ (M.assocs glyphs) $ \(code, GlyphMeta {..}) -> do
-    put16 code
+  put16 (V.length glyphs)
+  for_ glyphs $ \(GlyphMeta {..}) -> do
     put16 advanceX
     put16 (place ^. _x)
     put16 (place ^. _y)
@@ -72,18 +72,17 @@ get = do
   descender <- get16
   gLength <- get16
   gs <- replicateM gLength $ do
-    code <- get16
     advanceX <- get16
     place <- v2 get16
     box <- v2 get16
     renderOffset <- v2 get16
-    return (code, GlyphMeta {..})
+    return (GlyphMeta {..})
   --
   return $
     FontMeta {
       dimensions,
       ascender,
       descender,
-      glyphs = M.fromList gs
+      glyphs = V.fromList gs
     }
     

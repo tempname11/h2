@@ -19,9 +19,9 @@ import Heroes.UI
 import qualified Battle.AM                                 as AM
 import qualified Common.Hot                                as Hot
 import qualified Heroes.Cell                               as Cell
-import qualified Heroes.ControlMap                         as ControlMap
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Placing                            as Placing
+import qualified Heroes.Root.BattleScreen.ControlMap       as ControlMap
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Set                                  as S
 import qualified Data.Map.Strict                           as M

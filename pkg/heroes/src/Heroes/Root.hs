@@ -5,17 +5,13 @@ module Heroes.Root (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation                                         (GroupSizeOf)
-import Animation.Scene                                   (Scene(..))
 import Battle                                            (Battle)
 import Battle.Setup                                      (Setup)
 import Heroes
 import Heroes.AAI                                        (AIQuery(..))
 import Heroes.AAI                                        (AIResult(..))
 import Heroes.Root.Common
-import qualified Battle.AM                                 as AM
 import qualified Heroes.Root.BattleScreen                  as BattleScreen
-import qualified Heroes.Root.BattleScreen.Blackbox         as Blackbox 
-import qualified Heroes.Root.BattleScreen.Core             as Core 
 import qualified Heroes.Root.TitleScreen                   as TitleScreen
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
@@ -34,19 +30,17 @@ data Deps = Deps {
 
 init :: Deps -> IO Root
 init (Deps {..}) = do
-  core <- newIORef (Core.Data {
-    current = Current (setup, initialBattle),
-    pastBattles = [],
-    futureBattles = []
-  })
-  animation <- newIORef (Scene {
-    actors = empty,
-    props = empty,
-    curtain = 1.0
-  })
-  blackbox <- newIORef (Blackbox.Data {
-    updateOrPlan = Left . AM.JumpTo . Some $ initialBattle,
-    frameNumber = 0,
-    subframeNumber = 0
-  })
-  return $ Root'BattleScreen BattleScreen.Data {..}
+  titleScreen <- TitleScreen.init
+  return $ Root'TitleScreen titleScreen
+
+action :: Deps -> Action -> Root -> IO (Maybe Root)
+action (Deps {..}) a r =
+  case a of
+    Action'ExitScreen ->
+      case r of
+        Root'TitleScreen {} -> return Nothing
+        Root'BattleScreen {} -> do
+          return (Just $ Root'TitleScreen TitleScreen.Data {})
+    Action'StartBattle -> do
+      battleScreen <- BattleScreen.init (BattleScreen.Deps {..})
+      return (Just $ Root'BattleScreen battleScreen)

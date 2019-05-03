@@ -40,6 +40,7 @@ jsStringOf = JSString.pack . prefix . go
   where
   prefix = ("keyCode:" <>)
   go Key'Escape = "27"
+  go Key'Enter = "13"
   go Key'R = "82"
   go Key'Left = "37"
   go Key'Right = "39"
