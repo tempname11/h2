@@ -21,6 +21,7 @@ dependencies:
   - sdl2
   - sdl2-mixer
   - split
+  - websockets
   - vector
 
 default-extensions:
