@@ -2,6 +2,7 @@ module Heroes.Drawing.Text (
   with,
   prepare,
   Cmd (..),
+  Preparation,
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -26,10 +27,10 @@ import qualified Data.Vector.Storable                      as SV
 data Cmd = Cmd {
   screenPlace :: Point V2 Float,
   color :: Color,
-  prepared :: Prepared
+  preparation :: Preparation
 }
 
-data Prepared = Prepared {
+data Preparation = Preparation {
   fontAtlas :: FontAtlas,
   boxes :: SV.Vector (V2 Float),
   offsets :: SV.Vector (V2 Float),
@@ -132,8 +133,8 @@ ready qBuffer ctx (Self {..}) = do
   GL.glUniform1i ctx uniform_texImage 0
   GL.glUniform2f ctx uniform_scrDimensions (vsize ^. _x) (vsize ^. _y)
 
-prepare :: FontAtlas -> ByteString -> (V2 Float, Prepared)
-prepare fontAtlas string = (measurements, Prepared {..})
+prepare :: FontAtlas -> ByteString -> (V2 Float, Preparation)
+prepare fontAtlas string = (measurements, Preparation{ ..})
   where
   FontAtlas { meta } = fontAtlas
   glyphs = meta ^. #glyphs
@@ -158,7 +159,7 @@ draw :: GLES => GL.Ctx -> Self -> Cmd -> IO ()
 draw ctx (Self {..}) (Cmd {..}) = do
   let
     FontAtlas { meta, texture } = fontAtlas
-    Prepared {..} = prepared
+    Preparation {..} = preparation
     dimensions = (<§>) (meta ^. #dimensions)
   --
   GL.glUniform2f ctx uniform_texDimensions (dimensions ^. _x) (dimensions ^. _y)

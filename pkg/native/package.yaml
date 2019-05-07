@@ -8,6 +8,7 @@ dependencies:
   #
   - JuicyPixels
   - base
+  - binary
   - bytestring
   - containers
   - data-default-class
