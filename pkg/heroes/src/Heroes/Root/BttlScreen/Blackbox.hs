@@ -1,5 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
-module Heroes.Root.BattleScreen.Blackbox (
+module Heroes.Root.BttlScreen.Blackbox (
   run,
   Data(..),
   In(..),
@@ -23,7 +23,7 @@ import qualified Animation.Command                         as Animation
 import qualified Battle.AM                                 as AM
 import qualified Heroes.Input                              as Input
 import qualified Heroes.Plan                               as Plan
-import qualified Heroes.Root.BattleScreen.Core             as C
+import qualified Heroes.Root.BttlScreen.Core               as C
 import qualified Heroes.SND                                as SND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V

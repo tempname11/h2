@@ -1,4 +1,4 @@
-module Heroes.Root.BattleScreen.Animation (
+module Heroes.Root.BttlScreen.Animation (
   run,
   Data,
   In (..)

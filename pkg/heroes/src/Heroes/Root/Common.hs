@@ -10,7 +10,7 @@ import qualified Heroes.SND                                as SND
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data ScreenOut = ScreenOut {
+data Out = Out {
   drawCallback :: GFX.DrawCallback,
   soundCommands :: V.Vector SND.Command,
   intent :: Maybe Annotation,

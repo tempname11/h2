@@ -1,4 +1,4 @@
-module Heroes.Root.BattleScreen.ControlMap where
+module Heroes.Root.BttlScreen.ControlMap where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Heroes.Input                              as Input

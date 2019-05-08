@@ -1,4 +1,10 @@
-module Heroes.Root.BattleScreen where
+module Heroes.Root.BttlScreen (
+  Deps(..),
+  Prov(..),
+  In(..),
+  Data,
+  with
+) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation                                         (GroupSizeOf)
@@ -28,9 +34,9 @@ import qualified Heroes.Drawing.Regular                    as Regular
 import qualified Heroes.Input                              as Input
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Root.Common                        as Root
-import qualified Heroes.Root.BattleScreen.Animation        as Animation
-import qualified Heroes.Root.BattleScreen.Blackbox         as Blackbox 
-import qualified Heroes.Root.BattleScreen.Core             as Core 
+import qualified Heroes.Root.BttlScreen.Animation          as Animation
+import qualified Heroes.Root.BttlScreen.Blackbox           as Blackbox 
+import qualified Heroes.Root.BttlScreen.Core               as Core 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 import qualified Data.Vector                               as V
@@ -52,6 +58,11 @@ data Deps = Deps {
   initialBattle :: Battle
 } deriving (Generic)
 
+data Prov = Prov {
+  new :: IO Data,
+  run :: In -> Data -> IO Root.Out
+} deriving (Generic)
+
 data Data = Data {
   core :: IORef Core.Data,
   blackbox :: IORef Blackbox.Data,
@@ -63,8 +74,14 @@ data Data = Data {
   askAI :: Maybe AIQuery -> IO ()
 } deriving (Generic)
 
-init :: Deps -> IO Data
-init (Deps {..}) = do
+with :: Deps -> With Prov
+with deps next = next (Prov {
+  new = new' deps,
+  run = run'
+})
+
+new' :: Deps -> IO Data
+new' (Deps {..}) = do
   core <- newIORef (Core.Data {
     current = Current (setup, initialBattle),
     pastBattles = [],
@@ -82,8 +99,8 @@ init (Deps {..}) = do
   })
   return (Data {..})
 
-run :: In -> Data -> IO Root.ScreenOut
-run (In {..}) (Data {..}) = do
+run' :: In -> Data -> IO Root.Out
+run' (In {..}) (Data {..}) = do
   Blackbox.Out {..} <- Blackbox.run (Core.run core) blackbox (Blackbox.In {..})
   when exit $ dispatch Root.Action'ExitScreen
   scene0 <- readIORef animation
@@ -91,7 +108,7 @@ run (In {..}) (Data {..}) = do
     scene1 = Animation.run (Animation.In {..}) scene0
     drawCallback = mkDrawCallback (DrawIn { scene = scene1, .. })
   writeIORef animation scene1
-  return (Root.ScreenOut {..})
+  return (Root.Out {..})
   
 data DrawIn = DrawIn {
   darkHexes :: V.Vector Hex,

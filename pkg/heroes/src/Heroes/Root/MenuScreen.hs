@@ -1,4 +1,10 @@
-module Heroes.Root.TitleScreen where
+module Heroes.Root.MenuScreen (
+  Data,
+  Deps(..),
+  Prov(..),
+  In(..),
+  with
+) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
@@ -13,18 +19,38 @@ import qualified Heroes.Root.Common                        as Root
 import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data In = In {
-  fullInput :: Input.Full,
-  dispatch :: Root.Action -> IO (),
+data Deps = Deps {
   staticResources :: GFX.StaticResources
 } deriving (Generic)
 
-data Data = Data {}
+data Prov = Prov {
+  new :: IO Data,
+  run :: In -> Data -> IO Root.Out
+} deriving (Generic)
+
+data In = In {
+  fullInput :: Input.Full,
+  dispatch :: Root.Action -> IO ()
+} deriving (Generic)
+
+data Data = Data { self :: IORef Self }
   deriving (Generic)
 
-init :: IO Data
-init = do
-  return $ Data {}
+data Self
+  = Self
+  deriving (Generic)
+
+with :: Deps -> With Prov
+with deps next = do
+  next (Prov {
+    new = new',
+    run = run' deps
+  })
+
+new' :: IO Data
+new' = do
+  self <- newIORef Self
+  return (Data {..})
 
 inBounds :: (Ord a, Num a) => Point V2 a -> V2 a -> Maybe (Point V2 a) -> Bool
 inBounds (P (V2 pX pY)) (V2 bX bY) = \case
@@ -68,8 +94,8 @@ simpleButton (SBDeps {..}) center string = SimpleButton {..}
 viewportCenter :: Point V2 Float
 viewportCenter = P $ (<§>) viewportSize * 0.5
 
-run :: In -> Data -> IO Root.ScreenOut
-run (In {..}) (Data {}) = do
+run' :: Deps -> In -> Data -> IO Root.Out
+run' (Deps {..}) (In {..}) (Data {}) = do
   let
     startButton :: SimpleButton
     startButton =
@@ -101,4 +127,4 @@ run (In {..}) (Data {}) = do
       )
   when exit $ dispatch Root.Action'ExitScreen
   when start $ dispatch Root.Action'StartBattle
-  return (Root.ScreenOut {..})
+  return (Root.Out {..})

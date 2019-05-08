@@ -3,15 +3,11 @@ module Heroes.Game where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
 import Heroes.Platform                                   (Platform)
-import Heroes.Root                                       (Root(..))
-import Heroes.Root                                       (ScreenOut(..))
 import qualified Heroes.ActionQueue                        as ActionQueue         
 import qualified Heroes.AAI                                as AAI
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Requisites                         as RQ
 import qualified Heroes.Root                               as Root
-import qualified Heroes.Root.BattleScreen                  as BattleScreen
-import qualified Heroes.Root.TitleScreen                   as TitleScreen
 import qualified Heroes.SND                                as SND
 import qualified Heroes.WND                                as WND
 import qualified Stage.DetermineInput                      as I
@@ -45,9 +41,10 @@ main' = do
     LT.with (LT.Deps {..}) $ \(LT.Prov {..}) ->
     L.with (L.Deps {..}) $ \queryLoaded wishLoaded ->
     I.with (I.Deps {..}) $ \determineInput ->
+    Root.with (Root.Deps {..}) $ \rootProv ->
     do
       rootRef <- do
-        initial <- Root.init (Root.Deps {..})
+        initial <- rootProv ^. #new
         newIORef (Just initial)
       actionQ <- ActionQueue.new
       --
@@ -60,7 +57,7 @@ main' = do
               ActionQueue.take1 actionQ >>= \case
                 Nothing -> return (Just root)
                 Just action ->
-                  Root.action (Root.Deps {..}) action root
+                  (rootProv ^. #action) action root
           --
           writeIORef rootRef x
           return x
@@ -71,9 +68,7 @@ main' = do
             load
             L.QueryOut {..} <- queryLoaded
             I.Out {..} <- determineInput
-            ScreenOut {..} <- case root of
-              Root'TitleScreen s -> TitleScreen.run (TitleScreen.In {..}) s
-              Root'BattleScreen s -> BattleScreen.run (BattleScreen.In {..}) s
+            Root.Out {..} <- (rootProv ^. #run) (Root.In {..}) root
             --
             wishLoaded (L.WishIn {..})
             playSounds (SND.In {..})
