@@ -15,7 +15,7 @@ Technical:
 [x] Web: cursors
 [x] Bugfix fiesta #1 [extern]
 [x] GHCJS — research performance
-[ ] Async (threaded) AI
+[x] Async (threaded) AI
 [ ] Matchmaking MVP [extern]
 [ ] Unify Web & Native [decompose]
 [ ] Refactor the Battle monad
