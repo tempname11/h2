@@ -124,68 +124,60 @@ presumeJust explanation m = case m of
   Just x -> x
   Nothing -> error explanation
 
-class Filterable a where
-  type E a :: *
-  filter :: (E a -> Bool) -> a -> a
-
-instance Filterable [a] where
-  type E [a] = a
-  filter = P.filter
-
 class LikeSet a where
-  type K a :: *
-  notElem :: K a -> a -> Bool
-  elem    :: K a -> a -> Bool
+  type LikeKey a :: *
+  notElem :: LikeKey a -> a -> Bool
+  elem    :: LikeKey a -> a -> Bool
   empty   :: a
 
 instance Eq v => LikeSet [v] where
-  type K [v] = v
+  type LikeKey [v] = v
   notElem = P.notElem
   elem = P.elem
   empty = []
 
 instance LikeSet (I.IntMap v) where
-  type K (I.IntMap v) = Int
+  type LikeKey (I.IntMap v) = Int
   notElem = I.notMember
   elem = I.member
   empty = I.empty
 
 instance Ord k => LikeSet (S.Set k) where
-  type K (S.Set k) = k
+  type LikeKey (S.Set k) = k
   notElem = S.notMember
   elem = S.member
   empty = S.empty
 
 instance Ord k => LikeSet (M.Map k v) where
-  type K (M.Map k v) = k
+  type LikeKey (M.Map k v) = k
   notElem = M.notMember
   elem = M.member
   empty = M.empty
 
 -- XXX deprecated: partial
 class Bang a where
-  type I a :: *
-  type V a :: *
-  (!) :: a -> I a -> V a
+  type BangC a :: *
+  type BangV a :: *
+  (!) :: a -> BangC a -> BangV a
 
 instance Ord k => Bang (M.Map k v) where
-  type I (M.Map k v) = k
-  type V (M.Map k v) = v
+  type BangC (M.Map k v) = k
+  type BangV (M.Map k v) = v
   (!) = (M.!)
 
 instance Bang (I.IntMap v) where
-  type I (I.IntMap v) = Int
-  type V (I.IntMap v) = v
+  type BangC (I.IntMap v) = Int
+  type BangV (I.IntMap v) = v
   (!) = (I.!)
 
 instance Bang (V.Vector a) where
-  type I (V.Vector a) = Int
-  type V (V.Vector a) = a
+  type BangC (V.Vector a) = Int
+  type BangV (V.Vector a) = a
   (!) = (V.!)
 
 instance SV.Storable a => Bang (SV.Vector a) where
-  type I (SV.Vector a) = Int
-  type V (SV.Vector a) = a
+  type BangC (SV.Vector a) = Int
+  type BangV (SV.Vector a) = a
   (!) = (SV.!)
 
 asStateT :: Monad m => (a -> m a) -> StateT a m ()
