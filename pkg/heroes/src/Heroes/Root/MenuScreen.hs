@@ -33,11 +33,12 @@ data In = In {
   dispatch :: Root.Action -> IO ()
 } deriving (Generic)
 
-data Data = Data { self :: IORef Self }
+data Data = Data { selfRef :: IORef Self }
   deriving (Generic)
 
 data Self
-  = Self
+  = Self'Title
+  | Self'Lobby
   deriving (Generic)
 
 with :: Deps -> With Prov
@@ -49,7 +50,7 @@ with deps next = do
 
 new' :: IO Data
 new' = do
-  self <- newIORef Self
+  selfRef <- newIORef Self'Title
   return (Data {..})
 
 inBounds :: (Ord a, Num a) => Point V2 a -> V2 a -> Maybe (Point V2 a) -> Bool
@@ -95,36 +96,45 @@ viewportCenter :: Point V2 Float
 viewportCenter = P $ (<§>) viewportSize * 0.5
 
 run' :: Deps -> In -> Data -> IO Root.Out
-run' (Deps {..}) (In {..}) (Data {}) = do
+run' (Deps {..}) (In {..}) (Data { selfRef }) = do
   let
-    startButton :: SimpleButton
-    startButton =
-      simpleButton
-        (SBDeps {..})
-        (viewportCenter .-^ (V2 0 32))
-        "Start"
-    --
-    exitButton :: SimpleButton
-    exitButton =
-      simpleButton
-        (SBDeps {..})
-        (viewportCenter .+^ (V2 0 32))
-        "Exit"
-    --
-    drawCallback _ _ text _ _ = do
-      text $ \draw -> do
-        void $ draw (startButton ^. #cmd)
-        void $ draw (exitButton ^. #cmd)
-    --
     soundCommands = V.empty
     intent = Nothing
     loadRequests = empty
-    (exit, start) =
-      let Input.Full {..} = fullInput
-      in (
-        quitEvent || keyUp Input.Key'Escape || exitButton ^. #clicked,
-        keyUp Input.Key'Enter || startButton ^. #clicked
-      )
-  when exit $ dispatch Root.Action'ExitScreen
-  when start $ dispatch Root.Action'StartBattle
-  return (Root.Out {..})
+  --
+  self <- readIORef selfRef
+  case self of
+    Self'Title -> do
+      let
+        startButton :: SimpleButton
+        startButton =
+          simpleButton
+            (SBDeps {..})
+            (viewportCenter .-^ (V2 0 32))
+            "Start"
+        --
+        exitButton :: SimpleButton
+        exitButton =
+          simpleButton
+            (SBDeps {..})
+            (viewportCenter .+^ (V2 0 32))
+            "Exit"
+        --
+        drawCallback _ _ text _ _ = do
+          text $ \draw -> do
+            void $ draw (startButton ^. #cmd)
+            void $ draw (exitButton ^. #cmd)
+        --
+        (exit, start) =
+          let Input.Full {..} = fullInput
+          in (
+            quitEvent || keyUp Input.Key'Escape || exitButton ^. #clicked,
+            keyUp Input.Key'Enter || startButton ^. #clicked
+          )
+      --
+      when exit $ dispatch Root.Action'ExitScreen
+      when start $ dispatch Root.Action'StartBattle
+      return (Root.Out {..})
+    Self'Lobby -> do
+      drawCallback <- undefined
+      return (Root.Out {..})
