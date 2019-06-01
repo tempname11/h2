@@ -28,6 +28,10 @@ dependencies:
   - transformers
   - vector
   - field-optics
+  #
+  - reflex
+  - dependent-sum
+  - ref-tf
 
 default-extensions:
   - DataKinds

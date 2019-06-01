@@ -5,6 +5,11 @@ packages:
 extra-deps:
 - pkg/field-optics
 - generic-lens-1.1.0.0@sha256:caaab13ae4f2a68e43671d25fb56746ba14bc9d5d787d594a66c7f56eba3fa66
+- reflex-0.6.1@sha256:21fb0ce6d71243a7bfe8fd6efb1f205662e9d9ec8fab6bd9d96eaff655f36f98
+- monoidal-containers-0.4.0.0@sha256:7e52944ef27fce8e59b5bac5d59b35e88b36a5f65176aa7b784f848e9e9b9a22
+- prim-uniq-0.1.0.1@sha256:23f15867b381b49e3f09f69fba318b0ee0e505d5fe0df82f3fcdf3f5c2886291
+- ref-tf-0.4.0.1@sha256:369e5c6237e4b6fe330fde021b94a9f98971690cbec5b910faa9af3cbcb15610
+- witherable-0.3@sha256:944cda82a0e093d7859927c25cd1d78e370bf3940a680e4dc1bfbba77d7dd295
 - sdl2-2.4.1.0
 - sdl2-mixer-1.1.0
 # - deepseq-1.4.4.0@sha256:a05b9b84271a9826258a2d3d2948f010cd1d920aa5b5168278d1064a5932524e
