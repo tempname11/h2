@@ -16,7 +16,9 @@ import qualified Heroes.Drawing.Text                       as Text
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Root.Common                        as Root
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Monad.IO.Class                            (liftIO)
 import qualified Data.Vector                               as V
+import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
@@ -33,8 +35,10 @@ data In = In {
   dispatch :: Root.Action -> IO ()
 } deriving (Generic)
 
-data Data = Data { selfRef :: IORef Self }
-  deriving (Generic)
+data Data = Data {
+  in'T :: J.Trigger In,
+  out'B :: J.B Root.Out
+} deriving (Generic)
 
 data Self
   = Self'Title
@@ -44,14 +48,17 @@ data Self
 with :: Deps -> With Prov
 with deps next = do
   next (Prov {
-    new = new',
-    run = run' deps
+    new = new' deps,
+    run = run'
   })
 
-new' :: IO Data
-new' = do
-  selfRef <- newIORef Self'Title
-  return (Data {..})
+emptyOut :: Root.Out
+emptyOut = Root.Out {
+  drawCallback = \_ _ _ _ _ -> return (),
+  soundCommands = V.empty,
+  intent = Nothing,
+  loadRequests = empty
+}
 
 inBounds :: (Ord a, Num a) => Point V2 a -> V2 a -> Maybe (Point V2 a) -> Bool
 inBounds (P (V2 pX pY)) (V2 bX bY) = \case
@@ -95,46 +102,57 @@ simpleButton (SBDeps {..}) center string = SimpleButton {..}
 viewportCenter :: Point V2 Float
 viewportCenter = P $ (<§>) viewportSize * 0.5
 
-run' :: Deps -> In -> Data -> IO Root.Out
-run' (Deps {..}) (In {..}) (Data { selfRef }) = do
+run' :: In -> Data -> IO Root.Out
+run' in_ (Data { in'T, out'B }) = do
+  J.fire [in'T J.==> in_]
+  J.run $ J.sample out'B
+
+new' :: Deps -> IO Data
+new' (Deps {..}) = do
+  (in'E, in'T) <- J.newEvent
+  -- let self'B = return Self'Title
   let
-    soundCommands = V.empty
-    intent = Nothing
-    loadRequests = empty
+    multi'E =
+      in'E <&> \(In {..}) -> do
+        let
+          Input.Full {..} = fullInput
+          startButton :: SimpleButton
+          startButton =
+            simpleButton
+              (SBDeps {..})
+              (viewportCenter .-^ (V2 0 32))
+              "Start"
+          --
+          exitButton :: SimpleButton
+          exitButton =
+            simpleButton
+              (SBDeps {..})
+              (viewportCenter .+^ (V2 0 32))
+              "Exit"
+          --
+          drawCallback _ _ text _ _ = do
+            text $ \draw -> do
+              void $ draw (startButton ^. #cmd)
+              void $ draw (exitButton ^. #cmd)
+          --
+          out = emptyOut & #drawCallback .~ drawCallback
+          exit =
+            quitEvent ||
+            keyUp Input.Key'Escape ||
+            exitButton ^. #clicked
+          start =
+            keyUp Input.Key'Enter ||
+            startButton ^. #clicked
+          io = do
+            when exit $ dispatch Root.Action'ExitScreen
+            when start $ dispatch Root.Action'StartBattle
+        --
+        (out, io)
+    --
+    out'E = multi'E <&> view _1
+    io'E = multi'E <&> view _2
   --
-  self <- readIORef selfRef
-  case self of
-    Self'Title -> do
-      let
-        startButton :: SimpleButton
-        startButton =
-          simpleButton
-            (SBDeps {..})
-            (viewportCenter .-^ (V2 0 32))
-            "Start"
-        --
-        exitButton :: SimpleButton
-        exitButton =
-          simpleButton
-            (SBDeps {..})
-            (viewportCenter .+^ (V2 0 32))
-            "Exit"
-        --
-        drawCallback _ _ text _ _ = do
-          text $ \draw -> do
-            void $ draw (startButton ^. #cmd)
-            void $ draw (exitButton ^. #cmd)
-        --
-        (exit, start) =
-          let Input.Full {..} = fullInput
-          in (
-            quitEvent || keyUp Input.Key'Escape || exitButton ^. #clicked,
-            keyUp Input.Key'Enter || startButton ^. #clicked
-          )
-      --
-      when exit $ dispatch Root.Action'ExitScreen
-      when start $ dispatch Root.Action'StartBattle
-      return (Root.Out {..})
-    Self'Lobby -> do
-      drawCallback <- undefined
-      return (Root.Out {..})
+  J.run $ do
+    _ <- J.subscribe io'E liftIO
+    out'B <- J.hold emptyOut out'E
+    return (Data {..})
