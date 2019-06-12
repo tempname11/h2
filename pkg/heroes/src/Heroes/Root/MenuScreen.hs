@@ -1,8 +1,6 @@
 module Heroes.Root.MenuScreen (
-  Data,
   Deps(..),
   Prov(..),
-  In(..),
   with
 ) where
 
@@ -16,7 +14,7 @@ import qualified Heroes.Drawing.Text                       as Text
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Root.Common                        as Root
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Control.Monad.IO.Class                            (liftIO)
+import qualified Data.Unique                               as U
 import qualified Data.Vector                               as V
 import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -25,19 +23,13 @@ data Deps = Deps {
   staticResources :: GFX.StaticResources
 } deriving (Generic)
 
+type New =
+  J.B U.Unique ->
+  J.E Input.Full ->
+  J.Runtime (U.Unique, J.E Root.Out, J.E Root.Action)
+
 data Prov = Prov {
-  new :: IO Data,
-  run :: In -> Data -> IO Root.Out
-} deriving (Generic)
-
-data In = In {
-  fullInput :: Input.Full,
-  dispatch :: Root.Action -> IO ()
-} deriving (Generic)
-
-data Data = Data {
-  in'T :: J.Trigger In,
-  out'B :: J.B Root.Out
+  new :: New 
 } deriving (Generic)
 
 data Self
@@ -46,18 +38,15 @@ data Self
   deriving (Generic)
 
 with :: Deps -> With Prov
-with deps next = do
-  next (Prov {
-    new = new' deps,
-    run = run'
-  })
+with deps next = next (Prov { new = new' deps })
 
 emptyOut :: Root.Out
 emptyOut = Root.Out {
   drawCallback = \_ _ _ _ _ -> return (),
   soundCommands = V.empty,
   intent = Nothing,
-  loadRequests = empty
+  loadRequests = empty,
+  exit = False
 }
 
 inBounds :: (Ord a, Num a) => Point V2 a -> V2 a -> Maybe (Point V2 a) -> Bool
@@ -102,18 +91,14 @@ simpleButton (SBDeps {..}) center string = SimpleButton {..}
 viewportCenter :: Point V2 Float
 viewportCenter = P $ (<§>) viewportSize * 0.5
 
-run' :: In -> Data -> IO Root.Out
-run' in_ (Data { in'T, out'B }) = do
-  J.fire [in'T J.==> in_]
-  J.run $ J.sample out'B
-
-new' :: Deps -> IO Data
-new' (Deps {..}) = do
-  (in'E, in'T) <- J.newEvent
+new' :: Deps -> New
+new' (Deps {..}) unique'B in'E = do
+  u <- liftIO $ U.newUnique
+  let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
   -- let self'B = return Self'Title
   let
     multi'E =
-      in'E <&> \(In {..}) -> do
+      in''E <&> \fullInput -> do
         let
           Input.Full {..} = fullInput
           startButton :: SimpleButton
@@ -135,24 +120,25 @@ new' (Deps {..}) = do
               void $ draw (startButton ^. #cmd)
               void $ draw (exitButton ^. #cmd)
           --
-          out = emptyOut & #drawCallback .~ drawCallback
+          start =
+            keyUp Input.Key'Enter ||
+            startButton ^. #clicked
+          --
           exit =
             quitEvent ||
             keyUp Input.Key'Escape ||
             exitButton ^. #clicked
-          start =
-            keyUp Input.Key'Enter ||
-            startButton ^. #clicked
-          io = do
-            when exit $ dispatch Root.Action'ExitScreen
-            when start $ dispatch Root.Action'StartBattle
+          --
+          out = emptyOut
+            & #drawCallback .~ drawCallback
+            & #exit .~ exit
         --
-        (out, io)
+        (out, start)
     --
     out'E = multi'E <&> view _1
-    io'E = multi'E <&> view _2
+    start'E = multi'E <&> view _2
+    action'E = J.justE $ start'E <&> \case
+      True -> Just Root.Action'StartBattle
+      False -> Nothing
   --
-  J.run $ do
-    _ <- J.subscribe io'E liftIO
-    out'B <- J.hold emptyOut out'E
-    return (Data {..})
+  return (u, out'E, action'E)

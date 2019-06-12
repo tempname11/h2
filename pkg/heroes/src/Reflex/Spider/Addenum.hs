@@ -2,12 +2,11 @@ module Reflex.Spider.Addenum where
 
 import Control.Monad
 import Control.Monad.IO.Class
-import Data.Unique
 import Prelude
 import Reflex.Spider.Internal
 import System.Mem.Weak
 
--- This is very brittle; Reflex was not designed for this.
+-- This is pretty brittle; Reflex was not designed for this.
 --
 -- Nevertheless, it seems to function.
 --
@@ -18,15 +17,11 @@ import System.Mem.Weak
 -- this does not (seemingly! maybe it depends on circumstances)
 -- create a memory leak.
 --
-subscribeEffect :: HasSpiderTimeline x => Event x a -> (a -> EventM x b) -> EventM x (Event x b)
-subscribeEffect e f = do
+subscribeEffect :: HasSpiderTimeline x => w -> Event x a -> (a -> EventM x b) -> EventM x (Event x b)
+subscribeEffect w e f = do
   let e' = push (\a -> Just <$> f a) e
-  u <- liftIO $ newUnique
-  let p _ = return (seq u ())
+  (s, _) <- subscribeAndRead e' $
+    terminalSubscriber $ \_ -> return ()
   --
-  (s, _) <-
-    subscribeAndRead e' $
-      terminalSubscriber p
-  --
-  void $ liftIO $ mkWeak u s $ Just (unsubscribe s)
+  void $ liftIO $ mkWeak w s $ Just $ unsubscribe s
   return e'

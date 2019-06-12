@@ -1,3 +1,4 @@
+{-# LANGUAGE RecursiveDo #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 module Reflex.Jumpstart (
   E,
@@ -5,8 +6,11 @@ module Reflex.Jumpstart (
   Trigger,
   Runtime,
   Firing,
+  justE,
   gate,
   hold,
+  fixB,
+  fixE,
   sample,
   switch,
   coincidence,
@@ -57,11 +61,27 @@ instance Monoid (E x) where
   mempty = E R.never
   mappend (E l) (E r) = E (R.leftmost [l, r])
 
+-- hmm
+justE :: E (Maybe x) -> E x
+justE (E e) = E $ R.fmapMaybeCheap id e
+
 gate :: B Bool -> E x -> E x
 gate (B b) (E e) = E $ R.gate b e
 
 hold :: x -> E x -> Runtime (B x)
 hold x (E e) = Runtime $ B <$> R.hold x e
+
+-- hmmmmmm
+fixE :: (E x -> Runtime (E x, y)) -> Runtime (E x, y)
+fixE f = Runtime $ mdo
+  (e, y) <- unRuntime $ f e
+  return (e, y)
+
+-- hmm
+fixB :: (B x -> Runtime (B x, y)) -> Runtime (B x, y)
+fixB f = Runtime $ mdo
+  (b, y) <- unRuntime $ f b
+  return (b, y)
 
 sample :: B x -> Runtime x
 sample (B b) = Runtime $ R.sample b
@@ -72,11 +92,11 @@ switch (B b) = E $ R.switch (fmap unE b)
 coincidence :: E (E x) -> E x
 coincidence (E e) = E $ R.coincidence (fmap unE e)
 
-subscribe :: E x -> (x -> Runtime y) -> Runtime (E y)
-subscribe (E e) f =
+subscribe :: w -> E x -> (x -> Runtime y) -> Runtime (E y)
+subscribe w (E e) f =
   Runtime $
     E . RI.SpiderEvent <$>
-      RA.subscribeEffect @Gx
+      RA.subscribeEffect w
         (RI.unSpiderEvent e)
         (unRuntime . f)
 

@@ -3,7 +3,6 @@ module Heroes.Game where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
 import Heroes.Platform                                   (Platform)
-import qualified Heroes.ActionQueue                        as ActionQueue         
 import qualified Heroes.AAI                                as AAI
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Requisites                         as RQ
@@ -15,6 +14,8 @@ import qualified Stage.Loading                             as L
 import qualified Stage.LoadingThread                       as LT
 import qualified Stage.Prerequisites                       as PR
 import qualified Stage.SystemLibraries                     as SL
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 main' ::
@@ -43,36 +44,24 @@ main' = do
     I.with (I.Deps {..}) $ \determineInput ->
     Root.with (Root.Deps {..}) $ \rootProv ->
     do
-      rootRef <- do
-        initial <- rootProv ^. #new
-        newIORef (Just initial)
-      actionQ <- ActionQueue.new
-      --
-      fix $ \again -> do
-        dispatch <- ActionQueue.useDispatch actionQ
-        mroot <- do
-          x <- readIORef rootRef >>= \case
-            Nothing -> return Nothing
-            Just root ->
-              ActionQueue.take1 actionQ >>= \case
-                Nothing -> return (Just root)
-                Just action ->
-                  (rootProv ^. #action) action root
-          --
-          writeIORef rootRef x
-          return x
-        --
-        case mroot of
-          Nothing -> return ()
-          Just root -> do
-            load
-            L.QueryOut {..} <- queryLoaded
-            I.Out {..} <- determineInput
-            Root.Out {..} <- (rootProv ^. #run) (Root.In {..}) root
-            --
+      (fullInput'E, fullInput'T) <- J.newEvent
+      (loaded'E, loaded'T) <- J.newEvent
+      exit'B <- J.run $ do
+        loaded'B <- J.hold L.emptyLoaded loaded'E
+        (out'E, exit'B) <- (rootProv ^. #new) fullInput'E loaded'B
+        _ <- J.subscribe () out'E $ \(Root.Out {..}) -> liftIO $ do
             wishLoaded (L.WishIn {..})
             playSounds (SND.In {..})
             changeCursor (WND.In {..})
             draw drawCallback
-            waitForVsync
-            again
+        return exit'B
+        --
+      fix $ \again -> do
+        load
+        L.QueryOut {..} <- queryLoaded
+        J.fire [loaded'T J.==> loaded]
+        I.Out {..} <- determineInput
+        J.fire [fullInput'T J.==> fullInput]
+        exit <- J.run $ J.sample exit'B
+        waitForVsync
+        when (not exit) again

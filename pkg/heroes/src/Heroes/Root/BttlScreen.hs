@@ -1,8 +1,6 @@
 module Heroes.Root.BttlScreen (
   Deps(..),
   Prov(..),
-  In(..),
-  Data,
   with
 ) where
 
@@ -39,16 +37,12 @@ import qualified Heroes.Root.BttlScreen.Blackbox           as Blackbox
 import qualified Heroes.Root.BttlScreen.Core               as Core 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
+import qualified Data.Unique                               as U
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Generic                       as GV
 import qualified Data.Vector.Storable                      as SV
+import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-data In = In {
-  dispatch :: Root.Action -> IO (),
-  fullInput :: Input.Full,
-  loaded :: Loaded
-} deriving (Generic)
 
 data Deps = Deps {
   queryAI :: IO (Maybe AIResult),
@@ -58,57 +52,59 @@ data Deps = Deps {
   initialBattle :: Battle
 } deriving (Generic)
 
-data Prov = Prov {
-  new :: IO Data,
-  run :: In -> Data -> IO Root.Out
-} deriving (Generic)
+type New =
+  J.B U.Unique ->
+  J.B Loaded ->
+  J.E Input.Full ->
+  J.Runtime (U.Unique, J.E Root.Out, J.E Root.Action)
 
-data Data = Data {
-  core :: IORef Core.Data,
-  blackbox :: IORef Blackbox.Data,
-  animation :: IORef Animation.Data,
-  groupSizeOf :: GroupSizeOf,
-  initialBattle :: Battle,
-  setup :: Setup,
-  queryAI :: IO (Maybe AIResult),
-  askAI :: Maybe AIQuery -> IO ()
+data Prov = Prov {
+  new :: New
 } deriving (Generic)
 
 with :: Deps -> With Prov
-with deps next = next (Prov {
-  new = new' deps,
-  run = run'
-})
+with deps next = next (Prov { new = new' deps })
 
-new' :: Deps -> IO Data
-new' (Deps {..}) = do
-  core <- newIORef (Core.Data {
+new' :: Deps -> New
+new' (Deps {..}) unique'B loaded'B in'E = do
+  u <- liftIO $ U.newUnique
+  let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
+  core <- liftIO $ newIORef (Core.Data {
     current = Current (setup, initialBattle),
     pastBattles = [],
     futureBattles = []
   })
-  animation <- newIORef (Scene {
+  animation <- liftIO $ newIORef (Scene {
     actors = empty,
     props = empty,
     curtain = 1.0
   })
-  blackbox <- newIORef (Blackbox.Data {
+  blackbox <- liftIO $ newIORef (Blackbox.Data {
     updateOrPlan = Left . AM.JumpTo . Some $ initialBattle,
     frameNumber = 0,
     subframeNumber = 0
   })
-  return (Data {..})
-
-run' :: In -> Data -> IO Root.Out
-run' (In {..}) (Data {..}) = do
-  Blackbox.Out {..} <- Blackbox.run (Core.run core) blackbox (Blackbox.In {..})
-  when exit $ dispatch Root.Action'ExitScreen
-  scene0 <- readIORef animation
   let
-    scene1 = Animation.run (Animation.In {..}) scene0
-    drawCallback = mkDrawCallback (DrawIn { scene = scene1, .. })
-  writeIORef animation scene1
-  return (Root.Out {..})
+    run fullInput = do
+      loaded <- J.sample loaded'B
+      liftIO $ do
+        Blackbox.Out {..} <- Blackbox.run (Core.run core) blackbox (Blackbox.In {..})
+        scene0 <- readIORef animation
+        let
+          scene1 = Animation.run (Animation.In {..}) scene0
+          drawCallback = mkDrawCallback (DrawIn { scene = scene1, .. })
+        writeIORef animation scene1
+        return (Root.Out { exit = False {- TODO -}, .. }, exit)
+  --
+  multi'E <- J.subscribe u in''E $ run
+  let
+    out'E = multi'E <&> view _1
+    exit'E = multi'E <&> view _2
+    action'E = J.justE $ exit'E <&> \case
+      True -> Just Root.Action'ExitScreen
+      False -> Nothing
+  --
+  return (u, out'E, action'E)
   
 data DrawIn = DrawIn {
   darkHexes :: V.Vector Hex,

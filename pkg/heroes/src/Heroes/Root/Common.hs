@@ -11,6 +11,7 @@ import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Out = Out {
+  exit :: Bool,
   drawCallback :: GFX.DrawCallback,
   soundCommands :: V.Vector SND.Command,
   intent :: Maybe Annotation,

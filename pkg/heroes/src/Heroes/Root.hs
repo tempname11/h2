@@ -3,7 +3,6 @@ module Heroes.Root (
   Root,
   Deps(..),
   Prov(..),
-  In(..),
   module Heroes.Root.Common,
 ) where
 
@@ -21,10 +20,21 @@ import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Root.BttlScreen                    as BttlScreen
 import qualified Heroes.Root.MenuScreen                    as MenuScreen
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import qualified Data.Unique                               as U
+import qualified Reflex.Jumpstart                          as J
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Root
-  = Root'MenuScreen MenuScreen.Data
-  | Root'BttlScreen BttlScreen.Data
+  = Root'MenuScreen {
+    unique :: U.Unique,
+    out'E :: J.E Out,
+    action'E :: J.E Action
+  }
+  | Root'BttlScreen {
+    unique :: U.Unique,
+    out'E :: J.E Out,
+    action'E :: J.E Action
+  }
   deriving (Generic)
 
 data Deps = Deps {
@@ -37,50 +47,52 @@ data Deps = Deps {
 } deriving (Generic)
 
 data Prov = Prov {
-  new :: IO Root,
-  run :: In -> Root -> IO Out,
-  action :: Action -> Root -> IO (Maybe Root)
-} deriving (Generic)
-
-data Priv = Priv {
-  menu :: MenuScreen.Prov,
-  bttl :: BttlScreen.Prov
+  new :: J.E Input.Full -> J.B Loaded -> J.Runtime (J.E Out, J.B Bool)
 } deriving (Generic)
 
 with :: Deps -> With Prov
 with (Deps {..}) next =
   MenuScreen.with (MenuScreen.Deps {..}) $ \menu ->
-  BttlScreen.with (BttlScreen.Deps {..}) $ \bttl ->
-    let p = Priv {..}
-    in next (Prov {
-      new = new' p,
-      run = run' p,
-      action = action' p
-    })
-
-new' :: Priv -> IO Root
-new' (Priv {..}) = Root'MenuScreen <$> (menu ^. #new)
-
-data In = In {
-  dispatch :: Action -> IO (),
-  fullInput :: Input.Full,
-  loaded :: Loaded
-} deriving (Generic)
-
-run' :: Priv -> In -> Root -> IO Out
-run' (Priv {..}) (In {..}) = \case
-  Root'MenuScreen s -> (menu ^. #run) (MenuScreen.In {..}) s
-  Root'BttlScreen s -> (bttl ^. #run) (BttlScreen.In {..}) s
-
-action' :: Priv -> Action -> Root -> IO (Maybe Root)
-action' (Priv {..}) a r =
-  case a of
-    Action'ExitScreen ->
-      case r of
-        Root'MenuScreen {} -> return Nothing
-        Root'BttlScreen {} -> do
-          s <- (menu ^. #new)
-          return (Just $ Root'MenuScreen s)
-    Action'StartBattle -> do
-      s <- (bttl ^. #new)
-      return (Just $ Root'BttlScreen s)
+  BttlScreen.with (BttlScreen.Deps {..}) $ \bttl -> do
+    let
+      new in'E loaded'B = fmap snd $ J.fixB $ \unique'B -> do
+        let
+          run :: Action -> Root -> J.Runtime Root
+          run action root = do
+            case action of
+              Action'ExitScreen ->
+                case root of
+                  Root'MenuScreen {} -> return root
+                  Root'BttlScreen {} -> do
+                    (unique, out'E, action'E) <-
+                      (menu ^. #new) unique'B in'E
+                    return $ Root'MenuScreen {..}
+              Action'StartBattle -> do
+                case root of
+                  Root'BttlScreen {} -> return root
+                  Root'MenuScreen {} -> do
+                    (unique, out'E, action'E) <-
+                      (bttl ^. #new) unique'B loaded'B in'E
+                    return $ Root'BttlScreen {..}
+        --
+        initial <- do
+          (u, o, a) <- (menu ^. #new) unique'B in'E
+          return $ Root'MenuScreen u o a
+        --
+        (out'E, unique''B) <- fmap snd $ J.fixE $ \r -> do
+          b <- J.hold initial r
+          let
+            a = J.switch (b <&> view #action'E)
+            o = J.switch (b <&> view #out'E)
+            u = b <&> view #unique
+          --
+          r' <- J.subscribe () a $ \action -> do
+            root <- J.sample b
+            run action root
+          --
+          return (r', (o, u))
+        --
+        exit'B <- J.hold False $ out'E <&> \(Out {..}) -> exit
+        return (unique''B, (out'E, exit'B))
+    --
+    next (Prov {..})

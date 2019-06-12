@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Stage.Loading (
   with,
+  emptyLoaded,
   Loaded(..),
   Deps(..),
   WishIn(..),
@@ -52,6 +53,9 @@ with (Deps {..}) next = do
   requestsRef <- newIORef empty
   qref <- newIORef (empty, empty)
   next (queryLoaded qref loadedChan) (wishLoaded requestsRef wishChan)
+
+emptyLoaded :: Loaded
+emptyLoaded = Loaded { creatures = const Nothing, sfxes = const Nothing }
 
 queryLoaded :: IORef Maps -> NBChan LoadResult -> IO QueryOut
 queryLoaded ref loadedChan = do

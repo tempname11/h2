@@ -12,6 +12,7 @@ module Common (
   module Control.Monad.State,
   module Control.Monad.Trans,
   module Control.Monad.Writer,
+  module Control.Monad.IO.Class,
   module Data.ByteString,
   module Data.Default.Class,
   module Data.Either,
@@ -254,4 +255,5 @@ import Prelude                                           (words)
 import Prelude                                           (zip)
 import Prelude                                           (zipWith)
 import Safe                                              (headMay)
+import Control.Monad.IO.Class                            (liftIO)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
