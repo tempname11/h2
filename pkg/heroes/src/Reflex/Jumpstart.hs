@@ -13,6 +13,7 @@ module Reflex.Jumpstart (
   fixE,
   sample,
   switch,
+  sampling,
   coincidence,
   subscribe,
   newEvent,
@@ -85,6 +86,9 @@ fixB f = Runtime $ mdo
 
 sample :: B x -> Runtime x
 sample (B b) = Runtime $ R.sample b
+
+sampling :: E (B x) -> E x
+sampling (E e) = E $ R.pushCheap (\(B b) -> Just <$> R.sample b) e
 
 switch :: B (E x) -> E x
 switch (B b) = E $ R.switch (fmap unE b)

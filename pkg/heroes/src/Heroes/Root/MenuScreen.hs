@@ -62,7 +62,7 @@ data SBDeps = SBDeps {
 } deriving (Generic)
 
 data SimpleButton = SimpleButton {
-  clicked :: Bool,
+  pressed :: Bool,
   cmd :: Text.Cmd
 } deriving (Generic)
 
@@ -77,7 +77,7 @@ simpleButton (SBDeps {..}) center string = SimpleButton {..}
       string
   screenPlace = center .-^ box * 0.5
   hovered = inBounds screenPlace box (fmap2 (§) mouseAt)
-  clicked = hovered && mouseDown Input.LMB
+  pressed = hovered && mouseDown Input.LMB
   cmd = Text.Cmd {
     preparation,
     color = (
@@ -95,50 +95,101 @@ new' :: Deps -> New
 new' (Deps {..}) unique'B in'E = do
   u <- liftIO $ U.newUnique
   let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
-  -- let self'B = return Self'Title
-  let
-    multi'E =
-      in''E <&> \fullInput -> do
-        let
-          Input.Full {..} = fullInput
-          startButton :: SimpleButton
-          startButton =
-            simpleButton
-              (SBDeps {..})
-              (viewportCenter .-^ (V2 0 32))
-              "Start"
-          --
-          exitButton :: SimpleButton
-          exitButton =
-            simpleButton
-              (SBDeps {..})
-              (viewportCenter .+^ (V2 0 32))
-              "Exit"
-          --
-          drawCallback _ _ text _ _ = do
-            text $ \draw -> do
-              void $ draw (startButton ^. #cmd)
-              void $ draw (exitButton ^. #cmd)
-          --
-          start =
-            keyUp Input.Key'Enter ||
-            startButton ^. #clicked
-          --
-          exit =
-            quitEvent ||
-            keyUp Input.Key'Escape ||
-            exitButton ^. #clicked
-          --
-          out = emptyOut
-            & #drawCallback .~ drawCallback
-            & #exit .~ exit
-        --
-        (out, start)
+  fmap snd $ J.fixE $ \self'E0 -> do
+    self'B <- J.hold Self'Title self'E0
+    let
+      multi'E = J.sampling $
+        in''E <&> \fullInput ->
+          self'B <&> \case
+            Self'Title -> do
+              let
+                Input.Full {..} = fullInput
+                --
+                startButton :: SimpleButton
+                startButton =
+                  simpleButton
+                    (SBDeps {..})
+                    (viewportCenter .-^ (V2 0 32))
+                    "Start"
+                --
+                exitButton :: SimpleButton
+                exitButton =
+                  simpleButton
+                    (SBDeps {..})
+                    (viewportCenter .+^ (V2 0 32))
+                    "Exit"
+                --
+                drawCallback _ _ text _ _ = do
+                  text $ \draw -> do
+                    void $ draw (startButton ^. #cmd)
+                    void $ draw (exitButton ^. #cmd)
+                --
+                start =
+                  keyUp Input.Key'Enter ||
+                  startButton ^. #pressed
+                --
+                exit =
+                  quitEvent ||
+                  keyUp Input.Key'Escape ||
+                  exitButton ^. #pressed
+                --
+                out = emptyOut
+                  & #drawCallback .~ drawCallback
+                  & #exit .~ exit
+              --
+              (out, start, False, False)
+            Self'Lobby -> do
+              let
+                Input.Full {..} = fullInput
+                --
+                createButton :: SimpleButton
+                createButton =
+                  simpleButton
+                    (SBDeps {..})
+                    (viewportCenter .-^ (V2 0 32))
+                    "Create"
+                --
+                backButton :: SimpleButton
+                backButton =
+                  simpleButton
+                    (SBDeps {..})
+                    (viewportCenter .+^ (V2 0 32))
+                    "Back"
+                --
+                create =
+                  keyUp Input.Key'Enter ||
+                  createButton ^. #pressed
+                --
+                back =
+                  keyUp Input.Key'Escape ||
+                  backButton ^. #pressed
+                --
+                drawCallback _ _ text _ _ = do
+                  text $ \draw -> do
+                    void $ draw (createButton ^. #cmd)
+                    void $ draw (backButton ^. #cmd)
+                --
+                out = emptyOut
+                  & #drawCallback .~ drawCallback
+              --
+              (out, False, create, back)
+      --
+      out'E = multi'E <&> view _1
+      start'E = multi'E <&> view _2
+      create'E = multi'E <&> view _3
+      back'E = multi'E <&> view _4
+      self'E = mconcat
+        [
+          J.justE $ start'E <&> \case
+            True -> Just Self'Lobby
+            False -> Nothing,
+          J.justE $ back'E <&> \case
+            True -> Just Self'Title
+            False -> Nothing
+        ]
+
+      action'E = J.justE $ create'E <&> \case
+        True -> Just Root.Action'StartBattle
+        False -> Nothing
     --
-    out'E = multi'E <&> view _1
-    start'E = multi'E <&> view _2
-    action'E = J.justE $ start'E <&> \case
-      True -> Just Root.Action'StartBattle
-      False -> Nothing
-  --
-  return (u, out'E, action'E)
+    return (self'E, (u, out'E, action'E))
