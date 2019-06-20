@@ -19,7 +19,7 @@ data SFXResource = SFXResource {
 --------------------------------------------------------------------------------
 
 load ::
-  (GFX.GFX, SND.SND, Platform) =>
+  (GFX, SND, Platform) =>
   GFX.Renderer ->
   Essentials ->
   SFX ->
@@ -36,7 +36,7 @@ load r (Essentials {..}) s = do
   --
   return $ SFXResource { sprite, chunk }
 
-destroy :: (GFX.GFX, SND.SND) => SFXResource -> IO ()
+destroy :: (GFX, SND) => SFXResource -> IO ()
 destroy c = do
   GFX.destroyComplexSprite (c ^. #sprite)
   SND.freeChunk (c ^. #chunk)

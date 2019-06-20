@@ -1,9 +1,9 @@
 module Common.Optics (
   module Control.Lens,
-  module Linear,
   module Extra.Field.Optics,
 ) where
 
+-- TODO?: move some to Common, delete some
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Lens                                      ((+=))
 import Control.Lens                                      ((<+=))
@@ -12,7 +12,6 @@ import Control.Lens                                      ((%=))
 import Control.Lens                                      ((<%=))
 import Control.Lens                                      ((.=))
 import Control.Lens                                      ((.~))
-import Control.Lens                                      ((^.))
 import Control.Lens                                      (at)
 import Control.Lens                                      (ix)
 import Control.Lens                                      (assign)
@@ -30,12 +29,6 @@ import Control.Lens                                      (_6)
 import Control.Lens                                      (_7)
 import Control.Lens                                      (_8)
 import Control.Lens                                      (_9)
-
-import Linear                                            (_x)
-import Linear                                            (_y)
-import Linear                                            (_z)
-import Linear                                            (_w)
-
 import Extra.Field.Optics                                (by)
 import Extra.Field.Optics                                (useMay)
 import Extra.Field.Optics                                (setMay)
@@ -45,5 +38,3 @@ import Extra.Field.Optics                                ((^.?))
 import Extra.Field.Optics                                ((%~?))
 import Extra.Field.Optics                                ((.~?))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
---
-

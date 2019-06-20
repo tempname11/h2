@@ -7,7 +7,6 @@ module Heroes.Cursor (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import Heroes.Aux                                        (Annotation(..))
 import qualified Heroes.Bearing                            as Bearing
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 

@@ -2,7 +2,6 @@ module Heroes.Root.Common where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import Heroes.Aux                                        (Annotation)
 import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.SND                                as SND

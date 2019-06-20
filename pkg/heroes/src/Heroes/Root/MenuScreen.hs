@@ -6,6 +6,8 @@ module Heroes.Root.MenuScreen (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
+import Heroes.Protocol'Lobby
+import Heroes.Root.MenuScreen.Client
 import Heroes.Font                                       (Font(..))
 import Heroes.UI                                         (viewportSize)
 import qualified Heroes.Color                              as Color
@@ -34,10 +36,10 @@ data Prov = Prov {
 
 data Self
   = Self'Title
-  | Self'Lobby
+  | Self'Lobby (Async [MatchInfo])
   deriving (Generic)
 
-with :: Deps -> With Prov
+with :: (WSC) => Deps -> With Prov
 with deps next = next (Prov { new = new' deps })
 
 emptyOut :: Root.Out
@@ -91,7 +93,12 @@ simpleButton (SBDeps {..}) center string = SimpleButton {..}
 viewportCenter :: Point V2 Float
 viewportCenter = P $ (<§>) viewportSize * 0.5
 
-new' :: Deps -> New
+boolE :: J.E Bool -> J.E ()
+boolE e = J.justE $ e <&> \case
+  True -> Just ()
+  False -> Nothing
+
+new' :: (WSC) => Deps -> New
 new' (Deps {..}) unique'B in'E = do
   u <- liftIO $ U.newUnique
   let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
@@ -138,7 +145,7 @@ new' (Deps {..}) unique'B in'E = do
                   & #exit .~ exit
               --
               (out, start, False, False)
-            Self'Lobby -> do
+            Self'Lobby _ -> do
               let
                 Input.Full {..} = fullInput
                 --
@@ -175,21 +182,17 @@ new' (Deps {..}) unique'B in'E = do
               (out, False, create, back)
       --
       out'E = multi'E <&> view _1
-      start'E = multi'E <&> view _2
-      create'E = multi'E <&> view _3
-      back'E = multi'E <&> view _4
-      self'E = mconcat
-        [
-          J.justE $ start'E <&> \case
-            True -> Just Self'Lobby
-            False -> Nothing,
-          J.justE $ back'E <&> \case
-            True -> Just Self'Title
-            False -> Nothing
-        ]
-
-      action'E = J.justE $ create'E <&> \case
-        True -> Just Root.Action'StartBattle
-        False -> Nothing
+      start'E = boolE $ multi'E <&> view _2
+      create'E = boolE $ multi'E <&> view _3
+      back'E = boolE $ multi'E <&> view _4
+    --
+    toLobby'E <- J.subscribe () start'E $ \_ -> do
+      lm <- liftIO $ listMatches
+      return $ Self'Lobby lm
+    --
+    let
+      toTitle'E = back'E <&> \_ -> Self'Title
+      self'E = toLobby'E <> toTitle'E
+      action'E = create'E <&> \_ -> Root.Action'StartBattle
     --
     return (self'E, (u, out'E, action'E))

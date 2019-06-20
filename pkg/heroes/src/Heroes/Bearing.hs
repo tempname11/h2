@@ -1,7 +1,8 @@
 module Heroes.Bearing where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
+import Heroes.Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Bimap                                as Bimap
 import Data.Bimap                                        (Bimap)

@@ -1,28 +1,13 @@
 module Native.LobbyServer where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Heroes.Protocol'Lobby
 import Native
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Binary                                       (decode)
 import Data.Binary                                       (encode)
-import Data.Binary                                       (Binary)
 import qualified Network.WebSockets                        as WS
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-
-data MatchInfo = MatchInfo {}
-  deriving (Generic)
-
-data Request
-  = Request'ListMatches
-  deriving (Generic)
-
-data Response
-  = Response'Matches [MatchInfo]
-  deriving (Generic)
-
-instance Binary MatchInfo
-instance Binary Request
-instance Binary Response
 
 lobbyPort :: Int
 lobbyPort = 10000
@@ -37,5 +22,8 @@ main' = do
   let req = decode bs
   case req of
     Request'ListMatches -> do
-      WS.sendDataMessage c (WS.Binary . encode $ Response'Matches [])
-
+      WS.sendDataMessage c $
+        WS.Binary . encode $ Response'Matches
+          [
+            MatchInfo { name = "Transmittin'" }
+          ]

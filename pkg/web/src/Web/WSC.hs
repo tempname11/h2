@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
-module Web.WebSocket'Client where
+module Web.WSC where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Web
-import WebSocket'Client
+import WSC
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Concurrent                                (MVar)
 import Control.Concurrent                                (newEmptyMVar)
@@ -20,7 +20,7 @@ data Conn = Conn {
   recvQueue :: MVar ByteString
 } deriving (Generic)
 
-instance Websocket'Client where
+instance WSC where
   type Connection = Conn
   connect (ConnectionOptions {..}) handler = do
     recvQueue <- newEmptyMVar

@@ -1,15 +1,15 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
-module Native.WebSocket'Client where
+module Native.WSC where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Native
-import WebSocket'Client
+import WSC
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.ByteString.Lazy                      as BL
 import qualified Network.WebSockets                        as WS
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-instance Websocket'Client where
+instance WSC where
   type Connection = WS.Connection
   connect (ConnectionOptions {..}) handler = WS.runClient host port path handler
   send c bs = WS.sendDataMessage c (WS.Binary (BL.fromStrict bs))

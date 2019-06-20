@@ -2,14 +2,12 @@ module Heroes.Plan.Path where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation.Scene
-import Battle                                            (_creature)
 import Heroes
 import Heroes.Plan.Common
 import qualified Battle.AM                                 as AM
 import qualified Heroes.Plan.Animation                     as Animation
 import qualified Heroes.Plan.Sound                         as Sound
 import qualified Heroes.Sound                              as Sound
-import Battle                                            (FighterId)
 import Heroes.Sound                                      (Sound(..))
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Monad.State                               (get)

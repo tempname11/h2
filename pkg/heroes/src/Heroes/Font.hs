@@ -6,7 +6,7 @@ module Heroes.Font (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Set                                  as S
 import Prelude                                           (fromEnum)

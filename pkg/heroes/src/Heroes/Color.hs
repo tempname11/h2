@@ -1,7 +1,7 @@
 module Heroes.Color where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Color = V4 Word8

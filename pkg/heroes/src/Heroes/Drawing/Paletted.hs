@@ -5,7 +5,7 @@ module Heroes.Drawing.Paletted (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Heroes
+import Common
 import Heroes.Color                                      (Color)
 import Heroes.Drawing
 import Heroes.Drawing.Utilities

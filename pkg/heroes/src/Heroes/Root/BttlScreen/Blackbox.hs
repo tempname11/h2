@@ -9,12 +9,10 @@ module Heroes.Root.BttlScreen.Blackbox (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation                                         (GroupSizeOf)
 import Battle                                            (Battle)
-import Battle                                            (FighterId)
 import Battle.Setup                                      (Setup)
 import Heroes
 import Heroes.AAI                                        (AIQuery(..))
 import Heroes.AAI                                        (AIResult(..))
-import Heroes.Aux                                        (Annotation)
 import Heroes.Plan                                       (Plan)
 import Heroes.Color                                      (Color)
 import Stage.Loading                                     (Loaded)

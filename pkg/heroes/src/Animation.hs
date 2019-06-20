@@ -2,7 +2,6 @@ module Animation where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
-import Animation.Scene                                   (Handle)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 newtype GroupNumber = GroupNumber Int

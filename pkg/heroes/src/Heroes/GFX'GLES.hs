@@ -27,14 +27,13 @@ import qualified Heroes.Image                              as Image
 import qualified Heroes.FilePath                           as FilePath
 import qualified Heroes.Platform                           as Platform
 import qualified Heroes.GLX                                as GLX
-import qualified Heroes.WND                                as WND
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Renderer'GLES = Renderer'GLES GL.Ctx QBuffer
 
-instance (GLES, Platform, GLX.GLX, WND.WND) => GFX where
+instance (GLES, Platform, GLX, WND) => GFX where
   type Renderer = Renderer'GLES
   with (Deps {..}) next = do
     ctx <- GLX.getGLContext window

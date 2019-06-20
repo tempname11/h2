@@ -4,9 +4,8 @@ module Heroes.Drawing.Regular (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Common.With
+import Common
 import GLES                                              (GLES)
-import Heroes
 import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)
 import Heroes.Platform                                   (Platform)

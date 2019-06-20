@@ -2,7 +2,7 @@
 module Native.SND'SDL () where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation.Scene                                   (Handle)
+import Heroes.Handle
 import Heroes.SND
 import Native
 import Native.Platform ()

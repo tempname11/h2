@@ -6,9 +6,7 @@ module Heroes.Requisites (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation
-import Animation.Scene                                   (Handle(..))
 import Battle                                            (Battle)
-import Battle                                            (_creature)
 import Battle.Random                                     (spawn)
 import Battle.Setup                                      (Setup)
 import Heroes

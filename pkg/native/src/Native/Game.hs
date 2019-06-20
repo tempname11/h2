@@ -3,6 +3,7 @@ module Native.Game where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Native
+import Native.WSC ()
 import Native.GLES ()
 import Native.GLX ()
 import Heroes.GFX'GLES ()

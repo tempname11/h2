@@ -13,6 +13,7 @@ module Common (
   module Control.Monad.Trans,
   module Control.Monad.Writer,
   module Control.Monad.IO.Class,
+  module Control.Concurrent.Async,
   module Data.ByteString,
   module Data.Default.Class,
   module Data.Either,
@@ -28,6 +29,7 @@ module Common (
   module Data.Monoid,
   module Data.Ord,
   module Data.Set,
+  module Data.Text,
   module Data.Traversable,
   module Data.Word,
   module Debug.Trace,
@@ -44,6 +46,8 @@ module Common (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Common.Fields ()
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common.FFree
 import Common.Misc
 import Common.With
@@ -57,7 +61,10 @@ import Control.Applicative                               ((<|>))
 import Control.Applicative                               (Applicative)
 import Control.Applicative                               (pure)
 import Control.Arrow                                     ((>>>))
+import Control.Lens                                      ((^.))
+import Control.Lens                                      (view)
 import Control.Lens                                      ((&))
+import Control.Lens                                      (Lens')
 import Control.Monad                                     ((<=<))
 import Control.Monad                                     ((>=>))
 import Control.Monad                                     (join)
@@ -143,6 +150,7 @@ import Data.Monoid                                       (Monoid)
 import Data.Monoid                                       (mempty)
 import Data.Ord                                          (comparing)
 import Data.Set                                          (Set)
+import Data.Text                                         (Text)
 import Data.Traversable                                  (Traversable)
 import Data.Traversable                                  (for)
 import Data.Traversable                                  (mapM)
@@ -172,6 +180,10 @@ import Linear.Affine                                     ((.+^))
 import Linear.Affine                                     ((.-.))
 import Linear.Affine                                     ((.-^))
 import Linear.Affine                                     (Point (P))
+import Linear                                            (_x)
+import Linear                                            (_y)
+import Linear                                            (_z)
+import Linear                                            (_w)
 import Prelude                                           (($))
 import Prelude                                           ((&&))
 import Prelude                                           ((*))
@@ -257,4 +269,6 @@ import Prelude                                           (zip)
 import Prelude                                           (zipWith)
 import Safe                                              (headMay)
 import Control.Monad.IO.Class                            (liftIO)
+import Control.Concurrent.Async                          (async)
+import Control.Concurrent.Async                          (Async)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

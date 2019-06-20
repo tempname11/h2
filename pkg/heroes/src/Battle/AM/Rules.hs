@@ -3,9 +3,11 @@ module Battle.AM.Rules where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Battle.Monad
 import Battle.Monad.Utils
-import Heroes
+import Heroes.Handle
+import Common
+import Common.Optics
+import Heroes.Common
 import qualified Battle.AM                                 as AM
-import Battle                                            (FighterId)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 meleeAttack :: FighterId -> FighterId -> Bearing -> P0

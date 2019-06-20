@@ -1,7 +1,7 @@
 module Heroes.Boxes where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Vector                               as V
 import qualified Data.IntMap.Strict                        as IntMap

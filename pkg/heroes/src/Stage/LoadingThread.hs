@@ -16,7 +16,6 @@ import Heroes.SFXResource                                (SFXResource)
 import Utils.NBChan                                      (NBChan)
 import qualified Heroes.CreatureResource                   as CreatureResource
 import qualified Heroes.GFX                                as GFX
-import qualified Heroes.SND                                as SND
 import qualified Heroes.SFXResource                        as SFXResource
 import qualified Utils.NBChan                              as NBChan
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -45,7 +44,7 @@ data Prov = Prov {
   load :: IO ()
 }
 
-with :: (GFX.GFX, SND.SND, Platform) => Deps -> (Prov -> IO a) -> IO a
+with :: (GFX, SND, Platform) => Deps -> (Prov -> IO a) -> IO a
 with deps next = do
   wishChan <- NBChan.new
   loadedChan <- NBChan.new
@@ -53,7 +52,7 @@ with deps next = do
   let load = (loadingThread deps loadingChannels)
   next $ Prov {..}
 
-loadingThread :: (GFX.GFX, SND.SND, Platform) => Deps -> LoadingChannels -> IO ()
+loadingThread :: (GFX, SND, Platform) => Deps -> LoadingChannels -> IO ()
 loadingThread (Deps {..}) (wishChan, loadedChan) = do
   let
     load = \case

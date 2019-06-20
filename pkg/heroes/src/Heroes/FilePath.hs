@@ -1,7 +1,7 @@
 module Heroes.FilePath where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 import Heroes.Font                                       (Font)
 import Heroes.Font                                       (fontNameOf)
 import qualified Heroes.Platform                           as Platform

@@ -5,7 +5,7 @@ module Heroes.Drawing.OneColor (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Heroes
+import Common
 import Heroes.Color                                      (Color)
 import Heroes.Drawing.Utilities
 import Heroes.FilePath                                   (prod)

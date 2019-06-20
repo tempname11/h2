@@ -1,8 +1,8 @@
 module Heroes.WND where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
-import Heroes.Aux                                        (Annotation)
+import Common
+import Heroes.Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data In = In {

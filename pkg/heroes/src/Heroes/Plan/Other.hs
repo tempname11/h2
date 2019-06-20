@@ -3,8 +3,6 @@ module Heroes.Plan.Other where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation
 import Animation.Scene
-import Battle                                            (FighterId)
-import Battle                                            (_creature)
 import Heroes
 import Heroes.Plan.Common
 import Heroes.SFXResource                                (SFXResource(..))

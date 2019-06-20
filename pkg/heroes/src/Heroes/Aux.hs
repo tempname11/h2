@@ -25,15 +25,6 @@ data Aux = Aux
   , selectableFighters :: Set FighterId
   } deriving (Generic)
 
-data Annotation
-  = Annotation'MeleeFrom Bearing
-  | Annotation'Range
-  | Annotation'Running
-  | Annotation'Pondering
-  | Annotation'Selecting
-  | Annotation'Thinking -- XXX does not belong here
-  deriving (Eq, Ord, Show)
-
 --------------------------------------------------------------------------------
 
 approximate :: Bearing -> (Bearing -> Maybe a) -> Maybe a

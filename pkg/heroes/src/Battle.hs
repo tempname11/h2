@@ -6,33 +6,10 @@ import Baked
 import Heroes
 import Heroes.H3.Misc
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Control.Lens                                      (Lens')
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Failure
   = Invalid
   | Catastrophic
-
---------------------------------------------------------------------------------
-
--- Creature is baked in, because that's really convenient
--- and gives us stronger "immutability" guarantees:
--- same id will always refer to the same creature.
-newtype FighterId = FighterId Int
-  deriving (Generic, Eq, Ord, Show)
-
-instance Baked FighterId where
-  type Upper FighterId = Int
-  type Lower FighterId = Creature
-  lowerBits _ = 8
-  wrap = FighterId
-  unwrap = \(FighterId x) -> x
-
-makeFighterId :: Creature -> Int -> FighterId
-makeFighterId = baked
-
-_creature :: Lens' FighterId Creature
-_creature = lower_
 
 --------------------------------------------------------------------------------
 

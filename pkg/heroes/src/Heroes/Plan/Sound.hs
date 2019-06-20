@@ -1,7 +1,6 @@
 module Heroes.Plan.Sound where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation.Scene                                   (Handle)
 import Heroes
 import Heroes.Plan.Common
 import qualified Heroes.SND                                as SND

@@ -50,7 +50,7 @@ data Prov = Prov {
   new :: J.E Input.Full -> J.B Loaded -> J.Runtime (J.E Out, J.B Bool)
 } deriving (Generic)
 
-with :: Deps -> With Prov
+with :: (WSC) => Deps -> With Prov
 with (Deps {..}) next =
   MenuScreen.with (MenuScreen.Deps {..}) $ \menu ->
   BttlScreen.with (BttlScreen.Deps {..}) $ \bttl -> do

@@ -7,7 +7,7 @@ module Heroes.FontMeta (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Binary.Get                                   (Get)
 import Data.Binary.Get                                   (getWord16le)

@@ -7,7 +7,7 @@ module Heroes.Atlas (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 import qualified Heroes.Boxes                              as Boxes
 import qualified Heroes.Griffin                            as Griffin
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

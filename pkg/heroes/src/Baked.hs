@@ -1,10 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Baked where
 
-import Data.Proxy
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common
-import Control.Lens                                      (Lens')
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Data.Proxy
 import Data.Bits                                         ((.&.))
 import Data.Bits                                         ((.|.))
 import Data.Bits                                         (complement)

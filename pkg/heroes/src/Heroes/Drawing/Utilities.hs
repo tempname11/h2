@@ -2,7 +2,7 @@ module Heroes.Drawing.Utilities where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Heroes
+import Common
 import qualified GLES                                      as GL
 import qualified Heroes.GLX                                as GLX
 import qualified Heroes.Image                              as Image

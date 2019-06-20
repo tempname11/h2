@@ -8,7 +8,7 @@ module Heroes.Drawing.Text (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Common.With
 import GLES                                              (GLES)
-import Heroes
+import Common
 import Heroes.Color                                      (Color)
 import Heroes.Drawing                                    (FontAtlas(..))
 import Heroes.Drawing.Utilities

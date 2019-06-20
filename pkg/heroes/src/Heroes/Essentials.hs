@@ -5,7 +5,8 @@ module Heroes.Essentials (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
+import Heroes.Common
 import Heroes.Font                                       (Font)
 import Heroes.FontMeta                                   (FontMeta)
 import Heroes.SpriteMeta                                 (SpriteMeta)

@@ -1,7 +1,7 @@
 module Heroes.GLX where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 import qualified Heroes.WND                                as WND
 import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

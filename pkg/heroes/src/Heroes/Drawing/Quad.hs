@@ -5,7 +5,7 @@ module Heroes.Drawing.Quad (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Heroes
+import Common
 import qualified Heroes.GLX                                as GLX
 import qualified GLES                                      as GL
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *

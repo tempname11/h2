@@ -1,7 +1,7 @@
 module Heroes.GFX where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 import Heroes.Drawing                                    (ComplexSprite)
 import Heroes.Drawing                                    (FontAtlas)
 import Heroes.Essentials                                 (Essentials)

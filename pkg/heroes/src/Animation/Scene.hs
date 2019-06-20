@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Animation.Scene (
-  Handle(..),
   Actor(..),
   Prop(..),
   Scene(..),
@@ -8,18 +7,12 @@ module Animation.Scene (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
 import Heroes
 import Heroes.Drawing                                    (ComplexSprite)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Position = Point V2 CInt
-
-data Handle
-  = Handle'Fighter FighterId
-  | Handle'SFX SFX
-  deriving (Eq, Ord, Show)
 
 data Actor = Actor {
   sprite :: Some ComplexSprite,

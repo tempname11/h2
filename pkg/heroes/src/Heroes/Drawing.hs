@@ -2,7 +2,7 @@ module Heroes.Drawing where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import GLES                                              (GLES)
-import Heroes
+import Common
 import Heroes.FontMeta                                   (FontMeta)
 import Heroes.SpriteMeta                                 (SpriteMeta)
 import qualified GLES                                      as GL

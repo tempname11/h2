@@ -79,3 +79,10 @@ executables:
     cpp-options: -DMAIN_MODULE=Native.CompileCursors
     dependencies:
       - heroes-native
+
+  lobby-server:
+    source-dirs: misc
+    main: Main.hs
+    cpp-options: -DMAIN_MODULE=Native.LobbyServer
+    dependencies:
+      - heroes-native

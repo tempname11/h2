@@ -6,7 +6,7 @@ module Heroes.SpriteMeta (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Storable                      as SV
 import qualified Heroes.Atlas                              as Atlas

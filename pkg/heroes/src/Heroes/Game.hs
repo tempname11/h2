@@ -20,9 +20,10 @@ import qualified Reflex.Jumpstart                          as J
 
 main' ::
   (
-    GFX.GFX,
-    WND.WND,
-    SND.SND,
+    WSC,
+    GFX,
+    WND,
+    SND,
     I.DetermineInput,
     PR.Prerequisites,
     SL.SystemLibraries,

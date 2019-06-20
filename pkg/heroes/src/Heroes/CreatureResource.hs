@@ -22,7 +22,7 @@ data CreatureResource = CreatureResource {
 --------------------------------------------------------------------------------
 
 load ::
-  (GFX.GFX, SND.SND, Platform) =>
+  (GFX, SND, Platform) =>
   GFX.Renderer ->
   Essentials ->
   Creature ->
@@ -51,7 +51,7 @@ load r (Essentials {..}) c = do
   --
   return $ CreatureResource { sprite, sounds }
 
-destroy :: (GFX.GFX, SND.SND) => CreatureResource -> IO ()
+destroy :: (GFX, SND) => CreatureResource -> IO ()
 destroy c = do
   GFX.destroyComplexSprite (c ^. #sprite)
   mapM_ SND.freeChunk (c ^. #sounds)

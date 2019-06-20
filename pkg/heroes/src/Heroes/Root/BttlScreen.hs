@@ -7,11 +7,9 @@ module Heroes.Root.BttlScreen (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation                                         (GroupSizeOf)
 import Animation.Scene                                   (Actor)
-import Animation.Scene                                   (Handle(..))
 import Animation.Scene                                   (Prop)
 import Animation.Scene                                   (Scene(..))
 import Battle                                            (Battle)
-import Battle                                            (FighterId)
 import Battle                                            (ObstacleId)
 import Battle                                            (_otype)
 import qualified Battle.AM                                 as AM

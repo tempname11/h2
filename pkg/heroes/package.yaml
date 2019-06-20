@@ -28,6 +28,7 @@ dependencies:
   - transformers
   - vector
   - field-optics
+  - text
   #
   - reflex
   - dependent-sum

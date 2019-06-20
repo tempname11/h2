@@ -9,7 +9,6 @@ import Battle.Monad
 import qualified Battle.AM                                 as AM
 import qualified Battle.PM                                 as PM
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Control.Lens                                      (Lens')
 import Control.Monad.State                               (get)
 import Control.Monad.State                               (put)
 import Extra.Field.Optics.Internal                       (Binoculars')
