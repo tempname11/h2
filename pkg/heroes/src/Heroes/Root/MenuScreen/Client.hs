@@ -5,6 +5,8 @@ import Heroes
 import Heroes.Protocol'Lobby
 import WSC
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Concurrent                                (threadDelay)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 listMatches :: WSC => IO (Async [MatchInfo])
 listMatches = async $ do
@@ -12,12 +14,8 @@ listMatches = async $ do
     host = "localhost"
     port = 10000
     path = "/"
-  print (101 :: Int)
+  threadDelay $ 1000 * 1000
   connect (ConnectionOptions {..}) $ \c -> do
-    print (102 :: Int)
     sendEncoded c (Request'ListMatches)
-    print (103 :: Int)
     Response'Matches ms <- recvDecoded c
-    print (104 :: Int)
     return ms
-  

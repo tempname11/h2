@@ -16,9 +16,12 @@ import qualified Heroes.Drawing.Text                       as Text
 import qualified Heroes.GFX                                as GFX
 import qualified Heroes.Root.Common                        as Root
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Data.Text.Encoding                                (encodeUtf8)
+import qualified Data.Text                                 as T
 import qualified Data.Unique                               as U
 import qualified Data.Vector                               as V
 import qualified Reflex.Jumpstart                          as J
+import qualified Control.Concurrent.Async                  as Async
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Deps = Deps {
@@ -68,7 +71,7 @@ data SimpleButton = SimpleButton {
   cmd :: Text.Cmd
 } deriving (Generic)
 
-simpleButton :: SBDeps -> Point V2 Float -> ByteString -> SimpleButton
+simpleButton :: SBDeps -> Point V2 Float -> Text -> SimpleButton
 simpleButton (SBDeps {..}) center string = SimpleButton {..}
   where
   Input.Full {..} = fullInput
@@ -76,7 +79,7 @@ simpleButton (SBDeps {..}) center string = SimpleButton {..}
   (box, preparation) =
     Text.prepare
       (fonts ! Font'CompassPro24)
-      string
+      (encodeUtf8 string)
   screenPlace = center .-^ box * 0.5
   hovered = inBounds screenPlace box (fmap2 (§) mouseAt)
   pressed = hovered && mouseDown Input.LMB
@@ -104,83 +107,99 @@ new' (Deps {..}) unique'B in'E = do
   let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
   fmap snd $ J.fixE $ \self'E0 -> do
     self'B <- J.hold Self'Title self'E0
+    multi'E <- J.subscribe u in''E $ \fullInput -> do
+      self <- J.sample self'B
+      case self of
+        Self'Title -> do
+          let
+            Input.Full {..} = fullInput
+            --
+            startButton :: SimpleButton
+            startButton =
+              simpleButton
+                (SBDeps {..})
+                (viewportCenter .-^ (V2 0 32))
+                "Start"
+            --
+            exitButton :: SimpleButton
+            exitButton =
+              simpleButton
+                (SBDeps {..})
+                (viewportCenter .+^ (V2 0 32))
+                "Exit"
+            --
+            drawCallback _ _ text _ _ = do
+              text $ \draw -> do
+                void $ draw (startButton ^. #cmd)
+                void $ draw (exitButton ^. #cmd)
+            --
+            start =
+              keyUp Input.Key'Enter ||
+              startButton ^. #pressed
+            --
+            exit =
+              quitEvent ||
+              keyUp Input.Key'Escape ||
+              exitButton ^. #pressed
+            --
+            out = emptyOut
+              & #drawCallback .~ drawCallback
+              & #exit .~ exit
+          --
+          return (out, start, False, False)
+        Self'Lobby lm -> do
+          p <- liftIO $ Async.poll lm
+          let
+            str :: Text
+            str = case p of
+              Nothing -> "Nothing"
+              Just (Left _) -> "Exception"
+              Just (Right ms) -> T.intercalate " " $
+                ms <&> \(MatchInfo {name}) -> name
+            --
+            Input.Full {..} = fullInput
+            --
+            createButton :: SimpleButton
+            createButton =
+              simpleButton
+                (SBDeps {..})
+                (viewportCenter .-^ (V2 0 64))
+                "Create"
+            --
+            itemButton :: SimpleButton
+            itemButton =
+              simpleButton
+                (SBDeps {..})
+                viewportCenter
+                str
+            --
+            backButton :: SimpleButton
+            backButton =
+              simpleButton
+                (SBDeps {..})
+                (viewportCenter .+^ (V2 0 64))
+                "Back"
+            --
+            create =
+              keyUp Input.Key'Enter ||
+              createButton ^. #pressed
+            --
+            back =
+              keyUp Input.Key'Escape ||
+              backButton ^. #pressed
+            --
+            drawCallback _ _ text _ _ = do
+              text $ \draw -> do
+                void $ draw (createButton ^. #cmd)
+                void $ draw (itemButton ^. #cmd)
+                void $ draw (backButton ^. #cmd)
+            --
+            out = emptyOut
+              & #drawCallback .~ drawCallback
+          --
+          return (out, False, create, back)
+    --
     let
-      multi'E = J.sampling $
-        in''E <&> \fullInput ->
-          self'B <&> \case
-            Self'Title -> do
-              let
-                Input.Full {..} = fullInput
-                --
-                startButton :: SimpleButton
-                startButton =
-                  simpleButton
-                    (SBDeps {..})
-                    (viewportCenter .-^ (V2 0 32))
-                    "Start"
-                --
-                exitButton :: SimpleButton
-                exitButton =
-                  simpleButton
-                    (SBDeps {..})
-                    (viewportCenter .+^ (V2 0 32))
-                    "Exit"
-                --
-                drawCallback _ _ text _ _ = do
-                  text $ \draw -> do
-                    void $ draw (startButton ^. #cmd)
-                    void $ draw (exitButton ^. #cmd)
-                --
-                start =
-                  keyUp Input.Key'Enter ||
-                  startButton ^. #pressed
-                --
-                exit =
-                  quitEvent ||
-                  keyUp Input.Key'Escape ||
-                  exitButton ^. #pressed
-                --
-                out = emptyOut
-                  & #drawCallback .~ drawCallback
-                  & #exit .~ exit
-              --
-              (out, start, False, False)
-            Self'Lobby _ -> do
-              let
-                Input.Full {..} = fullInput
-                --
-                createButton :: SimpleButton
-                createButton =
-                  simpleButton
-                    (SBDeps {..})
-                    (viewportCenter .-^ (V2 0 32))
-                    "Create"
-                --
-                backButton :: SimpleButton
-                backButton =
-                  simpleButton
-                    (SBDeps {..})
-                    (viewportCenter .+^ (V2 0 32))
-                    "Back"
-                --
-                create =
-                  keyUp Input.Key'Enter ||
-                  createButton ^. #pressed
-                --
-                back =
-                  keyUp Input.Key'Escape ||
-                  backButton ^. #pressed
-                --
-                drawCallback _ _ text _ _ = do
-                  text $ \draw -> do
-                    void $ draw (createButton ^. #cmd)
-                    void $ draw (backButton ^. #cmd)
-                --
-                out = emptyOut
-                  & #drawCallback .~ drawCallback
-              --
-              (out, False, create, back)
-      --
       out'E = multi'E <&> view _1
       start'E = boolE $ multi'E <&> view _2
       create'E = boolE $ multi'E <&> view _3
