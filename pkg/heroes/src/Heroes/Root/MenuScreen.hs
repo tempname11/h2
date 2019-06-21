@@ -146,7 +146,7 @@ new' (Deps {..}) unique'B in'E = do
               & #drawCallback .~ drawCallback
               & #exit .~ exit
           --
-          return (out, start, False, False)
+          return (out, start, Nothing, False)
         Self'Lobby lm -> do
           p <- liftIO $ Async.poll lm
           let
@@ -180,9 +180,11 @@ new' (Deps {..}) unique'B in'E = do
                 (viewportCenter .+^ (V2 0 64))
                 "Back"
             --
-            create =
+            create = Nothing
+            {-
               keyUp Input.Key'Enter ||
               createButton ^. #pressed
+            -}
             --
             back =
               keyUp Input.Key'Escape ||
@@ -202,7 +204,7 @@ new' (Deps {..}) unique'B in'E = do
     let
       out'E = multi'E <&> view _1
       start'E = boolE $ multi'E <&> view _2
-      create'E = boolE $ multi'E <&> view _3
+      create'E = J.justE $ multi'E <&> view _3
       back'E = boolE $ multi'E <&> view _4
     --
     toLobby'E <- J.subscribe () start'E $ \_ -> do
@@ -212,6 +214,6 @@ new' (Deps {..}) unique'B in'E = do
     let
       toTitle'E = back'E <&> \_ -> Self'Title
       self'E = toLobby'E <> toTitle'E
-      action'E = create'E <&> \_ -> Root.Action'StartBattle
+      action'E = create'E
     --
     return (self'E, (u, out'E, action'E))

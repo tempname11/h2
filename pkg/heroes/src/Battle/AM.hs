@@ -21,6 +21,6 @@ data PathMarker
   deriving (Generic, Eq, Show)
 
 data Update
-  = JumpTo (Some Battle)
+  = JumpTo Battle
   | Normal [Marker]
   deriving (Generic, Show)

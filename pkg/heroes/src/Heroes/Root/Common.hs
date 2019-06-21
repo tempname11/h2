@@ -1,6 +1,8 @@
 module Heroes.Root.Common where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Battle                                            (Battle)
+import Battle.Setup                                      (Setup)
 import Heroes
 import Stage.LoadingThread                               (LoadRequest(..))
 import qualified Heroes.GFX                                as GFX
@@ -19,5 +21,8 @@ data Out = Out {
 
 data Action
   = Action'ExitScreen
-  | Action'StartBattle
+  | Action'StartBattle {
+    setup :: Setup,
+    initialBattle :: Battle
+  }
   deriving (Generic, Show)

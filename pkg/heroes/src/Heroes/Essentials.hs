@@ -1,11 +1,14 @@
 module Heroes.Essentials (
   get,
   put,
+  groupSizeOf,
   Essentials(..),
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Animation
 import Common
+import Heroes.Handle
 import Heroes.Common
 import Heroes.Font                                       (Font)
 import Heroes.FontMeta                                   (FontMeta)
@@ -16,6 +19,7 @@ import qualified Heroes.SpriteMeta                         as SpriteMeta
 import Data.Binary.Get                                   (Get)
 import Data.Binary.Put                                   (Put)
 import qualified Data.Map.Strict                           as M
+import qualified Data.Vector                               as V
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Essentials = Essentials {
@@ -41,3 +45,17 @@ get = do
     fontMeta = (fs !)
   --
   return $ Essentials {..}
+
+groupSizeOf :: Essentials -> Handle -> GroupNumber -> GroupSize
+groupSizeOf (Essentials {..}) h g =
+  case h of
+    Handle'Fighter fyr ->
+      groupSize (creatureMeta (fyr ^. _creature) ^. #groups) g
+    Handle'SFX sfx -> groupSize (sfxMeta sfx ^. #groups) g
+
+groupSize :: V.Vector (V.Vector a) -> GroupNumber -> GroupSize
+groupSize gs (GroupNumber g) =
+  GroupSize $
+    case gs V.!? g of
+      Just x -> V.length x
+      Nothing -> 0

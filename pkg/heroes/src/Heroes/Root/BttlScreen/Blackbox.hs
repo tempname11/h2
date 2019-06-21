@@ -7,10 +7,10 @@ module Heroes.Root.BttlScreen.Blackbox (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation                                         (GroupSizeOf)
 import Battle                                            (Battle)
 import Battle.Setup                                      (Setup)
 import Heroes
+import Heroes.Essentials                                 (Essentials)
 import Heroes.AAI                                        (AIQuery(..))
 import Heroes.AAI                                        (AIResult(..))
 import Heroes.Plan                                       (Plan)
@@ -30,9 +30,9 @@ import qualified Data.Vector                               as V
 data In = In {
   initialBattle :: Battle,
   setup :: Setup,
+  essentials :: Essentials,
   queryAI :: IO (Maybe AIResult),
   askAI :: Maybe AIQuery -> IO (),
-  groupSizeOf :: GroupSizeOf,
   fullInput :: Input.Full,
   loaded :: Loaded
 }
@@ -101,7 +101,7 @@ run core ref (In {..}) = do
           in
             -- XXX will try to recompute plan each frame,
             -- until resources are loaded
-            case Plan.make loaded groupSizeOf realUpdate of
+            case Plan.make loaded essentials realUpdate of
               Left l -> (Left realUpdate, l)
               Right p -> (Right p, empty)
   --

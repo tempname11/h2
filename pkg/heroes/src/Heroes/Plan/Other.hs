@@ -4,6 +4,7 @@ module Heroes.Plan.Other where
 import Animation
 import Animation.Scene
 import Heroes
+import Heroes.Essentials                                 (groupSizeOf)
 import Heroes.Plan.Common
 import Heroes.SFXResource                                (SFXResource(..))
 import Heroes.Sound                                      (Sound(..))
@@ -23,11 +24,11 @@ import Control.Monad.State                               (put)
 rangeAttack :: (FighterId, FighterId) -> M0
 rangeAttack (a, d) = do
   o <- get
-  (gso, _) <- ask
+  (essentials, _) <- ask
   let ha = Handle'Fighter a
       hd = Handle'Fighter d
-  let oa = o +! gso ha ga
-      od = o +! gso hd gd
+  let oa = o +! groupSizeOf essentials ha ga
+      od = o +! groupSizeOf essentials hd gd
       ga = is (MeleeAttackingFrom $ Bearing.Forward)
       gd = is Defending
       gi = is Idling
@@ -47,11 +48,11 @@ rangeAttack (a, d) = do
 meleeAttack :: (FighterId, FighterId, Bearing) -> M0
 meleeAttack (a, d, _bear) = do
   o <- get
-  (gso, _) <- ask
+  (essentials, _) <- ask
   let ha = Handle'Fighter a
       hd = Handle'Fighter d
-  let oa = o +! gso ha ga
-      od = o +! gso hd gd
+  let oa = o +! groupSizeOf essentials ha ga
+      od = o +! groupSizeOf essentials hd gd
       ga = is (MeleeAttackingFrom $ Bearing.Forward) -- XXX Bearing.semi bear
       gd = is Defending
       gi = is Idling
@@ -71,7 +72,7 @@ meleeAttack (a, d, _bear) = do
 specialEffect :: (SFX, Facing, Placing) -> M0
 specialEffect (sfx, f, p) = do
   o <- get
-  (gso, loaded) <- ask
+  (essentials, loaded) <- ask
   sprite <- case (loaded ^. #sfxes) sfx of
     Just (SFXResource { sprite }) -> return (Some sprite)
     Nothing -> singleRequest (LoadRequest'SFX sfx)
@@ -89,7 +90,7 @@ specialEffect (sfx, f, p) = do
       subframeN = 0,
       animated = True
     }
-    o' = o +! gso h sfxGroupNumber
+    o' = o +! groupSizeOf essentials h sfxGroupNumber
   Animation.add h actor o
   Animation.remove h o'
   c <- getChunk (Sound'SFX sfx)
@@ -99,10 +100,10 @@ specialEffect (sfx, f, p) = do
 death :: FighterId -> M0
 death fyr = do
   o <- get
-  (gso, _) <- ask
+  (essentials, _) <- ask
   let h = Handle'Fighter fyr
       g = is Dying
-      o' = o +! gso h g
+      o' = o +! groupSizeOf essentials h g
   Animation.setGroupNumber h g o
   Animation.setAnimated h False (o' +!. (-1))
   c <- getChunk (Sound'Creature (fyr ^. _creature) Sound.Death)

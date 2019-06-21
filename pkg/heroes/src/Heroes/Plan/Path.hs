@@ -3,6 +3,7 @@ module Heroes.Plan.Path where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Animation.Scene
 import Heroes
+import Heroes.Essentials                                 (groupSizeOf)
 import Heroes.Plan.Common
 import qualified Battle.AM                                 as AM
 import qualified Heroes.Plan.Animation                     as Animation
@@ -89,10 +90,10 @@ handleMove prevMove fyr (p0, f, p1) = do
 handleTurn :: FighterId -> (Facing, Placing) -> M0
 handleTurn fyr (f, p) = do
   o <- get
-  (gso, _) <- ask
+  (essentials, _) <- ask
   let h = Handle'Fighter fyr
       g = is Turning
-      o' = o +! gso h g
+      o' = o +! groupSizeOf essentials h g
       z = actorPositionAt f p
   Animation.setGroupNumber h g o
   Animation.setFacing h f o'

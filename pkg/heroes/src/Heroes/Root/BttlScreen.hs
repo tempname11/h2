@@ -1,11 +1,9 @@
 module Heroes.Root.BttlScreen (
   Deps(..),
-  Prov(..),
-  with
+  new,
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation                                         (GroupSizeOf)
 import Animation.Scene                                   (Actor)
 import Animation.Scene                                   (Prop)
 import Animation.Scene                                   (Scene(..))
@@ -21,6 +19,7 @@ import Heroes.Drawing                                    (CopySpec(..))
 import Heroes.Color                                      (Color)
 import Heroes.Color                                      (transparent)
 import Heroes.UI                                         (fieldCenter)
+import Heroes.Essentials                                 (Essentials)
 import Stage.Loading                                     (Loaded)
 import qualified Heroes.Cell                               as Cell
 import qualified Heroes.Drawing                            as Drawing
@@ -45,7 +44,7 @@ import qualified Reflex.Jumpstart                          as J
 data Deps = Deps {
   queryAI :: IO (Maybe AIResult),
   askAI :: Maybe AIQuery -> IO (),
-  groupSizeOf :: GroupSizeOf,
+  essentials :: Essentials,
   setup :: Setup,
   initialBattle :: Battle
 } deriving (Generic)
@@ -56,15 +55,8 @@ type New =
   J.E Input.Full ->
   J.Runtime (U.Unique, J.E Root.Out, J.E Root.Action)
 
-data Prov = Prov {
-  new :: New
-} deriving (Generic)
-
-with :: Deps -> With Prov
-with deps next = next (Prov { new = new' deps })
-
-new' :: Deps -> New
-new' (Deps {..}) unique'B loaded'B in'E = do
+new :: Deps -> New
+new (Deps {..}) unique'B loaded'B in'E = do
   u <- liftIO $ U.newUnique
   let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
   core <- liftIO $ newIORef (Core.Data {
@@ -78,7 +70,7 @@ new' (Deps {..}) unique'B loaded'B in'E = do
     curtain = 1.0
   })
   blackbox <- liftIO $ newIORef (Blackbox.Data {
-    updateOrPlan = Left . AM.JumpTo . Some $ initialBattle,
+    updateOrPlan = Left . AM.JumpTo $ initialBattle,
     frameNumber = 0,
     subframeNumber = 0
   })
@@ -86,7 +78,11 @@ new' (Deps {..}) unique'B loaded'B in'E = do
     run fullInput = do
       loaded <- J.sample loaded'B
       liftIO $ do
-        Blackbox.Out {..} <- Blackbox.run (Core.run core) blackbox (Blackbox.In {..})
+        Blackbox.Out {..} <- Blackbox.run
+          (Core.run core)
+          blackbox
+          (Blackbox.In {..})
+        --
         scene0 <- readIORef animation
         let
           scene1 = Animation.run (Animation.In {..}) scene0

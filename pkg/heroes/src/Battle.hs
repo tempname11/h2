@@ -88,7 +88,7 @@ data Battle = Battle {
   obstacles :: Map ObstacleId ObstacleAttr,
   phase :: Phase,
   currently :: (Team, Turn)
-} deriving (Generic)
+} deriving (Generic, Show)
 
 instance Binary Phase
 instance Binary Ability

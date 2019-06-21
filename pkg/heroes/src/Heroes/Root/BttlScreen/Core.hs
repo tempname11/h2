@@ -194,7 +194,7 @@ core aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
     in if
       | not isActive0 -> normal
       | keyDown ControlMap.reset -> (
-          AM.JumpTo (Some initialBattle),
+          AM.JumpTo initialBattle,
           Data {
             current = Current (setup, initialBattle),
             pastBattles = [],
@@ -204,7 +204,7 @@ core aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
       | keyDown ControlMap.intoPast ->
         case pastBattles0 of
           b : bs -> (
-              AM.JumpTo (Some b),
+              AM.JumpTo b,
               Data {
                 current = Current (setup, b),
                 pastBattles = bs,
@@ -215,7 +215,7 @@ core aiMoves (In {..}) data0 = (Out {..}, aiQuery, data1)
       | keyDown ControlMap.intoFuture ->
         case futureBattles0 of
           b : bs -> (
-              AM.JumpTo (Some b),
+              AM.JumpTo b,
               Data {
                 current = Current (setup, b),
                 futureBattles = bs,

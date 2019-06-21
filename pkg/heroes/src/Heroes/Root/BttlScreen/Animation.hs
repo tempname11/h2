@@ -9,6 +9,8 @@ import Animation
 import Animation.Command
 import Animation.Scene
 import Heroes
+import Heroes.Essentials                                 (Essentials)
+import Heroes.Essentials                                 (groupSizeOf)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
 import qualified Data.Vector                               as V
@@ -17,19 +19,19 @@ import qualified Data.Vector                               as V
 type Data = Scene
 
 data In = In {
-  groupSizeOf :: GroupSizeOf,
+  essentials :: Essentials,
   animationCommands :: V.Vector Command
 }
 
 run :: In -> Scene -> Scene
-run (In {..}) = increment groupSizeOf >>> applyAll animationCommands
+run (In {..}) = increment essentials >>> applyAll animationCommands
 
-increment :: GroupSizeOf -> Scene -> Scene
-increment groupSizeOf = over #actors $ M.mapWithKey $ \h -> execState $ do
+increment :: Essentials -> Scene -> Scene
+increment essentials = over #actors $ M.mapWithKey $ \h -> execState $ do
   a <- use #animated
   when a $ do
     g <- use #groupN
-    let GroupSize n = groupSizeOf h (GroupNumber g)
+    let GroupSize n = groupSizeOf essentials h (GroupNumber g)
     let _15fps s = s `mod` 4 == 0
     s <- #subframeN <%= (+1)
     when (_15fps s) $

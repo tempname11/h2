@@ -10,6 +10,7 @@ import Animation
 import Animation.Scene
 import Battle
 import Heroes
+import Heroes.Essentials                                 (Essentials)
 import Heroes.CreatureResource                           (CreatureResource(..))
 import Heroes.Plan.Common
 import Heroes.Plan.Other
@@ -29,10 +30,10 @@ import qualified Data.Vector.Mutable                       as MV
 none :: Plan
 none = V.empty
 
-make :: Loaded -> GroupSizeOf -> AM.Update -> Either (Set LoadRequest) Plan
-make loaded gso = \case
-  AM.JumpTo (Some b) -> fromBattle b loaded
-  AM.Normal ms -> fromMarkers ms gso loaded
+make :: Loaded -> Essentials -> AM.Update -> Either (Set LoadRequest) Plan
+make loaded essentials = \case
+  AM.JumpTo b -> fromBattle b loaded
+  AM.Normal ms -> fromMarkers ms essentials loaded
 
 fromBattle ::
   Battle ->
@@ -109,14 +110,14 @@ fromBattle b loaded =
 
 fromMarkers ::
   [AM.Marker] ->
-  GroupSizeOf ->
+  Essentials ->
   Loaded ->
   Either (Set LoadRequest) Plan
-fromMarkers ms gso loaded =
+fromMarkers ms essentials loaded =
   fmap fromList $
     runWriterT $
       flip execStateT (Offset 0) $
-        flip runReaderT (gso, loaded) $
+        flip runReaderT (essentials, loaded) $
           fromMarkers' ms
 
 fromList :: (Offset, [(Offset, Either Animation.Command SND.Command)]) -> Plan

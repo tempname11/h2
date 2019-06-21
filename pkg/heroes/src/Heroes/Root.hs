@@ -7,10 +7,8 @@ module Heroes.Root (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Animation                                         (GroupSizeOf)
-import Battle                                            (Battle)
-import Battle.Setup                                      (Setup)
 import Heroes
+import Heroes.Essentials                                 (Essentials)
 import Heroes.AAI                                        (AIQuery(..))
 import Heroes.AAI                                        (AIResult(..))
 import Heroes.Root.Common
@@ -40,9 +38,7 @@ data Root
 data Deps = Deps {
   queryAI :: IO (Maybe AIResult),
   askAI :: Maybe AIQuery -> IO (),
-  groupSizeOf :: GroupSizeOf,
-  setup :: Setup,
-  initialBattle :: Battle,
+  essentials :: Essentials,
   staticResources :: GFX.StaticResources
 } deriving (Generic)
 
@@ -52,8 +48,7 @@ data Prov = Prov {
 
 with :: (WSC) => Deps -> With Prov
 with (Deps {..}) next =
-  MenuScreen.with (MenuScreen.Deps {..}) $ \menu ->
-  BttlScreen.with (BttlScreen.Deps {..}) $ \bttl -> do
+  MenuScreen.with (MenuScreen.Deps {..}) $ \menu -> do
     let
       new in'E loaded'B = fmap snd $ J.fixB $ \unique'B0 -> do
         let
@@ -67,12 +62,17 @@ with (Deps {..}) next =
                     (unique, out'E, action'E) <-
                       (menu ^. #new) unique'B0 in'E
                     return $ Root'MenuScreen {..}
-              Action'StartBattle -> do
+              Action'StartBattle {..} -> do
                 case root of
                   Root'BttlScreen {} -> return root
                   Root'MenuScreen {} -> do
                     (unique, out'E, action'E) <-
-                      (bttl ^. #new) unique'B0 loaded'B in'E
+                      BttlScreen.new
+                        (BttlScreen.Deps {..})
+                        unique'B0
+                        loaded'B
+                        in'E
+                    --
                     return $ Root'BttlScreen {..}
         --
         initial <- do

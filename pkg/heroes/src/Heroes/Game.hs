@@ -5,7 +5,6 @@ import Heroes
 import Heroes.Platform                                   (Platform)
 import qualified Heroes.AAI                                as AAI
 import qualified Heroes.GFX                                as GFX
-import qualified Heroes.Requisites                         as RQ
 import qualified Heroes.Root                               as Root
 import qualified Heroes.SND                                as SND
 import qualified Heroes.WND                                as WND
@@ -39,7 +38,6 @@ main' = do
     GFX.with (GFX.Deps {..}) $ \(GFX.Prov {..}) ->
     SND.with (SND.Deps {..}) $ \(SND.Prov {..}) ->
     AAI.with (AAI.Deps {..}) $ \(AAI.Prov {..}) ->
-    RQ.with (RQ.Deps {..}) $ \(RQ.Prov {..}) ->
     LT.with (LT.Deps {..}) $ \(LT.Prov {..}) ->
     L.with (L.Deps {..}) $ \queryLoaded wishLoaded ->
     I.with (I.Deps {..}) $ \determineInput ->

@@ -1,7 +1,7 @@
 module Animation where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Heroes
+import Common
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 newtype GroupNumber = GroupNumber Int
@@ -19,5 +19,3 @@ deriving instance Show GroupSize
 deriving instance Eq FrameNumber
 deriving instance Ord FrameNumber
 deriving instance Show FrameNumber
-
-type GroupSizeOf = Handle -> GroupNumber -> GroupSize

@@ -4,6 +4,7 @@ module Heroes.Plan.Common where
 import Animation
 import Animation.Scene
 import Heroes
+import Heroes.Essentials                                 (Essentials)
 import Heroes.H3.Misc                                    (ObstacleType)
 import Heroes.H3.Misc                                    (obstacleOffset)
 import Heroes.UI
@@ -26,7 +27,7 @@ type M0 = M ()
 type Plan = V.Vector (V.Vector Animation.Command, V.Vector SND.Command)
 
 type M =
-  ReaderT (GroupSizeOf, Loaded) (
+  ReaderT (Essentials, Loaded) (
     StateT Offset (
       WriterT [(Offset, Either Animation.Command SND.Command)] (
         Either (Set LoadRequest)
