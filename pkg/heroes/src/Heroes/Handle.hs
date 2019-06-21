@@ -17,6 +17,8 @@ data Handle
 newtype FighterId = FighterId Int
   deriving (Generic, Eq, Ord, Show)
 
+instance Binary FighterId
+
 instance Baked FighterId where
   type Upper FighterId = Int
   type Lower FighterId = H3.Creature

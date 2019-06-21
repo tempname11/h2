@@ -52,15 +52,6 @@ _some f (Some a) = fmap Some (f a)
 instance Show (Some a) where
   show _ = "Some"
 
--- XXX use a library definition?
-data Stream a = Cons a (Stream a)
-
-nextS :: Stream a -> Stream a
-nextS (Cons _ s) = s
-
-currentS :: Stream a -> a
-currentS (Cons a _) = a
-
 rightIsJust :: Either e a -> Maybe a
 rightIsJust (Left _) = Nothing
 rightIsJust (Right x) = Just x

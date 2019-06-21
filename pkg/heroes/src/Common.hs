@@ -14,6 +14,7 @@ module Common (
   module Control.Monad.Writer,
   module Control.Monad.IO.Class,
   module Control.Concurrent.Async,
+  module Data.Binary,
   module Data.ByteString,
   module Data.Default.Class,
   module Data.Either,
@@ -104,6 +105,7 @@ import Control.Monad.Writer                              (execWriterT)
 import Control.Monad.Writer                              (runWriter)
 import Control.Monad.Writer                              (runWriterT)
 import Control.Monad.Writer                              (tell)
+import Data.Binary                                       (Binary)
 import Data.ByteString                                   (ByteString)
 import Data.Default.Class                                (Default)
 import Data.Default.Class                                (def)
@@ -268,6 +270,7 @@ import Prelude                                           (words)
 import Prelude                                           (zip)
 import Prelude                                           (zipWith)
 import Safe                                              (headMay)
+import Safe                                              (atMay)
 import Control.Monad.IO.Class                            (liftIO)
 import Control.Concurrent.Async                          (async)
 import Control.Concurrent.Async                          (Async)

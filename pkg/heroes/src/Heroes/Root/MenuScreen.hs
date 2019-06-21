@@ -39,7 +39,7 @@ data Prov = Prov {
 
 data Self
   = Self'Title
-  | Self'Lobby (Async [MatchInfo])
+  | Self'Lobby (Async [ID "Match"])
   deriving (Generic)
 
 with :: (WSC) => Deps -> With Prov
@@ -155,7 +155,7 @@ new' (Deps {..}) unique'B in'E = do
               Nothing -> "Nothing"
               Just (Left _) -> "Exception"
               Just (Right ms) -> T.intercalate " " $
-                ms <&> \(MatchInfo {name}) -> name
+                ms <&> T.pack . show
             --
             Input.Full {..} = fullInput
             --

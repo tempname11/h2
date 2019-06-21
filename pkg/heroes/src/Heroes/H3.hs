@@ -1376,3 +1376,6 @@ sDefName = \case
 -- XXX DeriveAnyClass
 instance GEnum Creature
 instance GEnum SFX
+
+instance Binary Creature
+instance Binary SFX

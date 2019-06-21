@@ -28,6 +28,7 @@ import qualified Heroes.Hex                                as Hex
 import qualified Data.Map.Strict                           as M
 import qualified Data.Set                                  as S
 import Control.Lens                                      (contains)
+import Data.List                                         (findIndex)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data WalkingResult
@@ -176,7 +177,16 @@ allMoves = do
 
 proceed :: P0
 proceed = do
-  #order %= nextS
+  t <- currentTeam
+  ts <- fmap M.keys $ (?!-) $ #participants
+  let
+    indexM = findIndex (== t) ts
+    nextT = indexM <&> \index -> ts `atMay` (index + 1 `mod` length ts)
+  --
+  case join nextT of
+    Nothing -> catastrophic
+    Just t' -> #currently . _1 .= t'
+  -- TODO support end of battle here?
   #phase .= Phase'Initial
 
 -- XXX copy-pasted from placingEmpty
@@ -324,8 +334,8 @@ considerTurningTowards fyr dfyr = do
     Nothing -> return ()
 
 currentTeam :: P Team
-currentTeam = (fst . currentS) <$> do
-  (?) $ #order
+currentTeam = fst <$> do
+  (?) $ #currently
 
 currentPlayerType :: P PlayerType
 currentPlayerType = do

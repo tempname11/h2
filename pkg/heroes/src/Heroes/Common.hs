@@ -59,3 +59,10 @@ data Annotation
   | Annotation'Selecting
   | Annotation'Thinking -- XXX does not belong here
   deriving (Eq, Ord, Show)
+
+instance Binary Team
+instance Binary Turn
+instance Binary Plane
+instance Binary Placing
+instance Binary Facing
+instance Binary Multiplacing

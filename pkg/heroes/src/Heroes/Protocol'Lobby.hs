@@ -2,22 +2,49 @@ module Heroes.Protocol'Lobby where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
+import Battle                                            (Battle)
+import Battle.Setup                                      (Setup)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Data.Binary                                       (Binary)
+import GHC.TypeLits                                      (Symbol)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-data MatchInfo = MatchInfo {
-  name :: Text
-} deriving (Generic)
+newtype ID (a :: Symbol) = ID Int 
+  deriving (Generic, Eq, Ord, Show)
 
-data Request
-  = Request'ListMatches
+data U
+  = U'ListCreatedMatches {
+    r'ID :: ID "Request"
+  }
+  | U'CreateMatch {
+    r'ID :: ID "Request"
+  }
+  | U'JoinMatch {
+    r'ID :: ID "Request",
+    m'ID :: ID "Match"
+  }
   deriving (Generic)
 
-data Response
-  = Response'Matches [MatchInfo]
+data D
+  = D'CreatedMatchesAre {
+    r'ID :: ID "Request",
+    matches :: [ID "Match"]
+  }
+  | D'MatchWasCreated {
+    r'ID :: ID "Request",
+    m'ID :: ID "Match"
+  }
+  | D'NoSuchMatch {
+    r'ID :: ID "Request"
+  }
+  | D'MatchWasStarted {
+    r'ID :: ID "Request",
+    m'ID :: ID "Match",
+    team :: Team,
+    setup :: Setup,
+    initialBattle :: Battle
+  }
   deriving (Generic)
 
-instance Binary MatchInfo
-instance Binary Request
-instance Binary Response
+instance Binary (ID a)
+instance Binary U
+instance Binary D

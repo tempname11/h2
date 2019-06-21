@@ -23,10 +23,6 @@ fromFighters fighters = (setup, battle)
       (blue, TeamAttr { playerType = AI })
     ]
   }
-  --
-  orderFrom :: Turn -> [Team] -> [Team] -> Stream (Team, Turn)
-  orderFrom turn [] again = orderFrom (turn + 1) again again
-  orderFrom turn (p : ps) again = Cons (p, turn) (orderFrom turn ps again)
   battle = Battle {
     fighters,
     obstacles = M.fromList [
@@ -38,7 +34,7 @@ fromFighters fighters = (setup, battle)
       )
     ],
     bodies = empty,
-    order = orderFrom (-1) [] (M.keys (setup ^. #participants)),
+    currently = (red, 0),
     phase = Phase'Initial
   }
 

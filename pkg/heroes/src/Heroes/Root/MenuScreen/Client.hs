@@ -8,7 +8,7 @@ import WSC
 import Control.Concurrent                                (threadDelay)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-listMatches :: WSC => IO (Async [MatchInfo])
+listMatches :: WSC => IO (Async [ID "Match"])
 listMatches = async $ do
   let
     host = "localhost"
@@ -16,6 +16,6 @@ listMatches = async $ do
     path = "/"
   threadDelay $ 1000 * 1000
   connect (ConnectionOptions {..}) $ \c -> do
-    sendEncoded c (Request'ListMatches)
-    Response'Matches ms <- recvDecoded c
+    sendEncoded c (U'ListCreatedMatches (ID 0))
+    D'CreatedMatchesAre _ ms <- recvDecoded c
     return ms

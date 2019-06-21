@@ -56,7 +56,7 @@ data Ability
   = Ability'Ranged
   | Ability'Flight
   --
-  deriving (Eq, Ord, Show)
+  deriving (Generic, Eq, Ord, Show)
 
 --------------------------------------------------------------------------------
 
@@ -87,8 +87,16 @@ data Battle = Battle {
   bodies :: Map FighterId BodyAttr,
   obstacles :: Map ObstacleId ObstacleAttr,
   phase :: Phase,
-  order :: Stream (Team, Turn)
+  currently :: (Team, Turn)
 } deriving (Generic)
+
+instance Binary Phase
+instance Binary Ability
+instance Binary FighterAttr
+instance Binary BodyAttr
+instance Binary ObstacleAttr
+instance Binary ObstacleId
+instance Binary Battle
 
 --------------------------------------------------------------------------------
 

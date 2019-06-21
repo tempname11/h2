@@ -19,3 +19,7 @@ data Setup = Setup {
   participants :: Map Team TeamAttr,
   field :: Set Hex
 } deriving (Generic, Show)
+
+instance Binary PlayerType
+instance Binary TeamAttr
+instance Binary Setup

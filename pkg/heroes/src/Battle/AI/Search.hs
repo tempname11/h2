@@ -69,7 +69,7 @@ result s (Branching b bs) = case bs of
   _ -> convert (maximumBy (comparing (heu . prediction . snd)) bs)
   where
   heu = heuristic team s
-  team = (fst . currentS) (b ^. #order)
+  team = fst (b ^. #currently)
   convert (moves, Result { bestMoves = futureMoves, prediction = p }) =
     Result {
       prediction = p,
