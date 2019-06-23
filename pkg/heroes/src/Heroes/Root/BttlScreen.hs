@@ -34,7 +34,6 @@ import qualified Heroes.Root.BttlScreen.Blackbox           as Blackbox
 import qualified Heroes.Root.BttlScreen.Core               as Core 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Data.Map.Strict                           as M
-import qualified Data.Unique                               as U
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Generic                       as GV
 import qualified Data.Vector.Storable                      as SV
@@ -50,34 +49,35 @@ data Deps = Deps {
 } deriving (Generic)
 
 type New =
-  J.B U.Unique ->
   J.B Loaded ->
   J.E Input.Full ->
-  J.Runtime (U.Unique, J.E Root.Out, J.E Root.Action)
+  J.E (J.E Root.Out, J.E Root.Action)
 
 new :: Deps -> New
-new (Deps {..}) unique'B loaded'B in'E = do
-  u <- liftIO $ U.newUnique
-  let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
-  core <- liftIO $ newIORef (Core.Data {
+new (Deps {..}) loaded'B in'E = do
+  -- TODO Behavior!
+  core <- J.affect $ newIORef (Core.Data {
     current = Current (setup, initialBattle),
     pastBattles = [],
     futureBattles = []
   })
-  animation <- liftIO $ newIORef (Scene {
+  -- TODO Behavior!
+  animation <- J.affect $ newIORef (Scene {
     actors = empty,
     props = empty,
     curtain = 1.0
   })
-  blackbox <- liftIO $ newIORef (Blackbox.Data {
+  -- TODO Behavior!
+  blackbox <- J.affect $ newIORef (Blackbox.Data {
     updateOrPlan = Left . AM.JumpTo $ initialBattle,
     frameNumber = 0,
     subframeNumber = 0
   })
   let
-    run fullInput = do
+    multi'E = do
+      fullInput <- in'E
       loaded <- J.sample loaded'B
-      liftIO $ do
+      J.affect $ do
         Blackbox.Out {..} <- Blackbox.run
           (Core.run core)
           blackbox
@@ -89,16 +89,14 @@ new (Deps {..}) unique'B loaded'B in'E = do
           drawCallback = mkDrawCallback (DrawIn { scene = scene1, .. })
         writeIORef animation scene1
         return (Root.Out { exit = False {- TODO -}, .. }, exit)
-  --
-  multi'E <- J.subscribe u in''E $ run
-  let
     out'E = multi'E <&> view _1
     exit'E = multi'E <&> view _2
-    action'E = J.justE $ exit'E <&> \case
-      True -> Just Root.Action'ExitScreen
-      False -> Nothing
+    action'E = do
+      exit'E >>= \case
+        True -> return Root.Action'ExitScreen
+        False -> mempty
   --
-  return (u, out'E, action'E)
+  return (out'E, action'E)
   
 data DrawIn = DrawIn {
   darkHexes :: V.Vector Hex,

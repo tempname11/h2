@@ -1,8 +1,9 @@
+{-# LANGUAGE RecursiveDo #-}
+{-# LANGUAGE RankNTypes #-}
 module Heroes.Root (
-  with,
+  new,
   Root,
   Deps(..),
-  Prov(..),
   module Heroes.Root.Common,
 ) where
 
@@ -15,21 +16,18 @@ import Heroes.Root.Common
 import Stage.Loading                                     (Loaded)
 import qualified Heroes.Input                              as Input
 import qualified Heroes.GFX                                as GFX
-import qualified Heroes.Root.BttlScreen                    as BttlScreen
-import qualified Heroes.Root.MenuScreen                    as MenuScreen
+import qualified Heroes.Root.BttlScreen                    as Bttl
+import qualified Heroes.Root.MenuScreen                    as Menu
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import qualified Data.Unique                               as U
 import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 data Root
   = Root'MenuScreen {
-    unique :: U.Unique,
     out'E :: J.E Out,
     action'E :: J.E Action
   }
   | Root'BttlScreen {
-    unique :: U.Unique,
     out'E :: J.E Out,
     action'E :: J.E Action
   }
@@ -42,57 +40,42 @@ data Deps = Deps {
   staticResources :: GFX.StaticResources
 } deriving (Generic)
 
-data Prov = Prov {
-  new :: J.E Input.Full -> J.B Loaded -> J.Runtime (J.E Out, J.B Bool)
-} deriving (Generic)
-
-with :: (WSC) => Deps -> With Prov
-with (Deps {..}) next =
-  MenuScreen.with (MenuScreen.Deps {..}) $ \menu -> do
+new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> J.B Loaded -> m (J.E Out, J.B Bool)
+new (Deps {..}) in'E loaded'B = mdo
+  let
+    run :: Action -> Root -> J.E Root
+    run action root = do
+      case action of
+        Action'ExitScreen ->
+          case root of
+            Root'MenuScreen {} -> return root
+            Root'BttlScreen {} -> do
+              (out'E, action'E) <- Menu.new (Menu.Deps {..}) in'E
+              return $ Root'MenuScreen {..}
+        Action'StartBattle {..} -> do
+          case root of
+            Root'BttlScreen {} -> return root
+            Root'MenuScreen {} -> do
+              (out'E, action'E) <-
+                Bttl.new (Bttl.Deps {..}) loaded'B in'E
+              --
+              return $ Root'BttlScreen {..}
+  --
+  initial <- do
+    (o, a) <- Menu.new (Menu.Deps {..}) in'E
+    return $ Root'MenuScreen o a
+  --
+  out''E <- mdo
+    b <- J.hold initial r
+    a <- J.sample (b <&> view #action'E)
+    o <- J.sample (b <&> view #out'E)
     let
-      new in'E loaded'B = fmap snd $ J.fixB $ \unique'B0 -> do
-        let
-          run :: Action -> Root -> J.Runtime Root
-          run action root = do
-            case action of
-              Action'ExitScreen ->
-                case root of
-                  Root'MenuScreen {} -> return root
-                  Root'BttlScreen {} -> do
-                    (unique, out'E, action'E) <-
-                      (menu ^. #new) unique'B0 in'E
-                    return $ Root'MenuScreen {..}
-              Action'StartBattle {..} -> do
-                case root of
-                  Root'BttlScreen {} -> return root
-                  Root'MenuScreen {} -> do
-                    (unique, out'E, action'E) <-
-                      BttlScreen.new
-                        (BttlScreen.Deps {..})
-                        unique'B0
-                        loaded'B
-                        in'E
-                    --
-                    return $ Root'BttlScreen {..}
-        --
-        initial <- do
-          (u, o, a) <- (menu ^. #new) unique'B0 in'E
-          return $ Root'MenuScreen u o a
-        --
-        (out'E, unique'B) <- fmap snd $ J.fixE $ \r0 -> do
-          b <- J.hold initial r0
-          let
-            a = J.switch (b <&> view #action'E)
-            o = J.switch (b <&> view #out'E)
-            u = b <&> view #unique
-          --
-          r <- J.subscribe () a $ \action -> do
-            root <- J.sample b
-            run action root
-          --
-          return (r, (o, u))
-        --
-        exit'B <- J.hold False $ out'E <&> \(Out {..}) -> exit
-        return (unique'B, (out'E, exit'B))
+      r =  do
+        action <- a
+        root <- J.sample b
+        run action root
     --
-    next (Prov {..})
+    return o
+  --
+  exit'B <- J.hold False $ out''E <&> \(Out {..}) -> exit
+  return (out''E, exit'B)

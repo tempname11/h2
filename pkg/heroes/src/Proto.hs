@@ -1,7 +1,7 @@
 module Proto where
 
 import Common
-import Reflex.Jumpstart2
+import Reflex.Jumpstart
 
 main' :: IO ()
 main' = do

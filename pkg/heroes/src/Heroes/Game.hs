@@ -41,26 +41,26 @@ main' = do
     LT.with (LT.Deps {..}) $ \(LT.Prov {..}) ->
     L.with (L.Deps {..}) $ \queryLoaded wishLoaded ->
     I.with (I.Deps {..}) $ \determineInput ->
-    Root.with (Root.Deps {..}) $ \rootProv ->
     do
-      (fullInput'E, fullInput'T) <- J.newEvent
-      (loaded'E, loaded'T) <- J.newEvent
-      exit'B <- J.run $ do
-        loaded'B <- J.hold L.emptyLoaded loaded'E
-        (out'E, exit'B) <- (rootProv ^. #new) fullInput'E loaded'B
-        _ <- J.subscribe () out'E $ \(Root.Out {..}) -> liftIO $ do
-            wishLoaded (L.WishIn {..})
-            playSounds (SND.In {..})
-            changeCursor (WND.In {..})
-            draw drawCallback
-        return exit'B
+      (fullInput'E, fullInput'T) <- J.extern
+      (loaded'E, loaded'T) <- J.extern
+      loaded'B <- J.hold L.emptyLoaded loaded'E
+      (out'E, exit'B) <- Root.new (Root.Deps {..}) fullInput'E loaded'B
+      let
+        io'E = out'E <&> \(Root.Out {..}) -> do
+          wishLoaded (L.WishIn {..})
+          playSounds (SND.In {..})
+          changeCursor (WND.In {..})
+          draw drawCallback
         --
+      io'B <- J.hold (return ()) io'E
       fix $ \again -> do
         load
         L.QueryOut {..} <- queryLoaded
-        J.fire [loaded'T J.==> loaded]
+        J.fire [loaded'T loaded]
         I.Out {..} <- determineInput
-        J.fire [fullInput'T J.==> fullInput]
-        exit <- J.run $ J.sample exit'B
+        J.fire [fullInput'T fullInput]
+        join $ J.sample io'B
+        exit <- J.sample exit'B
         waitForVsync
         when (not exit) again

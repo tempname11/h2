@@ -1,7 +1,7 @@
+{-# LANGUAGE RecursiveDo #-}
 module Heroes.Root.MenuScreen (
   Deps(..),
-  Prov(..),
-  with
+  new
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
@@ -18,7 +18,6 @@ import qualified Heroes.Root.Common                        as Root
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Data.Text.Encoding                                (encodeUtf8)
 import qualified Data.Text                                 as T
-import qualified Data.Unique                               as U
 import qualified Data.Vector                               as V
 import qualified Reflex.Jumpstart                          as J
 import qualified Control.Concurrent.Async                  as Async
@@ -28,22 +27,10 @@ data Deps = Deps {
   staticResources :: GFX.StaticResources
 } deriving (Generic)
 
-type New =
-  J.B U.Unique ->
-  J.E Input.Full ->
-  J.Runtime (U.Unique, J.E Root.Out, J.E Root.Action)
-
-data Prov = Prov {
-  new :: New 
-} deriving (Generic)
-
 data Self
   = Self'Title
   | Self'Lobby (Async [ID "Match"])
   deriving (Generic)
-
-with :: (WSC) => Deps -> With Prov
-with deps next = next (Prov { new = new' deps })
 
 emptyOut :: Root.Out
 emptyOut = Root.Out {
@@ -97,17 +84,17 @@ viewportCenter :: Point V2 Float
 viewportCenter = P $ (<§>) viewportSize * 0.5
 
 boolE :: J.E Bool -> J.E ()
-boolE e = J.justE $ e <&> \case
-  True -> Just ()
-  False -> Nothing
+boolE e = do
+  e >>= \case
+    False -> mempty
+    True -> return ()
 
-new' :: (WSC) => Deps -> New
-new' (Deps {..}) unique'B in'E = do
-  u <- liftIO $ U.newUnique
-  let in''E = J.gate (unique'B <&> \u' -> u == u') in'E
-  fmap snd $ J.fixE $ \self'E0 -> do
-    self'B <- J.hold Self'Title self'E0
-    multi'E <- J.subscribe u in''E $ \fullInput -> do
+new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> m (J.E Root.Out, J.E Root.Action)
+new (Deps {..}) in'E = mdo
+  self'B <- J.hold Self'Title self'E
+  let
+    multi'E = do
+      fullInput <- in'E
       self <- J.sample self'B
       case self of
         Self'Title -> do
@@ -148,7 +135,7 @@ new' (Deps {..}) unique'B in'E = do
           --
           return (out, start, Nothing, False)
         Self'Lobby lm -> do
-          p <- liftIO $ Async.poll lm
+          p <- J.affect $ Async.poll lm
           let
             str :: Text
             str = case p of
@@ -200,20 +187,22 @@ new' (Deps {..}) unique'B in'E = do
               & #drawCallback .~ drawCallback
           --
           return (out, False, create, back)
-    --
-    let
-      out'E = multi'E <&> view _1
-      start'E = boolE $ multi'E <&> view _2
-      create'E = J.justE $ multi'E <&> view _3
-      back'E = boolE $ multi'E <&> view _4
-    --
-    toLobby'E <- J.subscribe () start'E $ \_ -> do
-      lm <- liftIO $ listMatches
+  --
+  let
+    out'E = multi'E <&> view _1
+    start'E = boolE $ multi'E <&> view _2
+    create'E = multi'E <&> view _3
+    back'E = boolE $ multi'E <&> view _4
+    toLobby'E = do
+      start'E
+      lm <- J.affect $ listMatches
       return $ Self'Lobby lm
     --
-    let
-      toTitle'E = back'E <&> \_ -> Self'Title
-      self'E = toLobby'E <> toTitle'E
-      action'E = create'E
-    --
-    return (self'E, (u, out'E, action'E))
+    toTitle'E = back'E <&> \_ -> Self'Title
+    self'E = toLobby'E <> toTitle'E
+    action'E = do
+      create'E >>= \case
+        Just x -> return x
+        Nothing -> mempty
+  --
+  return (out'E, action'E)

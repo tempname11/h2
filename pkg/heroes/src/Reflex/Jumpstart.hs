@@ -1,28 +1,15 @@
-{-# LANGUAGE RecursiveDo #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 module Reflex.Jumpstart (
   E,
   B,
-  Trigger,
-  Runtime,
-  Firing,
-  justE,
-  gate,
-  hold,
-  fixB,
-  fixE,
-  sample,
-  switch,
-  sampling,
-  coincidence,
-  subscribe,
-  newEvent,
-  run,
-  fire,
-  (==>)
+  Network(..),
+  extern,
+  fire
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Monad
+import Control.Monad.Fix
 import Control.Monad.IO.Class
 import Data.Dependent.Sum                                (DSum((:=>)))
 import Data.Maybe
@@ -33,24 +20,17 @@ import qualified Reflex                                    as R
 import qualified Reflex.Host.Class                         as RH
 import qualified Reflex.Spider                             as RS
 import qualified Reflex.Spider.Internal                    as RI
-import qualified Reflex.Spider.Addenum                     as RA
+import System.IO.Unsafe                                  (unsafePerformIO)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 type Gx = R.Global
 type Gt = R.SpiderTimeline R.Global
 
-newtype Runtime x = Runtime {
-  unRuntime :: RI.EventM Gx x
-} deriving (Functor, Applicative, Monad, MonadIO)
-
-newtype Trigger x = Trigger {
-  unTrigger :: IORef (Maybe (RH.EventTrigger Gt x))
+newtype T x = T {
+  unT :: IORef (Maybe (RH.EventTrigger Gt x))
 }
 
-data Firing = forall x. Firing (Trigger x) x
-
-(==>) :: Trigger x -> x -> Firing
-(==>) = Firing
+data F = forall x. F (T x) x
 
 newtype E x = E { unE :: (R.Event Gt x) }
   deriving (Functor)
@@ -58,68 +38,67 @@ newtype E x = E { unE :: (R.Event Gt x) }
 newtype B x = B { unB :: (R.Behavior Gt x) }
   deriving (Functor, Applicative, Monad)
 
+instance Applicative E where
+  pure x = const x <$> frame
+  (<*>) (E f) (E e) = E $ R.coincidence (fmap (($ e) . fmap) f)
+
+instance Monad E where
+  (>>=) (E e) f = E $ R.coincidence (unE <$> fmap f e)
+
+instance MonadFix E where
+  mfix f = fix (>>= f)
+
+-- TODO switch to Alternative
 instance Monoid (E x) where
   mempty = E R.never
   mappend (E l) (E r) = E (R.leftmost [l, r])
 
--- hmm
-justE :: E (Maybe x) -> E x
-justE (E e) = E $ R.fmapMaybeCheap id e
+class MonadFix m => Network m where
+  sample :: B x -> m x
+  hold :: x -> E x -> m (B x)
+  affect :: IO x -> m x
 
-gate :: B Bool -> E x -> E x
-gate (B b) (E e) = E $ R.gate b e
+instance Network IO where
+  sample (B b) = RS.runSpiderHost $ R.sample b
+  hold x (E e) = fmap B $ RS.runSpiderHost $ R.hold x e
+  affect m = m
 
-hold :: x -> E x -> Runtime (B x)
-hold x (E e) = Runtime $ B <$> R.hold x e
+instance Network E where
+  sample (B b) = E $ R.pushAlways (\_ -> R.sample b) (unE frame)
+  hold x (E e) = E . (fmap B) $ R.pushAlways (\_ -> R.hold x e) (unE frame)
+  affect m = E $ R.pushAlways (\_ -> liftIO m) (unE frame)
 
--- hmmmmmm
-fixE :: (E x -> Runtime (E x, y)) -> Runtime (E x, y)
-fixE f = Runtime $ mdo
-  (e, y) <- unRuntime $ f e
-  return (e, y)
-
--- hmm
-fixB :: (B x -> Runtime (B x, y)) -> Runtime (B x, y)
-fixB f = Runtime $ mdo
-  (b, y) <- unRuntime $ f b
-  return (b, y)
-
-sample :: B x -> Runtime x
-sample (B b) = Runtime $ R.sample b
-
-sampling :: E (B x) -> E x
-sampling (E e) = E $ R.pushCheap (\(B b) -> Just <$> R.sample b) e
-
-switch :: B (E x) -> E x
-switch (B b) = E $ R.switch (fmap unE b)
-
-coincidence :: E (E x) -> E x
-coincidence (E e) = E $ R.coincidence (fmap unE e)
-
-subscribe :: w -> E x -> (x -> Runtime y) -> Runtime (E y)
-subscribe w (E e) f =
-  Runtime $
-    E . RI.SpiderEvent <$>
-      RA.subscribeEffect w
-        (RI.unSpiderEvent e)
-        (unRuntime . f)
-
-newEvent :: IO (E x, Trigger x)
-newEvent = RS.runSpiderHost $ do
+frameTuple :: (E (), () -> F, RH.EventHandle Gt ())
+frameTuple = unsafePerformIO $ RS.runSpiderHost $ do
   (e, r) <- RH.newEventWithTriggerRef
-  return (E e, Trigger r)
+  h <- RH.subscribeEvent e
+  return (E e, \x -> F (T r) x, h)
 
-fire :: [Firing] -> IO ()
-fire fs = RS.runSpiderHost $ do
-  events <- for fs $ \(Firing (Trigger r) x) -> do
-    mt <- liftIO $ readIORef r
-    return $ case mt of
-      Just t -> Just (t :=> pure x)
-      Nothing -> Nothing
-  --
-  RH.fireEvents (catMaybes events)
+frame :: E ()
+frame = (\(e, _, _) -> e) frameTuple
 
-run :: Runtime x -> IO x
-run (Runtime m) =
+frameT :: () -> F
+frameT = (\(_, t, _) -> t) frameTuple
+
+frameSubHandle :: RH.EventHandle Gt ()
+frameSubHandle = (\(_, _, h) -> h) frameTuple
+
+extern :: IO (E x, x -> F)
+extern = RS.runSpiderHost $ do
+  (e, r) <- RH.newEventWithTriggerRef
+  return (E e, \x -> F (T r) x)
+
+fire :: [F] -> IO ()
+fire fs =
+  seq frameSubHandle $
   RS.runSpiderHost $
-    RI.runFrame m
+  do
+    let
+      fs' = (frameT () : fs)
+    --
+    events <- for fs' $ \(F (T r) x) -> do
+      mt <- liftIO $ readIORef r
+      return $ case mt of
+        Just t -> Just (t :=> pure x)
+        Nothing -> Nothing
+    RH.fireEvents (catMaybes events) 
