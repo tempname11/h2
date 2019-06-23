@@ -1,4 +1,3 @@
-{-# LANGUAGE RecursiveDo #-}
 module Heroes.Root.MenuScreen (
   Deps(..),
   new
@@ -88,121 +87,122 @@ boolE e = do
   e >>= \case
     False -> mempty
     True -> return ()
-
+  
 new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> m (J.E Root.Out, J.E Root.Action)
-new (Deps {..}) in'E = mdo
-  self'B <- J.hold Self'Title self'E
-  let
-    multi'E = do
-      fullInput <- in'E
-      self <- J.sample self'B
-      case self of
-        Self'Title -> do
-          let
-            Input.Full {..} = fullInput
+new (Deps {..}) in'E = do
+  (_, result) <- J.holdFix Self'Title $ \self'B ->
+    let
+      multi'E = do
+        fullInput <- in'E
+        self <- J.sample self'B
+        case self of
+          Self'Title -> do
+            let
+              Input.Full {..} = fullInput
+              --
+              startButton :: SimpleButton
+              startButton =
+                simpleButton
+                  (SBDeps {..})
+                  (viewportCenter .-^ (V2 0 32))
+                  "Start"
+              --
+              exitButton :: SimpleButton
+              exitButton =
+                simpleButton
+                  (SBDeps {..})
+                  (viewportCenter .+^ (V2 0 32))
+                  "Exit"
+              --
+              drawCallback _ _ text _ _ = do
+                text $ \draw -> do
+                  void $ draw (startButton ^. #cmd)
+                  void $ draw (exitButton ^. #cmd)
+              --
+              start =
+                keyUp Input.Key'Enter ||
+                startButton ^. #pressed
+              --
+              exit =
+                quitEvent ||
+                keyUp Input.Key'Escape ||
+                exitButton ^. #pressed
+              --
+              out = emptyOut
+                & #drawCallback .~ drawCallback
+                & #exit .~ exit
             --
-            startButton :: SimpleButton
-            startButton =
-              simpleButton
-                (SBDeps {..})
-                (viewportCenter .-^ (V2 0 32))
-                "Start"
+            return (out, start, Nothing, False)
+          Self'Lobby lm -> do
+            p <- J.affect $ Async.poll lm
+            let
+              str :: Text
+              str = case p of
+                Nothing -> "Nothing"
+                Just (Left _) -> "Exception"
+                Just (Right ms) -> T.intercalate " " $
+                  ms <&> T.pack . show
+              --
+              Input.Full {..} = fullInput
+              --
+              createButton :: SimpleButton
+              createButton =
+                simpleButton
+                  (SBDeps {..})
+                  (viewportCenter .-^ (V2 0 64))
+                  "Create"
+              --
+              itemButton :: SimpleButton
+              itemButton =
+                simpleButton
+                  (SBDeps {..})
+                  viewportCenter
+                  str
+              --
+              backButton :: SimpleButton
+              backButton =
+                simpleButton
+                  (SBDeps {..})
+                  (viewportCenter .+^ (V2 0 64))
+                  "Back"
+              --
+              create = Nothing
+              {-
+                keyUp Input.Key'Enter ||
+                createButton ^. #pressed
+              -}
+              --
+              back =
+                keyUp Input.Key'Escape ||
+                backButton ^. #pressed
+              --
+              drawCallback _ _ text _ _ = do
+                text $ \draw -> do
+                  void $ draw (createButton ^. #cmd)
+                  void $ draw (itemButton ^. #cmd)
+                  void $ draw (backButton ^. #cmd)
+              --
+              out = emptyOut
+                & #drawCallback .~ drawCallback
             --
-            exitButton :: SimpleButton
-            exitButton =
-              simpleButton
-                (SBDeps {..})
-                (viewportCenter .+^ (V2 0 32))
-                "Exit"
-            --
-            drawCallback _ _ text _ _ = do
-              text $ \draw -> do
-                void $ draw (startButton ^. #cmd)
-                void $ draw (exitButton ^. #cmd)
-            --
-            start =
-              keyUp Input.Key'Enter ||
-              startButton ^. #pressed
-            --
-            exit =
-              quitEvent ||
-              keyUp Input.Key'Escape ||
-              exitButton ^. #pressed
-            --
-            out = emptyOut
-              & #drawCallback .~ drawCallback
-              & #exit .~ exit
-          --
-          return (out, start, Nothing, False)
-        Self'Lobby lm -> do
-          p <- J.affect $ Async.poll lm
-          let
-            str :: Text
-            str = case p of
-              Nothing -> "Nothing"
-              Just (Left _) -> "Exception"
-              Just (Right ms) -> T.intercalate " " $
-                ms <&> T.pack . show
-            --
-            Input.Full {..} = fullInput
-            --
-            createButton :: SimpleButton
-            createButton =
-              simpleButton
-                (SBDeps {..})
-                (viewportCenter .-^ (V2 0 64))
-                "Create"
-            --
-            itemButton :: SimpleButton
-            itemButton =
-              simpleButton
-                (SBDeps {..})
-                viewportCenter
-                str
-            --
-            backButton :: SimpleButton
-            backButton =
-              simpleButton
-                (SBDeps {..})
-                (viewportCenter .+^ (V2 0 64))
-                "Back"
-            --
-            create = Nothing
-            {-
-              keyUp Input.Key'Enter ||
-              createButton ^. #pressed
-            -}
-            --
-            back =
-              keyUp Input.Key'Escape ||
-              backButton ^. #pressed
-            --
-            drawCallback _ _ text _ _ = do
-              text $ \draw -> do
-                void $ draw (createButton ^. #cmd)
-                void $ draw (itemButton ^. #cmd)
-                void $ draw (backButton ^. #cmd)
-            --
-            out = emptyOut
-              & #drawCallback .~ drawCallback
-          --
-          return (out, False, create, back)
+            return (out, False, create, back)
+      --
+      out'E = multi'E <&> view _1
+      start'E = boolE $ multi'E <&> view _2
+      create'E = multi'E <&> view _3
+      back'E = boolE $ multi'E <&> view _4
+      toLobby'E = do
+        start'E
+        lm <- J.affect $ listMatches
+        return $ Self'Lobby lm
+      --
+      toTitle'E = back'E <&> \_ -> Self'Title
+      self'E = toLobby'E <> toTitle'E
+      action'E = do
+        create'E >>= \case
+          Just x -> return x
+          Nothing -> mempty
+      --
+    in (self'E, (out'E, action'E))
   --
-  let
-    out'E = multi'E <&> view _1
-    start'E = boolE $ multi'E <&> view _2
-    create'E = multi'E <&> view _3
-    back'E = boolE $ multi'E <&> view _4
-    toLobby'E = do
-      start'E
-      lm <- J.affect $ listMatches
-      return $ Self'Lobby lm
-    --
-    toTitle'E = back'E <&> \_ -> Self'Title
-    self'E = toLobby'E <> toTitle'E
-    action'E = do
-      create'E >>= \case
-        Just x -> return x
-        Nothing -> mempty
-  --
-  return (out'E, action'E)
+  return result

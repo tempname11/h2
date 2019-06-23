@@ -1,4 +1,3 @@
-{-# LANGUAGE RecursiveDo #-}
 {-# LANGUAGE RankNTypes #-}
 module Heroes.Root (
   new,
@@ -41,7 +40,7 @@ data Deps = Deps {
 } deriving (Generic)
 
 new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> J.B Loaded -> m (J.E Out, J.B Bool)
-new (Deps {..}) in'E loaded'B = mdo
+new (Deps {..}) in'E loaded'B = do
   let
     run :: Action -> Root -> J.E Root
     run action root = do
@@ -65,17 +64,22 @@ new (Deps {..}) in'E loaded'B = mdo
     (o, a) <- Menu.new (Menu.Deps {..}) in'E
     return $ Root'MenuScreen o a
   --
-  out''E <- mdo
-    b <- J.hold initial r
-    a <- J.sample (b <&> view #action'E)
-    o <- J.sample (b <&> view #out'E)
-    let
-      r =  do
-        action <- a
-        root <- J.sample b
-        run action root
+  out'E <- do
+    (_, o) <- J.holdFix initial $ \b ->
+      let
+        a = b <&> view #action'E
+        o = b <&> view #out'E
+        r = do
+          action <- join $ J.sample a
+          root <- J.sample b
+          run action root
+      --
+      in (r, o)
     --
-    return o
+    return $ join $ J.sample o
   --
-  exit'B <- J.hold False $ out''E <&> \(Out {..}) -> exit
-  return (out''E, exit'B)
+  exit'B <- J.hold False $ do
+    Out {..} <- out'E
+    return exit
+  --
+  return (out'E, exit'B)

@@ -1,3 +1,4 @@
+{-# LANGUAGE RecursiveDo #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 module Reflex.Jumpstart (
   E,
@@ -9,7 +10,6 @@ module Reflex.Jumpstart (
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Monad
-import Control.Monad.Fix
 import Control.Monad.IO.Class
 import Data.Dependent.Sum                                (DSum((:=>)))
 import Data.Maybe
@@ -45,27 +45,39 @@ instance Applicative E where
 instance Monad E where
   (>>=) (E e) f = E $ R.coincidence (unE <$> fmap f e)
 
-instance MonadFix E where
-  mfix f = fix (>>= f)
-
 -- TODO switch to Alternative
 instance Monoid (E x) where
   mempty = E R.never
   mappend (E l) (E r) = E (R.leftmost [l, r])
 
-class MonadFix m => Network m where
+class Monad m => Network m where
   sample :: B x -> m x
   hold :: x -> E x -> m (B x)
+  -- XXX
+  holdFix :: x -> (B x -> (E x, y)) -> m (B x, y)
   affect :: IO x -> m x
 
 instance Network IO where
   sample (B b) = RS.runSpiderHost $ R.sample b
   hold x (E e) = fmap B $ RS.runSpiderHost $ R.hold x e
+  -- XXX
+  holdFix x f = RS.runSpiderHost $ mdo
+    let (E e, y) = f (B b)
+    rec b <- R.hold x e
+    return (B b, y)
   affect m = m
 
 instance Network E where
   sample (B b) = E $ R.pushAlways (\_ -> R.sample b) (unE frame)
   hold x (E e) = E . (fmap B) $ R.pushAlways (\_ -> R.hold x e) (unE frame)
+  -- XXX
+  holdFix x f = E $ R.pushAlways
+    (\_ -> mdo
+      let (E e, y) = f (B b)
+      rec b <- R.hold x e
+      return (B b, y)
+    )
+    (unE frame)
   affect m = E $ R.pushAlways (\_ -> liftIO m) (unE frame)
 
 frameTuple :: (E (), () -> F, RH.EventHandle Gt ())
