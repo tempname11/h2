@@ -18,7 +18,7 @@ instance SND where
   freeChunk = Mix.free
   --
   with _ next = do
-    ref <- newIORef empty
+    ref <- newIORef vacant
     Mix.initialize [Mix.InitMP3]
     Mix.openAudio def 256
     let

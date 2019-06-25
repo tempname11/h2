@@ -50,8 +50,8 @@ type Maps =
 with :: Deps -> (IO QueryOut -> (WishIn -> IO ()) -> IO a) -> IO a
 with (Deps {..}) next = do
   let (wishChan, loadedChan) = loadingChannels
-  requestsRef <- newIORef empty
-  qref <- newIORef (empty, empty)
+  requestsRef <- newIORef vacant
+  qref <- newIORef (vacant, vacant)
   next (queryLoaded qref loadedChan) (wishLoaded requestsRef wishChan)
 
 emptyLoaded :: Loaded

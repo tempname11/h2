@@ -108,4 +108,4 @@ processedMovement (setup, battle) =
              in
                M (M.filterWithKey notInBase peacefulUnion) conflict
           Narrow _ -> M peaceful conflict
-    Nothing -> M empty empty
+    Nothing -> M vacant vacant

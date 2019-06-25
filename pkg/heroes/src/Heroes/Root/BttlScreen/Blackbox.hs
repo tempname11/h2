@@ -91,7 +91,7 @@ run core ref (In {..}) = do
   let
     (updateOrPlan', loadRequests) =
       case cmds of
-        Just _ -> (updateOrPlan, empty)
+        Just _ -> (updateOrPlan, vacant)
         Nothing ->
           let
             realUpdate =
@@ -103,7 +103,7 @@ run core ref (In {..}) = do
             -- until resources are loaded
             case Plan.make loaded essentials realUpdate of
               Left l -> (Left realUpdate, l)
-              Right p -> (Right p, empty)
+              Right p -> (Right p, vacant)
   --
   writeIORef ref $
     Data {

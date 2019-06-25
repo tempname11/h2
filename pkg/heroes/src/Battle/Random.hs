@@ -37,7 +37,7 @@ instance Arbitrary F where
           speed,
           attack, 
           defence,
-          abilities = empty,
+          abilities = vacant,
           facing
         }
     return $ F creature attr

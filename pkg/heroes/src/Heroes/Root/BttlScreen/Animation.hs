@@ -41,7 +41,7 @@ applyAll :: V.Vector Command -> Scene -> Scene
 applyAll cs s = foldr' apply s cs
 
 apply :: Command -> Scene -> Scene
-apply RemoveAll = set #actors empty >>> set #props empty
+apply RemoveAll = set #actors vacant >>> set #props vacant
 apply (SetCurtainOpacity x) = set #curtain x
 apply (PC o c) = case c of
   PAdd a ->

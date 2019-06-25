@@ -33,7 +33,7 @@ fromFighters fighters = (setup, battle)
         }
       )
     ],
-    bodies = empty,
+    bodies = vacant,
     currently = (red, 0),
     phase = Phase'Initial
   }
@@ -45,7 +45,7 @@ blue :: Team
 blue = Team 2
 
 zero :: (Setup, Battle)
-zero = fromFighters empty
+zero = fromFighters vacant
 
 one :: (Setup, Battle)
 one = fromFighters $ M.fromList [

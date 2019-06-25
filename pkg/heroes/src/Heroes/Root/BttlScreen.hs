@@ -63,8 +63,8 @@ new (Deps {..}) loaded'B in'E = do
   })
   -- TODO Behavior!
   animation <- J.affect $ newIORef (Scene {
-    actors = empty,
-    props = empty,
+    actors = vacant,
+    props = vacant,
     curtain = 1.0
   })
   -- TODO Behavior!
@@ -94,7 +94,7 @@ new (Deps {..}) loaded'B in'E = do
     action'E = do
       exit'E >>= \case
         True -> return Root.Action'ExitScreen
-        False -> mempty
+        False -> empty
   --
   return (out'E, action'E)
   

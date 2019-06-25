@@ -33,8 +33,8 @@ data Created = Created {
 
 main' :: IO ()
 main' = do
-  connByID'R <- newIORef empty -- TODO weak map
-  createdByID'R <- newIORef empty
+  connByID'R <- newIORef vacant -- TODO weak map
+  createdByID'R <- newIORef vacant
   genMatchID <- newGen (ID @ "Match")
   genClientID <- newGen (ID @ "Client")
   WS.runServer "0.0.0.0" lobbyPort $ \pending -> do

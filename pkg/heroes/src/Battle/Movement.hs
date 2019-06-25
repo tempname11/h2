@@ -37,7 +37,7 @@ data Situation = S Battle Placing Int [Move]
 --------------------------------------------------------------------------------
 
 m0 :: Movement
-m0 = M empty empty
+m0 = M vacant vacant
 
 insertMissing :: Ord k => k -> a -> M.Map k a -> M.Map k a
 insertMissing = M.insertWith (\_ a -> a)
@@ -55,7 +55,7 @@ movement initialMoves (s, b0) =
   of
     Just (PM.Node { currentPlacing,  points }, b) ->
       fst $
-        (m0, A empty) & repeatedlyExplore [S b currentPlacing points initialMoves]
+        (m0, A vacant) & repeatedlyExplore [S b currentPlacing points initialMoves]
     Nothing -> m0
   where
   --

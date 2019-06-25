@@ -36,7 +36,7 @@ emptyOut = Root.Out {
   drawCallback = \_ _ _ _ _ -> return (),
   soundCommands = V.empty,
   intent = Nothing,
-  loadRequests = empty,
+  loadRequests = vacant,
   exit = False
 }
 
@@ -84,7 +84,7 @@ viewportCenter = P $ (<§>) viewportSize * 0.5
 
 gate :: Bool -> J.E ()
 gate = \case
-  False -> mempty
+  False -> empty
   True -> return ()
   
 new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> m (J.E Root.Out, J.E Root.Action)
@@ -131,7 +131,7 @@ new (Deps {..}) in'E = do
                 & #drawCallback .~ drawCallback
                 & #exit .~ exit
             --
-            return (out, start, mempty)
+            return (out, start, empty)
           Self'Lobby lm -> do
             p <- J.affect $ Async.poll lm
             let
@@ -184,7 +184,7 @@ new (Deps {..}) in'E = do
               out = emptyOut
                 & #drawCallback .~ drawCallback
             --
-            return (out, mempty, back)
+            return (out, empty, back)
       --
       out'E = multi'E <&> view _1
       start'E = join $ multi'E <&> view _2
@@ -195,8 +195,8 @@ new (Deps {..}) in'E = do
         return $ Self'Lobby lm
       --
       toTitle'E = back'E <&> \_ -> Self'Title
-      self'E = toLobby'E <> toTitle'E
-      action'E = mempty
+      self'E = toLobby'E <|> toTitle'E
+      action'E = empty
       --
     in (self'E, (out'E, action'E))
   --

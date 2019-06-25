@@ -9,6 +9,7 @@ module Reflex.Jumpstart (
 ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+import Control.Applicative
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Dependent.Sum                                (DSum((:=>)))
@@ -45,10 +46,9 @@ instance Applicative E where
 instance Monad E where
   (>>=) (E e) f = E $ R.coincidence (unE <$> fmap f e)
 
--- TODO switch to Alternative
-instance Monoid (E x) where
-  mempty = E R.never
-  mappend (E l) (E r) = E (R.leftmost [l, r])
+instance Alternative E where
+  empty = E R.never
+  (<|>) (E l) (E r) = E (R.leftmost [l, r])
 
 class Monad m => Network m where
   sample :: B x -> m x

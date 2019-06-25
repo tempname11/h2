@@ -119,31 +119,31 @@ class LikeSet a where
   type LikeKey a :: *
   notElem :: LikeKey a -> a -> Bool
   elem    :: LikeKey a -> a -> Bool
-  empty   :: a
+  vacant  :: a
 
 instance Eq v => LikeSet [v] where
   type LikeKey [v] = v
   notElem = P.notElem
   elem = P.elem
-  empty = []
+  vacant = []
 
 instance LikeSet (I.IntMap v) where
   type LikeKey (I.IntMap v) = Int
   notElem = I.notMember
   elem = I.member
-  empty = I.empty
+  vacant = I.empty
 
 instance Ord k => LikeSet (S.Set k) where
   type LikeKey (S.Set k) = k
   notElem = S.notMember
   elem = S.member
-  empty = S.empty
+  vacant = S.empty
 
 instance Ord k => LikeSet (M.Map k v) where
   type LikeKey (M.Map k v) = k
   notElem = M.notMember
   elem = M.member
-  empty = M.empty
+  vacant = M.empty
 
 -- XXX deprecated: partial
 class Bang a where
