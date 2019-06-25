@@ -82,11 +82,10 @@ simpleButton (SBDeps {..}) center string = SimpleButton {..}
 viewportCenter :: Point V2 Float
 viewportCenter = P $ (<§>) viewportSize * 0.5
 
-boolE :: J.E Bool -> J.E ()
-boolE e = do
-  e >>= \case
-    False -> mempty
-    True -> return ()
+gate :: Bool -> J.E ()
+gate = \case
+  False -> mempty
+  True -> return ()
   
 new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> m (J.E Root.Out, J.E Root.Action)
 new (Deps {..}) in'E = do
@@ -119,11 +118,11 @@ new (Deps {..}) in'E = do
                   void $ draw (startButton ^. #cmd)
                   void $ draw (exitButton ^. #cmd)
               --
-              start =
+              start = gate $
                 keyUp Input.Key'Enter ||
                 startButton ^. #pressed
               --
-              exit =
+              exit = -- gate $
                 quitEvent ||
                 keyUp Input.Key'Escape ||
                 exitButton ^. #pressed
@@ -132,7 +131,7 @@ new (Deps {..}) in'E = do
                 & #drawCallback .~ drawCallback
                 & #exit .~ exit
             --
-            return (out, start, Nothing, False)
+            return (out, start, mempty)
           Self'Lobby lm -> do
             p <- J.affect $ Async.poll lm
             let
@@ -166,13 +165,13 @@ new (Deps {..}) in'E = do
                   (viewportCenter .+^ (V2 0 64))
                   "Back"
               --
-              create = Nothing
               {-
+              create =
                 keyUp Input.Key'Enter ||
                 createButton ^. #pressed
               -}
               --
-              back =
+              back = gate $
                 keyUp Input.Key'Escape ||
                 backButton ^. #pressed
               --
@@ -185,12 +184,11 @@ new (Deps {..}) in'E = do
               out = emptyOut
                 & #drawCallback .~ drawCallback
             --
-            return (out, False, create, back)
+            return (out, mempty, back)
       --
       out'E = multi'E <&> view _1
-      start'E = boolE $ multi'E <&> view _2
-      create'E = multi'E <&> view _3
-      back'E = boolE $ multi'E <&> view _4
+      start'E = join $ multi'E <&> view _2
+      back'E = join $ multi'E <&> view _3
       toLobby'E = do
         start'E
         lm <- J.affect $ listMatches
@@ -198,10 +196,7 @@ new (Deps {..}) in'E = do
       --
       toTitle'E = back'E <&> \_ -> Self'Title
       self'E = toLobby'E <> toTitle'E
-      action'E = do
-        create'E >>= \case
-          Just x -> return x
-          Nothing -> mempty
+      action'E = mempty
       --
     in (self'E, (out'E, action'E))
   --
