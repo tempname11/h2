@@ -17,4 +17,4 @@ import GHCJS.Concurrent                                  (withoutPreemption)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 main' :: IO ()
-main' = withoutPreemption Game.main'
+main' = withoutPreemption Game.main' 

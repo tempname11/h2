@@ -3,3 +3,6 @@
 /.web-root
 /.production-assets
 .DS_Store
+/dist-newstyle
+/cabal.project
+/cabal.project.freeze

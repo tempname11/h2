@@ -15,4 +15,4 @@ instance (
     Functor f,
     lens ~ ((a -> f a) -> s -> f s)
   ) => IsLabel l lens where
-  fromLabel _ = field' @ l
+  fromLabel = field' @ l
