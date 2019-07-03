@@ -87,7 +87,10 @@ gate = \case
   False -> empty
   True -> return ()
   
-new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> m (J.E Root.Out, J.E Root.Action)
+new :: (WSC, J.Sample m, J.Hold m, Monad m) =>
+  Deps ->
+  J.E Input.Full ->
+  m (J.E Root.Out, J.E Root.Action)
 new (Deps {..}) in'E = do
   (_, result) <- J.holdFix Self'Title $ \self'B ->
     let
