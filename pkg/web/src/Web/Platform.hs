@@ -7,14 +7,12 @@ import Heroes.Platform
 import Web
 import Web.Image ()
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Control.Concurrent                                (forkIO)
 import JavaScript.Web.Canvas                             (Image)
 import qualified Data.JSString                             as JSString
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
 instance Platform where
   productionPrefix = "../.production-assets/"
-  forkPreferred = forkIO
   --
   loadImage path = do
     img <- newImage

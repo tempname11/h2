@@ -7,9 +7,7 @@ import Native.Image ()
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import qualified Codec.Picture                             as Juicy
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
-import Control.Concurrent                                (forkIO)
 
 instance Platform where
   productionPrefix = ".production-assets/"
-  forkPreferred = forkIO
   loadImage = Juicy.readPng
