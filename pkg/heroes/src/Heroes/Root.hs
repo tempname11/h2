@@ -39,11 +39,7 @@ data Deps = Deps {
   staticResources :: GFX.StaticResources
 } deriving (Generic)
 
-new :: (WSC, J.Sample m, J.Hold m, Monad m) =>
-  Deps ->
-  J.E Input.Full ->
-  J.B Loaded ->
-  m (J.E Out, J.B Bool)
+new :: (WSC, J.Network m) => Deps -> J.E Input.Full -> J.B Loaded -> m (J.E Out, J.B Bool)
 new (Deps {..}) in'E loaded'B = do
   let
     run :: Action -> Root -> J.E Root

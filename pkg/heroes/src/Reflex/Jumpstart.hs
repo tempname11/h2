@@ -3,10 +3,7 @@
 module Reflex.Jumpstart (
   E,
   B,
-  F,
-  Hold(..),
-  Sample(..),
-  Affect(..),
+  Network(..),
   extern,
   fire
 ) where
@@ -14,10 +11,8 @@ module Reflex.Jumpstart (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Control.Applicative
 import Control.Monad
-import Control.Monad.Trans                               (lift)
 import Control.Monad.IO.Class
 import Data.Dependent.Sum                                (DSum((:=>)))
-import Data.Functor.Identity                             (Identity(..))
 import Data.Maybe
 import Data.Traversable
 import Data.IORef
@@ -38,11 +33,9 @@ newtype T x = T {
 
 data F = forall x. F (T x) x
 
--- TODO rename (Ev?)
 newtype E x = E { unE :: (R.Event Gt x) }
   deriving (Functor)
 
--- TODO rename (Be?)
 newtype B x = B { unB :: (R.Behavior Gt x) }
   deriving (Functor, Applicative, Monad)
 
@@ -57,40 +50,25 @@ instance Alternative E where
   empty = E R.never
   (<|>) (E l) (E r) = E (R.leftmost [l, r])
 
-class Sample m where
+class Monad m => Network m where
   sample :: B x -> m x
-
-class Hold m where
   hold :: x -> E x -> m (B x)
+  -- XXX
   holdFix :: x -> (B x -> (E x, y)) -> m (B x, y)
-
-class Affect m where
   affect :: IO x -> m x
 
-instance Hold B where
-  hold x (E e) = B $
-    R.pull $
-      fmap (B . RI.SpiderBehavior . RI.behaviorHoldIdentity) $
-        RI.SpiderPullM $
-          RI.hold x $
-            RI.unSpiderEvent (Identity <$> e)
-  holdFix = undefined -- TODO
-
-instance Sample IO where
+instance Network IO where
   sample (B b) = RS.runSpiderHost $ R.sample b
-
-instance Hold IO where
   hold x (E e) = fmap B $ RS.runSpiderHost $ R.hold x e
   -- XXX
   holdFix x f = RS.runSpiderHost $ mdo
     let (E e, y) = f (B b)
     rec b <- R.hold x e
     return (B b, y)
+  affect m = m
 
-instance Sample E where
+instance Network E where
   sample (B b) = E $ R.pushAlways (\_ -> R.sample b) (unE frame)
-
-instance Hold E where
   hold x (E e) = E . (fmap B) $ R.pushAlways (\_ -> R.hold x e) (unE frame)
   -- XXX
   holdFix x f = E $ R.pushAlways
@@ -100,12 +78,7 @@ instance Hold E where
       return (B b, y)
     )
     (unE frame)
-
-instance Affect E where
   affect m = E $ R.pushAlways (\_ -> liftIO m) (unE frame)
-
-instance Affect B where
-  affect m = B $ R.pull $ RI.SpiderPullM $ RI.BehaviorM $ lift $ m
 
 frameTuple :: (E (), () -> F, RH.EventHandle Gt ())
 frameTuple = unsafePerformIO $ RS.runSpiderHost $ do

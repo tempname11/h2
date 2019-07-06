@@ -8,62 +8,56 @@ import qualified Control.Concurrent                        as C
 import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-type Ev = J.E
-type Be = J.B
-
 reconnectDelayUs :: Int
 reconnectDelayUs = 1000 * 1000
 
 data VConn u d = VConn {
-  up :: u -> Ev (),
-  down :: Ev d
+  up :: C.MVar u,
+  down :: C.MVar d
 } deriving (Generic)
 
 vconn ::
-  (WSC.WSC, Binary u, Binary d) =>
+  (Binary u, Binary d) =>
   WSC.ConnectionOptions ->
-  IO (Be (Maybe (VConn u d)))
+  IO (E (Maybe (VConn u d)))
 vconn opts = do
   (e, f) <- J.extern
-  b <- J.hold Nothing e
-  void $ C.forkIO $ fix $ \again -> do
-    sendM <- C.newEmptyMVar
+  forkIO $ fix $ \again -> do
+    u <- C.newEmptyMVar
+    d <- C.newEmptyMVar
     WSC.connect opts $ \conn -> do
-      (down, fd) <- J.extern
-      let
-        up = J.affect . C.putMVar sendM
-      --
       J.fire [f $ Just $ VConn { up, down }]
-      void $ C.forkIO $ recvThread fd conn
+      C.forkIO $ recvThread recvM conn
       sendThread sendM conn
     J.fire [f Nothing]
     C.threadDelay reconnectDelayUs
     again
-  return b
+  return e
 
-sendThread :: (WSC.WSC, Binary u) => C.MVar u -> WSC.Connection -> IO ()
+sendThread :: (Binary u) => C.MVar u -> WSC.Connection -> IO ()
 sendThread sendM conn = fix $ \again -> do
-  u <- C.takeMVar sendM
-  WSC.sendEncoded conn u
+  u <- C.takeMVar
+  WSC.sendEncoded u
   again
     
-recvThread :: (WSC.WSC, Binary d) => (d -> J.F) -> WSC.Connection -> IO ()
-recvThread f conn = fix $ \again -> do
+recvThread :: (Binary d) => C.MVar d -> WSC.Connection -> IO ()
+recvThread conn = fix $ \again -> do
   d <- WSC.recvDecoded conn
-  J.fire [f d]
+  C.putMVar recvM d
   again
 
-vctx :: Be (Maybe a) -> (a -> IO (Be (Maybe b))) -> Be (Maybe b)
-vctx ba f = do
-  ba >>= \case
+vctx :: E (Maybe b) -> (a -> E (Maybe b)) -> E (Maybe b)
+vctx f ea = do
+  ea >>= \case
     Nothing -> return Nothing
-    Just a -> join $ J.affect $ f a
+    Just a -> f a
 
 {-
-bv <- vconn opts
-vctx bv $ \VConn ({ up, down }) -> do
+ev <- vconn opts
+vctx ev $ \VConn ({ up, down }) -> do
   up SomeCmd
   down >>= case
     WhatWeNeed -> ...
     _ -> empty
 -}
+
