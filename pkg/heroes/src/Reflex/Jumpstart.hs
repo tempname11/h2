@@ -3,6 +3,7 @@
 module Reflex.Jumpstart (
   E,
   B,
+  F,
   Network(..),
   extern,
   fire
