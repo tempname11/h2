@@ -5,7 +5,6 @@ module Reflex.Jumpstart (
   B,
   F,
   Network(..),
-  extern,
   fire
 ) where
 
@@ -57,6 +56,7 @@ class Monad m => Network m where
   -- XXX
   holdFix :: x -> (B x -> (E x, y)) -> m (B x, y)
   affect :: IO x -> m x
+  extern :: m (E x, x -> F)
 
 instance Network IO where
   sample (B b) = RS.runSpiderHost $ R.sample b
@@ -67,6 +67,9 @@ instance Network IO where
     rec b <- R.hold x e
     return (B b, y)
   affect m = m
+  extern = RS.runSpiderHost $ do
+    (e, r) <- RH.newEventWithTriggerRef
+    return (E e, \x -> F (T r) x)
 
 instance Network E where
   sample (B b) = E $ R.pushAlways (\_ -> R.sample b) (unE frame)
@@ -80,6 +83,13 @@ instance Network E where
     )
     (unE frame)
   affect m = E $ R.pushAlways (\_ -> liftIO m) (unE frame)
+  extern = 
+    E $ R.pushAlways
+      (\_ -> RI.SpiderPushM $ RI.runSpiderHostFrame $ do
+        (e, r) <- RH.newEventWithTriggerRef
+        return (E e, \x -> F (T r) x)
+      )
+      (unE frame)
 
 frameTuple :: (E (), () -> F, RH.EventHandle Gt ())
 frameTuple = unsafePerformIO $ RS.runSpiderHost $ do
@@ -95,11 +105,6 @@ frameT = (\(_, t, _) -> t) frameTuple
 
 frameSubHandle :: RH.EventHandle Gt ()
 frameSubHandle = (\(_, _, h) -> h) frameTuple
-
-extern :: IO (E x, x -> F)
-extern = RS.runSpiderHost $ do
-  (e, r) <- RH.newEventWithTriggerRef
-  return (E e, \x -> F (T r) x)
 
 fire :: [F] -> IO ()
 fire fs =

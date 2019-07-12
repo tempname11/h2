@@ -8,13 +8,10 @@ import qualified Control.Concurrent                        as C
 import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 
-type Ev = J.E
-type Be = J.B
-
 reconnectDelayUs :: Int
 reconnectDelayUs = 1000 * 1000
 
-data VConn u d = VConn {
+data Conn u d = Conn {
   up :: u -> IO (),
   down :: Ev d
 } deriving (Generic)
@@ -22,24 +19,24 @@ data VConn u d = VConn {
 vconn ::
   (WSC.WSC, Binary u, Binary d) =>
   WSC.ConnectionOptions ->
-  IO (Be (Maybe (VConn u d)))
+  IO (Ev (Maybe (Conn u d)))
 vconn opts = do
   (e, f) <- J.extern
-  b <- J.hold Nothing e
   void $ C.forkIO $ fix $ \again -> do
     sendM <- C.newEmptyMVar
+    -- TODO catch errors?
     WSC.connect opts $ \conn -> do
       (down, fd) <- J.extern
       let
         up = C.putMVar sendM
       --
-      J.fire [f $ Just $ VConn { up, down }]
+      J.fire [f $ Just $ Conn { up, down }]
       void $ C.forkIO $ recvThread fd conn
       sendThread sendM conn
     J.fire [f Nothing]
     C.threadDelay reconnectDelayUs
     again
-  return b
+  return e
 
 sendThread :: (WSC.WSC, Binary u) => C.MVar u -> WSC.Connection -> IO ()
 sendThread sendM conn = fix $ \again -> do

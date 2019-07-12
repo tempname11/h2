@@ -6,7 +6,7 @@ module Heroes.Root.MenuScreen (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
 import Heroes
 import Heroes.Protocol'Lobby
-import Heroes.Root.MenuScreen.Client
+--import Heroes.Root.MenuScreen.Client
 import Heroes.Font                                       (Font(..))
 import Heroes.UI                                         (viewportSize)
 import qualified Heroes.Color                              as Color
@@ -191,7 +191,8 @@ new (Deps {..}) in'E = do
       back'E = join $ multi'E <&> view _3
       toLobby'E = do
         start'E
-        lm <- J.affect $ listMatches
+        lm <- undefined
+        --lm <- J.affect $ listMatches
         return $ Self'Lobby lm
       --
       toTitle'E = back'E <&> \_ -> Self'Title

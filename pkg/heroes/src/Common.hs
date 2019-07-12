@@ -1,4 +1,5 @@
 module Common (
+  module Common,
   module Common.FFree,
   module Common.Misc,
   module Common.With,
@@ -276,4 +277,8 @@ import Safe                                              (atMay)
 import Control.Monad.IO.Class                            (liftIO)
 import Control.Concurrent.Async                          (async)
 import Control.Concurrent.Async                          (Async)
+import qualified Reflex.Jumpstart                          as J
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * -- *
+
+type Ev = J.E
+type Be = J.B
